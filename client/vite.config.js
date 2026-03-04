@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'chub-logo.svg'],
+      includeAssets: ['favicon.png', 'church_logo.jpeg'],
       manifest: {
         name: 'CHub - Church Management',
         short_name: 'CHub',
@@ -22,19 +22,19 @@ export default defineConfig({
         categories: ['education', 'lifestyle'],
         icons: [
           {
-            src: '/chub-logo.svg',
+            src: '/church_logo.jpeg',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/jpeg'
           },
           {
-            src: '/chub-logo.svg',
+            src: '/church_logo.jpeg',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/jpeg'
           },
           {
-            src: '/chub-logo-social.svg',
+            src: '/church_logo.jpeg',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/jpeg',
             purpose: 'any maskable'
           }
         ]

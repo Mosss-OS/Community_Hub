@@ -150,8 +150,8 @@ export default function GivePage() {
   const predefinedAmounts = [25, 50, 100, 250, 500];
 
   return (
-    <div className="min-h-screen bg-background pb-12 md:pb-20">
-      <div className="relative py-12 md:py-20 overflow-hidden">
+    <div className="min-h-screen bg-background pb-16 md:pb-24">
+      <div className="relative py-16 md:py-28 overflow-hidden">
         <div className="absolute inset-0">
           <img 
             src="/card-verticle.avif" 
@@ -160,48 +160,48 @@ export default function GivePage() {
           />
         </div>
         <div className="absolute inset-0 bg-white/40" />
-        <div className="container px-3 md:px-4 text-center relative z-10">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold mb-4 md:mb-6 text-gray-900">
+        <div className="container px-6 md:px-8 text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-5 md:mb-8 text-gray-900">
             Generosity
           </h1>
-          <p className="text-base md:text-xl text-gray-700 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mb-5">
             "Each of you should give what you have decided in your heart to
             give, not reluctantly or under compulsion, for God loves a cheerful
             giver."
           </p>
-          <p className="mt-3 md:mt-4 text-gray-600 text-sm md:text-base">2 Corinthians 9:7</p>
+          <p className="mt-4 text-gray-600 text-base md:text-lg">2 Corinthians 9:7</p>
         </div>
       </div>
 
-      <div className="container px-3 md:px-4 mt-10 md:mt-20 relative z-10">
-        <Tabs defaultValue="give" className="space-y-6">
+      <div className="container px-6 md:px-8 mt-12 md:mt-20 relative z-10">
+        <Tabs defaultValue="give" className="space-y-8">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="give">Give</TabsTrigger>
             <TabsTrigger value="campaigns">
-              <Target className="w-4 h-4 mr-2" />
+              <Target className="w-5 h-5 mr-2" />
               Campaigns
             </TabsTrigger>
             <TabsTrigger value="history">
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-5 h-5 mr-2" />
               History
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="give" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+          <TabsContent value="give" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
               <div className="lg:col-span-7">
                 <Card className="shadow-xl border-none">
-                  <CardHeader className="pb-3 md:pb-4">
-                    <CardTitle className="text-xl md:text-2xl">Make a Donation</CardTitle>
-                    <CardDescription className="text-sm md:text-base">
+                  <CardHeader className="pb-5">
+                    <CardTitle className="text-2xl md:text-3xl">Make a Donation</CardTitle>
+                    <CardDescription className="text-base md:text-lg">
                       Secure, simple, and impactful.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Tabs defaultValue="one-time" onValueChange={setGivingType}>
-                      <TabsList className="grid w-full grid-cols-2 mb-6 md:mb-8">
-                        <TabsTrigger value="one-time" className="text-sm md:text-base">One-Time</TabsTrigger>
-                        <TabsTrigger value="recurring" className="text-sm md:text-base">Recurring</TabsTrigger>
+                      <TabsList className="grid w-full grid-cols-2 mb-8">
+                        <TabsTrigger value="one-time" className="text-base md:text-lg">One-Time</TabsTrigger>
+                        <TabsTrigger value="recurring" className="text-base md:text-lg">Recurring</TabsTrigger>
                       </TabsList>
 
                       <Form {...form}>

@@ -140,18 +140,18 @@ export default function SermonsPage() {
   }, [sermonTopics.topics]);
 
   return (
-    <div className="min-h-screen bg-background pb-12 md:pb-20">
+    <div className="min-h-screen bg-background pb-16 md:pb-24">
       {/* Header */}
-      <div className="bg-secondary/30 py-10 md:py-16 border-b border-border">
-        <div className="container px-3 md:px-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-secondary/30 py-16 md:py-24 border-b border-border">
+        <div className="container px-6 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
             <div>
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold mb-2 md:mb-4">Sermon Library</h1>
-              <p className="text-base md:text-xl text-muted-foreground max-w-2xl">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold mb-3 md:mb-5">Sermon Library</h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
                 Explore our collection of messages to help you grow in your faith journey.
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button 
                 variant="outline" 
                 onClick={() => setShowAISearch(!showAISearch)}
@@ -171,20 +171,20 @@ export default function SermonsPage() {
         </div>
       </div>
 
-      <div className="container px-3 md:px-4 py-6 md:py-10">
+      <div className="container px-6 md:px-8 py-10 md:py-14">
         {/* AI Search Panel */}
         {showAISearch && (
-          <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
+          <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-600" />
                 Smart Search
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Keyword Search</label>
+                  <label className="text-sm font-medium mb-2 block">Keyword Search</label>
                   <Input 
                     placeholder="Search by topic, title, keyword..." 
                     value={searchQuery}
@@ -192,7 +192,7 @@ export default function SermonsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Bible Verse</label>
+                  <label className="text-sm font-medium mb-2 block">Bible Verse</label>
                   <Input 
                     placeholder="e.g., John 3:16" 
                     value={verseSearch}
@@ -200,12 +200,12 @@ export default function SermonsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Topic</label>
+                  <label className="text-sm font-medium mb-2 block">Topic</label>
                   <Select onValueChange={(value) => handleFilterChange("topic", value)}>
                     <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select topic" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white">
+                    <SelectContent className="bg-white border-gray-200 shadow-xl">
                       {uniqueTopics.map((topic) => (
                         <SelectItem key={topic} value={topic}>{topic}</SelectItem>
                       ))}
@@ -213,7 +213,7 @@ export default function SermonsPage() {
                   </Select>
                 </div>
               </div>
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-3 mt-5">
                 <Button onClick={handleAdvancedSearch}>
                   <Search className="w-4 h-4 mr-2" />
                   Search
@@ -240,27 +240,27 @@ export default function SermonsPage() {
               </DialogTitle>
             </DialogHeader>
             {loadingRecommendations ? (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-10">
                 <Loader2 className="w-8 h-8 animate-spin" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-96 overflow-y-auto">
                 {recommendations.map(sermon => (
                   <Card key={sermon.id} className="cursor-pointer hover:bg-slate-50" onClick={() => {
                     setShowRecommendations(false);
                     window.location.href = `/sermons/${sermon.id}`;
                   }}>
-                    <CardContent className="pt-4">
+                    <CardContent className="pt-5">
                       <h4 className="font-medium line-clamp-1">{sermon.title}</h4>
                       <p className="text-sm text-muted-foreground">{sermon.speaker}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-sm text-muted-foreground mt-1.5">
                         {new Date(sermon.date).toLocaleDateString()}
                       </p>
                     </CardContent>
                   </Card>
                 ))}
                 {recommendations.length === 0 && (
-                  <p className="text-muted-foreground col-span-2 text-center py-4">
+                  <p className="text-muted-foreground col-span-2 text-center py-6">
                     No recommendations available yet. Watch some sermons to get personalized suggestions!
                   </p>
                 )}
@@ -270,7 +270,7 @@ export default function SermonsPage() {
         </Dialog>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 md:mb-10">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-5 mb-8 md:mb-12">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input 
@@ -315,13 +315,13 @@ export default function SermonsPage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => (
-              <div key={i} className="space-y-3 md:space-y-4">
+              <div key={i} className="space-y-4 md:space-y-5">
                 <Skeleton className="aspect-video rounded-xl" />
-                <Skeleton className="h-5 md:h-6 w-3/4" />
-                <Skeleton className="h-3 md:h-4 w-1/2" />
+                <Skeleton className="h-6 md:h-7 w-3/4" />
+                <Skeleton className="h-4 md:h-5 w-1/2" />
               </div>
             ))
           ) : (
@@ -332,10 +332,10 @@ export default function SermonsPage() {
         </div>
 
         {filteredSermons?.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No sermons found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+          <div className="text-center py-16">
+            <BookOpen className="w-14 h-14 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-medium mb-2">No sermons found</h3>
+            <p className="text-base text-muted-foreground">Try adjusting your search or filters</p>
           </div>
         )}
       </div>

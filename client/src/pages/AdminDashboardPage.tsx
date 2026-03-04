@@ -62,6 +62,36 @@ function BrandingForm({ branding, onSubmit, isLoading }: { branding: Branding | 
     facebookUrl: branding?.facebookUrl || "",
     twitterUrl: branding?.twitterUrl || "",
   });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingLogo(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+        credentials: 'include',
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setFormData(prev => ({ ...prev, logoUrl: data.url }));
+      } else {
+        alert('Failed to upload logo');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,8 +165,36 @@ function BrandingForm({ branding, onSubmit, isLoading }: { branding: Branding | 
       </div>
 
       <div>
-        <Label htmlFor="logoUrl">Logo URL</Label>
-        <Input id="logoUrl" value={formData.logoUrl} onChange={e => setFormData({...formData, logoUrl: e.target.value})} placeholder="https://..." />
+        <Label>Church Logo</Label>
+        <div className="flex items-start gap-4 mt-2">
+          <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
+            {formData.logoUrl ? (
+              <img src={formData.logoUrl} alt="Logo preview" className="w-full h-full object-contain" />
+            ) : (
+              <span className="text-xs text-gray-400 text-center p-2">No logo</span>
+            )}
+          </div>
+          <div className="flex-1">
+            <Input 
+              type="file" 
+              accept="image/*"
+              onChange={handleLogoUpload}
+              disabled={uploadingLogo}
+              className="mb-2"
+            />
+            <p className="text-xs text-gray-500">Upload a logo (recommended: 200x200px, PNG or JPG)</p>
+            {uploadingLogo && <p className="text-xs text-blue-500 mt-1">Uploading...</p>}
+          </div>
+        </div>
+        <div className="mt-2">
+          <Label htmlFor="logoUrl">Or paste Logo URL</Label>
+          <Input 
+            id="logoUrl" 
+            value={formData.logoUrl} 
+            onChange={e => setFormData({...formData, logoUrl: e.target.value})} 
+            placeholder="https://..." 
+          />
+        </div>
       </div>
 
       <div className="border-t pt-4 mt-4">

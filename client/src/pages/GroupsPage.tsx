@@ -144,12 +144,12 @@ export default function GroupsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="container mx-auto px-6 py-10">
+        <div className="animate-pulse space-y-5">
+          <div className="h-10 bg-gray-200 rounded w-1/4"></div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-40 bg-gray-200 rounded"></div>
+              <div key={i} className="h-52 bg-gray-200 rounded-2xl"></div>
             ))}
           </div>
         </div>
@@ -158,11 +158,11 @@ export default function GroupsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto px-6 py-10 md:py-14">
+      <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Groups</h1>
-          <p className="text-gray-600 mt-1">Connect with community groups</p>
+          <h1 className="text-4xl font-bold text-gray-900">Groups</h1>
+          <p className="text-gray-600 mt-2 text-lg">Connect with community groups</p>
         </div>
         
         {user?.isAdmin && (

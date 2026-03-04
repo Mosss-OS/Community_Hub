@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useUnreadCount } from "@/hooks/use-messages";
 import { useLanguage } from "@/hooks/use-language";
+import { useBranding } from "@/hooks/use-branding";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ export function Navbar() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const { data: unreadCount } = useUnreadCount();
+  const { data: branding } = useBranding();
   const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -72,15 +74,15 @@ export function Navbar() {
           : "bg-white border-b border-slate-100"
       }`}
     >
-      <div className="max-w-8xl mx-auto px-6 h-16 md:h-18 flex items-center justify-between">
+      <div className="max-w-8xl mx-auto px-6 md:px-8 h-16 md:h-18 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <img 
-            src="/chub-logo.svg" 
-            alt="CHub" 
-            className="h-9 md:h-10 w-auto"
+            src={branding?.logoUrl || "/church_logo.jpeg"} 
+            alt={branding?.churchName || "CHub"} 
+            className="h-9 md:h-10 w-auto rounded-full object-contain"
           />
           <span className="hidden sm:block text-base font-semibold text-slate-900">
-            CHub
+            {branding?.churchName || "CHub"}
           </span>
         </Link>
 
@@ -279,9 +281,9 @@ export function Navbar() {
                 <div className="flex items-center justify-between p-5 border-b border-slate-100">
                   <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
                     <img 
-                      src="/chub-logo.svg" 
+                      src="/church_logo.jpeg" 
                       alt="CHub" 
-                      className="h-8 w-auto"
+                      className="h-8 w-auto rounded-full object-contain"
                     />
                     <span className="font-semibold text-slate-900">
                       CHub

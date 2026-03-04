@@ -28,23 +28,23 @@ export default function EventsPage() {
   }) || [];
 
   return (
-    <div className="min-h-screen bg-background pb-12 md:pb-20">
-      <div className="bg-secondary/30 py-10 md:py-16 border-b border-border">
-        <div className="container px-3 md:px-4">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold mb-2 md:mb-4">Events Calendar</h1>
-          <p className="text-base md:text-xl text-muted-foreground max-w-2xl">
+    <div className="min-h-screen bg-background pb-16 md:pb-24">
+      <div className="bg-secondary/30 py-16 md:py-24 border-b border-border">
+        <div className="container px-6 md:px-8">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold mb-3 md:mb-5">Events Calendar</h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
             Get involved and connect with others at one of our upcoming gatherings.
           </p>
         </div>
       </div>
 
-      <div className="container px-3 md:px-4 py-6 md:py-10">
-        <div className="flex flex-col lg:flex-row gap-6 md:gap-10">
+      <div className="container px-6 md:px-8 py-10 md:py-14">
+        <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
           {/* Main List */}
-          <div className="flex-1 space-y-4 md:space-y-6">
+          <div className="flex-1 space-y-6 md:space-y-8">
             {/* Category Filter */}
             {categories && categories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-3 mb-6">
                 <Button
                   variant={selectedCategory === null ? "default" : "outline"}
                   size="sm"
@@ -68,31 +68,33 @@ export default function EventsPage() {
               </div>
             )}
             
-            <h2 className="text-xl md:text-2xl font-display font-bold mb-4 md:mb-6">
+            <h2 className="text-2xl md:text-3xl font-display font-bold mb-6 md:mb-8">
               {selectedCategory ? `${selectedCategory} Events` : 'Upcoming Events'}
-              <span className="text-muted-foreground font-normal text-lg ml-2">({filteredEvents.length})</span>
+              <span className="text-muted-foreground font-normal text-lg ml-3">({filteredEvents.length})</span>
             </h2>
             {isLoading ? (
               Array(3).fill(0).map((_, i) => (
-                <Skeleton key={i} className="h-48 md:h-64 w-full rounded-xl" />
+                <Skeleton key={i} className="h-56 md:h-72 w-full rounded-xl" />
               ))
             ) : filteredEvents.length > 0 ? (
-              filteredEvents.map(event => (
-                <EventCard key={event.id} event={event} />
-              ))
+              <div className="space-y-6 md:space-y-8">
+                {filteredEvents.map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
+              <div className="text-center py-16 text-muted-foreground">
                 <p className="text-lg">No events found{selectedCategory ? ` in ${selectedCategory}` : ''}.</p>
-                <p className="text-sm mt-2">Check back soon for upcoming events!</p>
+                <p className="text-base mt-2">Check back soon for upcoming events!</p>
               </div>
             )}
           </div>
 
           {/* Sidebar */}
-          <div className="w-full lg:w-[300px] md:lg:w-[350px] space-y-6 md:space-y-8">
+          <div className="w-full lg:w-[320px] md:lg:w-[380px] space-y-8 md:space-y-10">
             <Card>
-              <CardHeader className="pb-3 md:pb-4">
-                <CardTitle className="text-lg md:text-xl">Calendar View</CardTitle>
+              <CardHeader className="pb-4 md:pb-5">
+                <CardTitle className="text-xl md:text-2xl">Calendar View</CardTitle>
               </CardHeader>
               <CardContent>
                 <Calendar
@@ -106,13 +108,13 @@ export default function EventsPage() {
             {/* Category List in Sidebar */}
             {categories && categories.length > 0 && (
               <Card>
-                <CardHeader className="pb-3 md:pb-4">
-                  <CardTitle className="text-lg md:text-xl">Categories</CardTitle>
+                <CardHeader className="pb-4 md:pb-5">
+                  <CardTitle className="text-xl md:text-2xl">Categories</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-2.5">
                   <button
                     onClick={() => setSelectedCategory(null)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                    className={`w-full text-left px-4 py-3 rounded-lg text-base transition-colors ${
                       selectedCategory === null ? 'bg-primary text-white' : 'hover:bg-secondary'
                     }`}
                   >
@@ -124,13 +126,13 @@ export default function EventsPage() {
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.name)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${
+                        className={`w-full text-left px-4 py-3 rounded-lg text-base transition-colors flex items-center justify-between ${
                           selectedCategory === cat.name ? 'text-white' : 'hover:bg-secondary'
                         }`}
                         style={selectedCategory === cat.name ? { backgroundColor: cat.color } : {}}
                       >
                         <span>{cat.name}</span>
-                        <span className={`text-xs ${selectedCategory === cat.name ? 'text-white/80' : 'text-muted-foreground'}`}>
+                        <span className={`text-sm ${selectedCategory === cat.name ? 'text-white/80' : 'text-muted-foreground'}`}>
                           {count}
                         </span>
                       </button>
@@ -140,12 +142,12 @@ export default function EventsPage() {
               </Card>
             )}
             
-            <div className="bg-primary/5 p-4 md:p-6 rounded-xl border border-primary/10">
-              <h3 className="font-bold text-base md:text-lg mb-1.5 md:mb-2">Host a Small Group?</h3>
-              <p className="text-sm text-muted-foreground mb-3 md:mb-4">
+            <div className="bg-primary/5 p-6 md:p-8 rounded-xl border border-primary/10">
+              <h3 className="font-bold text-lg md:text-xl mb-2 md:mb-3">Host a Small Group?</h3>
+              <p className="text-base text-muted-foreground mb-4 md:mb-5">
                 We're always looking for new leaders to host community groups.
               </p>
-              <button className="text-sm font-semibold text-primary hover:underline">
+              <button className="text-base font-semibold text-primary hover:underline">
                 Learn More &rarr;
               </button>
             </div>

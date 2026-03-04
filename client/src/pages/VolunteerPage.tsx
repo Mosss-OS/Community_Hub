@@ -140,12 +140,12 @@ export default function VolunteerPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="container mx-auto px-6 py-10">
+        <div className="animate-pulse space-y-5">
+          <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-64 bg-gray-200 rounded"></div>
+              <div key={i} className="h-72 bg-gray-200 rounded"></div>
             ))}
           </div>
         </div>
@@ -156,22 +156,22 @@ export default function VolunteerPage() {
   // Only show page if there are active opportunities OR user is admin
   if (activeOpportunities.length === 0 && !isAdmin) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-600 mb-2">No Volunteer Opportunities</h2>
-          <p className="text-gray-500">Check back later for volunteer opportunities in our community.</p>
+      <div className="container mx-auto px-6 py-12">
+        <div className="text-center py-16">
+          <Users className="w-20 h-20 mx-auto text-gray-300 mb-5" />
+          <h2 className="text-3xl font-bold text-gray-600 mb-3">No Volunteer Opportunities</h2>
+          <p className="text-gray-500 text-lg">Check back later for volunteer opportunities in our community.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto px-6 py-10 md:py-14">
+      <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Volunteer</h1>
-          <p className="text-gray-600 mt-1">Serve our community and grow in faith together</p>
+          <h1 className="text-4xl font-bold text-gray-900">Volunteer</h1>
+          <p className="text-gray-600 mt-2 text-lg">Serve our community and grow in faith together</p>
         </div>
         
         {isAdmin && (
@@ -265,38 +265,38 @@ export default function VolunteerPage() {
 
       {/* User's Assignments */}
       {assignments && assignments.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
+        <div className="mb-10">
+          <h2 className="text-2xl font-semibold mb-5 flex items-center">
+            <CheckCircle className="w-6 h-6 mr-2.5 text-green-600" />
             My Volunteer Assignments
           </h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {assignments.map(assignment => {
               const opp = opportunities?.find(o => o.id === assignment.opportunityId);
               if (!opp) return null;
               return (
                 <Card key={assignment.id} className="border-l-4 border-l-green-500">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">{opp.title}</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-xl">{opp.title}</CardTitle>
                     <Badge variant={assignment.status === "confirmed" ? "default" : "secondary"}>
                       {assignment.status}
                     </Badge>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-2.5 text-base">
                       <div className="flex items-center text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2" />
+                        <Calendar className="w-5 h-5 mr-2.5" />
                         {format(parseISO(opp.date), "MMM d, yyyy 'at' h:mm a")}
                       </div>
                       {opp.location && (
                         <div className="flex items-center text-gray-600">
-                          <MapPin className="w-4 h-4 mr-2" />
+                          <MapPin className="w-5 h-5 mr-2.5" />
                           {opp.location}
                         </div>
                       )}
                       {assignment.hoursWorked > 0 && (
                         <div className="flex items-center text-gray-600">
-                          <Clock className="w-4 h-4 mr-2" />
+                          <Clock className="w-5 h-5 mr-2.5" />
                           {assignment.hoursWorked} hours logged
                         </div>
                       )}
@@ -311,19 +311,19 @@ export default function VolunteerPage() {
 
       {/* Available Opportunities */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <Users className="w-5 h-5 mr-2" />
+        <h2 className="text-2xl font-semibold mb-5 flex items-center">
+          <Users className="w-6 h-6 mr-2.5" />
           Available Opportunities
         </h2>
         
         {activeOpportunities.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-gray-500">No volunteer opportunities available at the moment.</p>
+            <CardContent className="py-10 text-center">
+              <p className="text-gray-500 text-lg">No volunteer opportunities available at the moment.</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {activeOpportunities.map(opportunity => {
               const spotsLeft = opportunity.spotsAvailable ? opportunity.spotsAvailable - opportunity.spotsFilled : null;
               const isSignedUp = myOpportunityIds.includes(opportunity.id);
@@ -332,7 +332,7 @@ export default function VolunteerPage() {
                 <Card key={opportunity.id} className={isSignedUp ? "border-primary" : ""}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{opportunity.title}</CardTitle>
+                      <CardTitle className="text-xl">{opportunity.title}</CardTitle>
                       {spotsLeft !== null && (
                         <Badge variant={spotsLeft > 0 ? "default" : "destructive"}>
                           {spotsLeft} spots left
@@ -340,54 +340,54 @@ export default function VolunteerPage() {
                       )}
                     </div>
                     {opportunity.description && (
-                      <CardDescription>{opportunity.description}</CardDescription>
+                      <CardDescription className="text-base mt-2">{opportunity.description}</CardDescription>
                     )}
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2 text-sm mb-4">
+                    <div className="space-y-2.5 text-base mb-5">
                       <div className="flex items-center text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2" />
+                        <Calendar className="w-5 h-5 mr-2.5" />
                         {format(parseISO(opportunity.date), "EEEE, MMM d 'at' h:mm a")}
                       </div>
                       {opportunity.duration && (
                         <div className="flex items-center text-gray-600">
-                          <Clock className="w-4 h-4 mr-2" />
+                          <Clock className="w-5 h-5 mr-2.5" />
                           {opportunity.duration} minutes
                         </div>
                       )}
                       {opportunity.location && (
                         <div className="flex items-center text-gray-600">
-                          <MapPin className="w-4 h-4 mr-2" />
+                          <MapPin className="w-5 h-5 mr-2.5" />
                           {opportunity.location}
                         </div>
                       )}
                       <div className="flex items-center text-gray-600">
-                        <Users className="w-4 h-4 mr-2" />
+                        <Users className="w-5 h-5 mr-2.5" />
                         {opportunity.spotsFilled} / {opportunity.spotsAvailable || "∞"} volunteers
                       </div>
                     </div>
                     
                     {user ? (
                       isSignedUp ? (
-                        <Button disabled className="w-full bg-green-600">
-                          <CheckCircle className="w-4 h-4 mr-2" />
+                        <Button disabled className="w-full bg-green-600 py-3">
+                          <CheckCircle className="w-5 h-5 mr-2" />
                           Signed Up
                         </Button>
                       ) : spotsLeft !== null && spotsLeft <= 0 ? (
-                        <Button disabled className="w-full">
+                        <Button disabled className="w-full py-3">
                           No Spots Available
                         </Button>
                       ) : (
                         <Button
                           onClick={() => signUpMutation.mutate(opportunity.id)}
                           disabled={signingUpId !== null}
-                          className="w-full"
+                          className="w-full py-3"
                         >
                           {signingUpId === opportunity.id ? "Signing up..." : "Sign Up to Volunteer"}
                         </Button>
                       )
                     ) : (
-                      <Button asChild className="w-full">
+                      <Button asChild className="w-full py-3">
                         <a href="/login">Login to Volunteer</a>
                       </Button>
                     )}
@@ -401,34 +401,34 @@ export default function VolunteerPage() {
 
       {/* Volunteer Stats for logged in users */}
       {user && assignments && assignments.length > 0 && (
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Assignments</CardTitle>
-              <Award className="w-4 h-4 text-gray-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base font-medium">Total Assignments</CardTitle>
+              <Award className="w-5 h-5 text-gray-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{assignments.length}</div>
+              <div className="text-3xl font-bold">{assignments.length}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Hours Served</CardTitle>
-              <Clock className="w-4 h-4 text-gray-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base font-medium">Hours Served</CardTitle>
+              <Clock className="w-5 h-5 text-gray-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold">
                 {assignments.reduce((acc, a) => acc + a.hoursWorked, 0)}
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Status</CardTitle>
-              <Star className="w-4 h-4 text-gray-500" />
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-base font-medium">Status</CardTitle>
+              <Star className="w-5 h-5 text-gray-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold capitalize">
+              <div className="text-3xl font-bold capitalize">
                 {assignments.some(a => a.status === "confirmed") ? "Active" : "Pending"}
               </div>
             </CardContent>

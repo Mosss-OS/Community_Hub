@@ -17,6 +17,17 @@ import { processVideoClip } from "./video-processing";
 import { publicVapidKey } from "./services/push-notifications";
 
 const upload = multer({ dest: path.join(process.cwd(), "uploads", "videos") });
+const imageUpload = multer({ 
+  dest: path.join(process.cwd(), "uploads", "images"),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed'));
+    }
+  }
+});
 
 // Extend Express Request type to include user
 interface AuthenticatedRequest extends Request {
@@ -811,6 +822,22 @@ export async function registerRoutes(
     if (!branding)
       return res.status(404).json({ message: "Branding not found" });
     res.json(branding);
+  });
+
+  // Image upload endpoint
+  app.post("/api/upload", isAuthenticated, imageUpload.single("file"), async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Return the file URL
+      const url = `/uploads/images/${req.file.filename}`;
+      res.json({ url, filename: req.file.filename });
+    } catch (err) {
+      console.error("Upload error:", err);
+      res.status(500).json({ message: "Upload failed" });
+    }
   });
 
   app.post(api.branding.update.path, isAuthenticated, async (req, res) => {
