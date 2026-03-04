@@ -13,7 +13,7 @@ export function LocationMap({ className = "" }: LocationMapProps) {
   const address = branding?.churchAddress || "7 Silverbird Road, Jakande First Gate, Lekki, Lagos State, Nigeria";
   const phone = branding?.churchPhone || "+2348000000000";
   
-  const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed&iwloc=near`;
+  const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=17&output=embed&iwloc=near`;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 
   return (
