@@ -159,7 +159,7 @@ export default function EventDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-10 md:py-14">
+        <div className="max-w-7xl mx-auto px-6 py-10 md:py-14">
           <Skeleton className="h-8 w-32 mb-10" />
           <Skeleton className="h-14 w-2/3 mb-4" />
           <Skeleton className="h-6 w-1/3 mb-10" />

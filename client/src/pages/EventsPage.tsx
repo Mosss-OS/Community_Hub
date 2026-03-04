@@ -38,8 +38,8 @@ export default function EventsPage() {
         </div>
       </div>
 
-      <div className="container px-6 md:px-8 py-10 md:py-14">
-        <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
+      <div className="container px-6 md:px-10 py-10 md:py-14">
+        <div className="flex flex-col lg:flex-row gap-10 md:gap-14">
           {/* Main List */}
           <div className="flex-1 space-y-6 md:space-y-8">
             {/* Category Filter */}

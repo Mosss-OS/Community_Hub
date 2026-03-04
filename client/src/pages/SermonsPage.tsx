@@ -171,7 +171,7 @@ export default function SermonsPage() {
         </div>
       </div>
 
-      <div className="container px-6 md:px-8 py-10 md:py-14">
+      <div className="container px-6 md:px-10 py-10 md:py-14">
         {/* AI Search Panel */}
         {showAISearch && (
           <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">

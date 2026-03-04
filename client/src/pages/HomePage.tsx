@@ -33,8 +33,8 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/40 to-gray-900/20" />
         </div>
         
-        <div className="container relative z-10 px-6 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+        <div className="container relative z-10 px-6 md:px-10">
+          <div className="max-w-5xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white/90 text-sm font-medium mb-8 border border-white/10">
               <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
               Welcome to CHub

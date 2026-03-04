@@ -173,7 +173,7 @@ export default function GivePage() {
         </div>
       </div>
 
-      <div className="container px-6 md:px-8 mt-12 md:mt-20 relative z-10">
+      <div className="container px-6 md:px-10 mt-12 md:mt-20 relative z-10">
         <Tabs defaultValue="give" className="space-y-8">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="give">Give</TabsTrigger>
