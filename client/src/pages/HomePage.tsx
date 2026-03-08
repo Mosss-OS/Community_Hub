@@ -41,8 +41,7 @@ export default function HomePage() {
             </div>
             
             <h1 className="font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white mb-8 leading-[1.1]">
-              Experience the
-              <span className="block text-indigo-200 mt-2">Power of Faith</span>
+              Experience the <span className="text-indigo-200">Power of Faith</span>
             </h1>
             
             <p className="text-lg md:text-xl lg:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
