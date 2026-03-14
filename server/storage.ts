@@ -138,6 +138,9 @@ export interface IStorage {
   getOrganizations(includeInactive?: boolean): Promise<Organization[]>;
   updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization>;
   deleteOrganization(id: string): Promise<void>;
+  getOrganizationUsers(orgId: string): Promise<User[]>;
+  updateUserOrganizationRole(userId: string, orgId: string, role: string): Promise<User>;
+  removeUserFromOrganization(userId: string, orgId: string): Promise<void>;
 
   // Organization Themes
   createTheme(theme: InsertOrganizationTheme): Promise<OrganizationTheme>;
@@ -187,6 +190,8 @@ export interface IStorage {
   // Branding
   getBranding(): Promise<Branding | undefined>;
   updateBranding(branding: InsertBranding): Promise<Branding>;
+  getOrganizationBranding(orgId: string): Promise<Branding | undefined>;
+  updateOrganizationBranding(orgId: string, branding: Partial<InsertBranding>): Promise<Branding>;
 
   // Events
   getEvents(): Promise<Event[]>;
@@ -592,6 +597,42 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ lastContactedAt: new Date() })
       .where(eq(users.id, id));
+  }
+
+  async getOrganizationUsers(orgId: string): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.organizationId, orgId));
+  }
+
+  async updateUserOrganizationRole(userId: string, orgId: string, role: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ isAdmin: role === "admin", updatedAt: new Date() })
+      .where(and(eq(users.id, userId), eq(users.organizationId, orgId)))
+      .returning();
+    return user;
+  }
+
+  async removeUserFromOrganization(userId: string, orgId: string): Promise<void> {
+    await db.delete(users).where(and(eq(users.id, userId), eq(users.organizationId, orgId)));
+  }
+
+  async getOrganizationBranding(orgId: string): Promise<Branding | undefined> {
+    const [item] = await db.select().from(branding).where(eq(branding.organizationId, orgId));
+    return item;
+  }
+
+  async updateOrganizationBranding(orgId: string, brandingData: Partial<InsertBranding>): Promise<Branding> {
+    const existing = await this.getOrganizationBranding(orgId);
+    if (!existing) {
+      const [created] = await db.insert(branding).values({ ...brandingData, organizationId: orgId } as InsertBranding).returning();
+      return created;
+    }
+    const [updated] = await db
+      .update(branding)
+      .set(brandingData)
+      .where(eq(branding.organizationId, orgId))
+      .returning();
+    return updated;
   }
 
   // Branding

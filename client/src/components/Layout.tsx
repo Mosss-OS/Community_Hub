@@ -7,11 +7,14 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.isSuperAdmin;
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-background">
-      <Navbar />
+      {!isSuperAdmin && <Navbar />}
       <main className="flex-1 w-full">{children}</main>
-      <Footer />
+      {!isSuperAdmin && <Footer />}
     </div>
   );
 }

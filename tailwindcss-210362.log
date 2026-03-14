@@ -320,3 +320,44 @@
 2026-03-14T23:17:48.744394Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/client"
 2026-03-14T23:17:48.744514Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: exit
 2026-03-14T23:17:48.745383Z  INFO get_globs: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.250288Z  INFO scan_sources: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.255651Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/public"
+2026-03-14T23:39:48.256062Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src"
+2026-03-14T23:39:48.256172Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/pages"
+2026-03-14T23:39:48.256496Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/pages/auth"
+2026-03-14T23:39:48.256822Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/types"
+2026-03-14T23:39:48.256887Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/App.tsx"
+2026-03-14T23:39:48.256943Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/lib"
+2026-03-14T23:39:48.257052Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/hooks"
+2026-03-14T23:39:48.257264Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/components"
+2026-03-14T23:39:48.257334Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/components/Layout.tsx"
+2026-03-14T23:39:48.257355Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/components/ui"
+2026-03-14T23:39:48.258091Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/client"
+2026-03-14T23:39:48.258245Z  INFO scan_sources: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.258258Z  INFO extract_candidates: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.258263Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.258268Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading 2 file(s)
+2026-03-14T23:39:48.258314Z  INFO tailwindcss_oxide::scanner: Reading "/home/moses/Desktop/Community_Hub/client/src/App.tsx"
+2026-03-14T23:39:48.258330Z  INFO tailwindcss_oxide::scanner: Reading "/home/moses/Desktop/Community_Hub/client/src/components/Layout.tsx"
+2026-03-14T23:39:48.258355Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.258360Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.258364Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.258624Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.258630Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.258757Z  INFO extract_candidates: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.267584Z  INFO get_files: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.267774Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.268658Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/public"
+2026-03-14T23:39:48.268971Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src"
+2026-03-14T23:39:48.269071Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/pages"
+2026-03-14T23:39:48.270086Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/pages/auth"
+2026-03-14T23:39:48.270765Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/types"
+2026-03-14T23:39:48.271040Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/lib"
+2026-03-14T23:39:48.271313Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/hooks"
+2026-03-14T23:39:48.271819Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/components"
+2026-03-14T23:39:48.272111Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/src/components/ui"
+2026-03-14T23:39:48.273470Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/home/moses/Desktop/Community_Hub/client/client"
+2026-03-14T23:39:48.273752Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.273937Z  INFO get_files: tailwindcss_oxide::scanner: exit
+2026-03-14T23:39:48.274433Z  INFO get_globs: tailwindcss_oxide::scanner: enter
+2026-03-14T23:39:48.274448Z  INFO get_globs: tailwindcss_oxide::scanner: exit

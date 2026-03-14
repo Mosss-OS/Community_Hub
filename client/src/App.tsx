@@ -48,11 +48,29 @@ import { useWebSocket } from "@/hooks/use-websocket";
 import LanguageSettingsPage from "@/pages/LanguageSettingsPage";
 import { LanguageProvider } from "@/hooks/use-language";
 
-import { useLocation } from "wouter";
+import { useLocation, Redirect } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { Loader2 } from "lucide-react";
 
 function Router() {
   const [location] = useLocation();
-  
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // SuperAdmin Exclusivity logic
+  if (user?.isSuperAdmin) {
+    if (location !== "/super-admin" && location !== "/logout") {
+      return <Redirect to="/super-admin" />;
+    }
+  }
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -63,44 +81,48 @@ function Router() {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         <Switch>
-          <Route path="/" component={HomePage} />
-          <Route path="/sermons" component={SermonsPage} />
-          <Route path="/sermons/:id" component={SermonDetailPage} />
-          <Route path="/events" component={EventsPage} />
-          <Route path="/events/:id" component={EventDetailPage} />
-          <Route path="/prayer" component={PrayerPage} />
-          <Route path="/give" component={GivePage} />
-          {/* Auth routes */}
-          <Route path="/login" component={AuthPage} />
-          <Route path="/logout" component={LogoutPage} />
-          <Route path="/auth/callback" component={AuthCallbackPage} />
-          <Route path="/dashboard" component={DashboardPage} />
-          <Route path="/admin" component={AdminDashboardPage} />
-          <Route path="/attendance" component={AttendanceHistoryPage} />
-          <Route path="/attendance/analytics" component={AttendanceAnalyticsPage} />
-          <Route path="/analytics" component={AnalyticsPage} />
-          <Route path="/attendance/checkin" component={CheckinPage} />
-          <Route path="/attendance/scan" component={QRScannerPage} />
-          <Route path="/attendance/absent" component={AbsentMembersPage} />
-          <Route path="/members" component={MembersPage} />
-          <Route path="/devotionals" component={DevotionalsPage} />
-          <Route path="/live" component={LiveStreamPage} />
-          <Route path="/admin/live-stream/new" component={AdminLiveStreamPage} />
-          <Route path="/volunteer" component={VolunteerPage} />
-          <Route path="/music" component={MusicPage} />
-          <Route path="/house-cells" component={HouseCellsPage} />
-          <Route path="/groups" component={GroupsPage} />
-          <Route path="/bible" component={BiblePage} />
-          <Route path="/discipleship" component={DiscipleshipPage} />
-          <Route path="/admin/sermon-clips" component={SermonClipGeneratorPage} />
-          <Route path="/feed" component={SocialFeedPage} />
-          <Route path="/celebrations" component={CelebrationsPage} />
-          <Route path="/privacy" component={PrivacyPage} />
           <Route path="/super-admin" component={SuperAdminPage} />
-          <Route path="/messages" component={MessagesPage} />
-          <Route path="/settings/language" component={LanguageSettingsPage} />
-          {/* Detail pages could be added here later e.g. /sermons/:id */}
-          <Route component={NotFound} />
+          <Route path="/logout" component={LogoutPage} />
+          {user?.isSuperAdmin ? (
+            <Route component={() => <Redirect to="/super-admin" />} />
+          ) : (
+            <>
+              <Route path="/" component={HomePage} />
+              <Route path="/sermons" component={SermonsPage} />
+              <Route path="/sermons/:id" component={SermonDetailPage} />
+              <Route path="/events" component={EventsPage} />
+              <Route path="/events/:id" component={EventDetailPage} />
+              <Route path="/prayer" component={PrayerPage} />
+              <Route path="/give" component={GivePage} />
+              <Route path="/login" component={AuthPage} />
+              <Route path="/auth/callback" component={AuthCallbackPage} />
+              <Route path="/dashboard" component={DashboardPage} />
+              <Route path="/admin" component={AdminDashboardPage} />
+              <Route path="/attendance" component={AttendanceHistoryPage} />
+              <Route path="/attendance/analytics" component={AttendanceAnalyticsPage} />
+              <Route path="/analytics" component={AnalyticsPage} />
+              <Route path="/attendance/checkin" component={CheckinPage} />
+              <Route path="/attendance/scan" component={QRScannerPage} />
+              <Route path="/attendance/absent" component={AbsentMembersPage} />
+              <Route path="/members" component={MembersPage} />
+              <Route path="/devotionals" component={DevotionalsPage} />
+              <Route path="/live" component={LiveStreamPage} />
+              <Route path="/admin/live-stream/new" component={AdminLiveStreamPage} />
+              <Route path="/volunteer" component={VolunteerPage} />
+              <Route path="/music" component={MusicPage} />
+              <Route path="/house-cells" component={HouseCellsPage} />
+              <Route path="/groups" component={GroupsPage} />
+              <Route path="/bible" component={BiblePage} />
+              <Route path="/discipleship" component={DiscipleshipPage} />
+              <Route path="/admin/sermon-clips" component={SermonClipGeneratorPage} />
+              <Route path="/feed" component={SocialFeedPage} />
+              <Route path="/celebrations" component={CelebrationsPage} />
+              <Route path="/privacy" component={PrivacyPage} />
+              <Route path="/messages" component={MessagesPage} />
+              <Route path="/settings/language" component={LanguageSettingsPage} />
+              <Route component={NotFound} />
+            </>
+          )}
         </Switch>
       </motion.div>
     </AnimatePresence>

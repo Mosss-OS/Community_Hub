@@ -7143,6 +7143,77 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
+  // Get organization users (super admin only)
+  app.get("/api/super-admin/organizations/:id/users", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const users = await storage.getOrganizationUsers(req.params.id);
+      res.json(users);
+    } catch (err) {
+      console.error("Error fetching organization users:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update user role within organization (super admin only)
+  app.put("/api/super-admin/organizations/:id/users/:userId/role", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { role } = req.body;
+      const user = await storage.updateUserOrganizationRole(req.params.userId, req.params.id, role);
+      res.json(user);
+    } catch (err) {
+      console.error("Error updating organization user role:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Remove user from organization (super admin only)
+  app.delete("/api/super-admin/organizations/:id/users/:userId", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      await storage.removeUserFromOrganization(req.params.userId, req.params.id);
+      res.json({ message: "User removed from organization" });
+    } catch (err) {
+      console.error("Error removing user from organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get organization branding (super admin only)
+  app.get("/api/super-admin/organizations/:id/branding", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const branding = await storage.getOrganizationBranding(req.params.id);
+      res.json(branding || {});
+    } catch (err) {
+      console.error("Error fetching organization branding:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update organization branding (super admin only)
+  app.put("/api/super-admin/organizations/:id/branding", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const branding = await storage.updateOrganizationBranding(req.params.id, req.body);
+      res.json(branding);
+    } catch (err) {
+      console.error("Error updating organization branding:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   return httpServer;
 }
 
