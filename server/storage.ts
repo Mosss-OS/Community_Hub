@@ -123,7 +123,7 @@ export interface IStorage {
   // Users
   getUserById(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: { email: string; passwordHash: string; firstName: string; lastName: string; phone?: string; address?: string; houseFellowship?: string }): Promise<User>;
+  createUser(user: { email: string; passwordHash: string; firstName: string; lastName: string; phone?: string; address?: string; houseFellowship?: string; isAdmin?: boolean; isSuperAdmin?: boolean }): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User>;
   updateUserRole(id: string, role: string): Promise<User>;
   getAllUsers(): Promise<User[]>;
@@ -133,27 +133,27 @@ export interface IStorage {
 
   // Organizations
   createOrganization(org: InsertOrganization): Promise<Organization>;
-  getOrganization(id: number): Promise<Organization | undefined>;
+  getOrganization(id: string): Promise<Organization | undefined>;
   getOrganizationBySlug(slug: string): Promise<Organization | undefined>;
   getOrganizations(includeInactive?: boolean): Promise<Organization[]>;
-  updateOrganization(id: number, updates: Partial<Organization>): Promise<Organization>;
-  deleteOrganization(id: number): Promise<void>;
+  updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization>;
+  deleteOrganization(id: string): Promise<void>;
 
   // Organization Themes
   createTheme(theme: InsertOrganizationTheme): Promise<OrganizationTheme>;
-  getOrganizationThemes(orgId: number): Promise<OrganizationTheme[]>;
-  getDefaultTheme(orgId: number): Promise<OrganizationTheme | undefined>;
+  getOrganizationThemes(orgId: string): Promise<OrganizationTheme[]>;
+  getDefaultTheme(orgId: string): Promise<OrganizationTheme | undefined>;
 
   // Custom Pages
   createCustomPage(page: InsertCustomPage): Promise<CustomPage>;
   getCustomPage(id: number): Promise<CustomPage | undefined>;
-  getOrganizationPages(orgId: number): Promise<CustomPage[]>;
+  getOrganizationPages(orgId: string): Promise<CustomPage[]>;
   updateCustomPage(id: number, updates: Partial<CustomPage>): Promise<CustomPage>;
   deleteCustomPage(id: number): Promise<void>;
 
   // Custom Menu Items
   createMenuItem(item: InsertCustomMenuItem): Promise<CustomMenuItem>;
-  getMenuItems(orgId: number, location: string): Promise<CustomMenuItem[]>;
+  getMenuItems(orgId: string, location: string): Promise<CustomMenuItem[]>;
   updateMenuItem(id: number, updates: Partial<CustomMenuItem>): Promise<CustomMenuItem>;
   deleteMenuItem(id: number): Promise<void>;
 
@@ -509,7 +509,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(userData: { email: string; passwordHash: string; firstName: string; lastName: string; phone?: string; address?: string; houseFellowship?: string }): Promise<User> {
+  async createUser(userData: { email: string; passwordHash: string; firstName: string; lastName: string; phone?: string; address?: string; houseFellowship?: string; isAdmin?: boolean; isSuperAdmin?: boolean }): Promise<User> {
     const [user] = await db.insert(users).values({
       email: userData.email,
       passwordHash: userData.passwordHash,
@@ -518,6 +518,8 @@ export class DatabaseStorage implements IStorage {
       phone: userData.phone,
       address: userData.address,
       houseFellowship: userData.houseFellowship,
+      isAdmin: userData.isAdmin || false,
+      isSuperAdmin: userData.isSuperAdmin || false,
     }).returning();
     return user;
   }
@@ -3778,7 +3780,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getOrganization(id: number): Promise<Organization | undefined> {
+  async getOrganization(id: string): Promise<Organization | undefined> {
     const [org] = await db.select().from(organizations).where(eq(organizations.id, id));
     return org;
   }
@@ -3795,7 +3797,7 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(organizations).where(eq(organizations.isActive, true)).orderBy(asc(organizations.name));
   }
 
-  async updateOrganization(id: number, updates: Partial<Organization>): Promise<Organization> {
+  async updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization> {
     const [updated] = await db
       .update(organizations)
       .set({ ...updates, updatedAt: new Date() })
@@ -3804,7 +3806,7 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async deleteOrganization(id: number): Promise<void> {
+  async deleteOrganization(id: string): Promise<void> {
     await db.delete(organizations).where(eq(organizations.id, id));
   }
 
@@ -3814,11 +3816,11 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getOrganizationThemes(orgId: number): Promise<OrganizationTheme[]> {
+  async getOrganizationThemes(orgId: string): Promise<OrganizationTheme[]> {
     return db.select().from(organizationThemes).where(eq(organizationThemes.organizationId, orgId));
   }
 
-  async getDefaultTheme(orgId: number): Promise<OrganizationTheme | undefined> {
+  async getDefaultTheme(orgId: string): Promise<OrganizationTheme | undefined> {
     const [theme] = await db.select().from(organizationThemes).where(and(eq(organizationThemes.organizationId, orgId), eq(organizationThemes.isDefault, true)));
     return theme;
   }
@@ -3834,7 +3836,7 @@ export class DatabaseStorage implements IStorage {
     return page;
   }
 
-  async getOrganizationPages(orgId: number): Promise<CustomPage[]> {
+  async getOrganizationPages(orgId: string): Promise<CustomPage[]> {
     return db.select().from(customPages).where(and(eq(customPages.organizationId, orgId), eq(customPages.isPublished, true))).orderBy(asc(customPages.orderIndex));
   }
 
@@ -3857,7 +3859,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getMenuItems(orgId: number, location: string): Promise<CustomMenuItem[]> {
+  async getMenuItems(orgId: string, location: string): Promise<CustomMenuItem[]> {
     return db.select().from(customMenuItems).where(and(eq(customMenuItems.organizationId, orgId), eq(customMenuItems.menuLocation, location), eq(customMenuItems.isVisible, true))).orderBy(asc(customMenuItems.orderIndex));
   }
 
@@ -3880,7 +3882,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getOrganizationEmailTemplates(orgId: number): Promise<EmailTemplate[]> {
+  async getOrganizationEmailTemplates(orgId: string): Promise<EmailTemplate[]> {
     return db.select().from(emailTemplates).where(and(eq(emailTemplates.organizationId, orgId), eq(emailTemplates.isActive, true)));
   }
 
@@ -3899,7 +3901,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getCustomFields(orgId: number, entityType: string): Promise<CustomField[]> {
+  async getCustomFields(orgId: string, entityType: string): Promise<CustomField[]> {
     return db.select().from(customFields).where(and(eq(customFields.organizationId, orgId), eq(customFields.entityType, entityType), eq(customFields.isActive, true))).orderBy(asc(customFields.orderIndex));
   }
 
@@ -3916,7 +3918,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getOrganizationMembers(orgId: number): Promise<OrganizationMember[]> {
+  async getOrganizationMembers(orgId: string): Promise<OrganizationMember[]> {
     return db.select().from(organizationMembers).where(eq(organizationMembers.organizationId, orgId));
   }
 

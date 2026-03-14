@@ -56,6 +56,8 @@ const signupSchema = z.object({
   password: z.string().min(6),
   firstName: z.string().min(1),
   lastName: z.string().optional(),
+  isAdmin: z.boolean().optional(),
+  isSuperAdmin: z.boolean().optional(),
 });
 
 // Authentication middleware
@@ -369,9 +371,11 @@ export async function registerRoutes(
         instagramHandle: user.instagramHandle,
         facebookHandle: user.facebookHandle,
         linkedinHandle: user.linkedinHandle,
-        isAdmin: user.email === 'admin@wccrm.com'
+        role: user.role,
+        isAdmin: user.isAdmin
       });
     } catch (err) {
+      console.error("Login error:", err);
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
       }
@@ -382,7 +386,7 @@ export async function registerRoutes(
   // Signup
   app.post("/api/auth/signup", async (req, res) => {
     try {
-      const { email, password, firstName, lastName } = signupSchema.parse(req.body);
+      const { email, password, firstName, lastName, isAdmin } = signupSchema.parse(req.body);
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
@@ -399,6 +403,8 @@ export async function registerRoutes(
         passwordHash,
         firstName,
         lastName: lastName || '',
+        isAdmin: !!isAdmin,
+        isSuperAdmin: !!isSuperAdmin,
       });
 
       const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
@@ -421,7 +427,9 @@ export async function registerRoutes(
         houseFellowship: user.houseFellowship,
         houseCellLocation: user.houseCellLocation,
         parish: user.parish,
-        isAdmin: user.email === 'admin@wccrm.com'
+        role: user.role,
+        isAdmin: user.isAdmin,
+        isSuperAdmin: user.isSuperAdmin,
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -2599,8 +2607,8 @@ export async function registerRoutes(
   app.get("/api/organizations/:id", async (req, res) => {
     try {
       const idOrSlug = req.params.id;
-      const id = parseInt(idOrSlug);
-      let org = isNaN(id) ? await storage.getOrganizationBySlug(idOrSlug) : await storage.getOrganization(id);
+      const isUuid = /^[0-9a-fH]{8}-[0-9a-fH]{4}-[4][0-9a-fH]{3}-[89abH][0-9a-fH]{3}-[0-9a-fH]{12}$/i.test(idOrSlug) || idOrSlug.length > 20; 
+      let org = isUuid ? await storage.getOrganization(idOrSlug) : await storage.getOrganizationBySlug(idOrSlug);
       if (!org) {
         return res.status(404).json({ message: "Organization not found" });
       }
@@ -2633,7 +2641,7 @@ export async function registerRoutes(
   // Update organization (admin)
   app.put("/api/organizations/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.id;
       const org = await storage.updateOrganization(id, req.body);
       res.json(org);
     } catch (err) {
@@ -2657,7 +2665,7 @@ export async function registerRoutes(
   // Get organization themes
   app.get("/api/organizations/:id/themes", async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const themes = await storage.getOrganizationThemes(orgId);
       res.json(themes);
     } catch (err) {
@@ -2669,7 +2677,7 @@ export async function registerRoutes(
   // Create theme (admin)
   app.post("/api/organizations/:id/themes", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { name, isDefault, config } = req.body;
       const theme = await storage.createTheme({ organizationId: orgId, name, isDefault: isDefault || false, config });
       res.json(theme);
@@ -2682,7 +2690,7 @@ export async function registerRoutes(
   // Get custom pages
   app.get("/api/organizations/:id/pages", async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const pages = await storage.getOrganizationPages(orgId);
       res.json(pages);
     } catch (err) {
@@ -2694,7 +2702,7 @@ export async function registerRoutes(
   // Create custom page (admin)
   app.post("/api/organizations/:id/pages", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { title, slug, content, metaTitle, metaDescription, isPublished, showInNav, orderIndex } = req.body;
       const page = await storage.createCustomPage({ organizationId: orgId, title, slug, content, metaTitle, metaDescription, isPublished: isPublished || false, showInNav: showInNav || false, orderIndex: orderIndex || 0 });
       res.json(page);
@@ -2731,7 +2739,7 @@ export async function registerRoutes(
   // Get menu items
   app.get("/api/organizations/:id/menu", async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const location = (req.query.location as string) || 'header';
       const items = await storage.getMenuItems(orgId, location);
       res.json(items);
@@ -2744,7 +2752,7 @@ export async function registerRoutes(
   // Create menu item (admin)
   app.post("/api/organizations/:id/menu", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { menuLocation, label, url, pageId, icon, orderIndex, isVisible } = req.body;
       const item = await storage.createMenuItem({ organizationId: orgId, menuLocation, label, url, pageId, icon, orderIndex: orderIndex || 0, isVisible: isVisible !== false });
       res.json(item);
@@ -2781,7 +2789,7 @@ export async function registerRoutes(
   // Get email templates (admin)
   app.get("/api/organizations/:id/emails", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const templates = await storage.getOrganizationEmailTemplates(orgId);
       res.json(templates);
     } catch (err) {
@@ -2793,7 +2801,7 @@ export async function registerRoutes(
   // Create email template (admin)
   app.post("/api/organizations/:id/emails", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { name, subject, body, type, isActive } = req.body;
       const template = await storage.createEmailTemplate({ organizationId: orgId, name, subject, body, type, isActive: isActive !== false });
       res.json(template);
@@ -2806,7 +2814,7 @@ export async function registerRoutes(
   // Get custom fields
   app.get("/api/organizations/:id/fields/:entity", async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const entityType = req.params.entity;
       const fields = await storage.getCustomFields(orgId, entityType);
       res.json(fields);
@@ -2819,7 +2827,7 @@ export async function registerRoutes(
   // Create custom field (admin)
   app.post("/api/organizations/:id/fields", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { entityType, name, fieldType, label, placeholder, isRequired, options, orderIndex, isActive } = req.body;
       const field = await storage.createCustomField({ organizationId: orgId, entityType, name, fieldType, label, placeholder, isRequired: isRequired || false, options, orderIndex: orderIndex || 0, isActive: isActive !== false });
       res.json(field);
@@ -2844,7 +2852,7 @@ export async function registerRoutes(
   // Get organization settings
   app.get("/api/organizations/:id/settings", async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const settings = await storage.getOrganizationSettings(orgId);
       res.json(settings || { organizationId: orgId, settings: {}, features: {} });
     } catch (err) {
@@ -2856,7 +2864,7 @@ export async function registerRoutes(
   // Update organization settings (admin)
   app.put("/api/organizations/:id/settings", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const settings = await storage.updateOrganizationSettings(orgId, req.body);
       res.json(settings);
     } catch (err) {
@@ -2868,7 +2876,7 @@ export async function registerRoutes(
   // Add custom domain (admin)
   app.post("/api/organizations/:id/domains", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { domain } = req.body;
       const verificationCode = Math.random().toString(36).substring(2, 15);
       const customDomain = await storage.addCustomDomain({ organizationId: orgId, domain, verificationCode });
@@ -2901,7 +2909,7 @@ export async function registerRoutes(
   // Record organization analytics
   app.post("/api/organizations/:id/analytics", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const { metricType, metricValue, metadata } = req.body;
       const analytic = await storage.recordOrganizationMetric({ organizationId: orgId, metricType, metricValue, metadata });
       res.json(analytic);
@@ -2914,7 +2922,7 @@ export async function registerRoutes(
   // Get organization analytics
   app.get("/api/organizations/:id/analytics", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = Number(req.params.id);
+      const orgId = req.params.id;
       const metricType = req.query.type as string;
       const analytics = await storage.getOrganizationMetrics(orgId, metricType);
       res.json(analytics);
@@ -4171,6 +4179,27 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
   // Seed data function
   try {
     await seedDatabase();
+    
+    // Ensure at least one SuperAdmin exists
+    const adminEmail = process.env.SUPER_ADMIN_EMAIL || "superadmin@wccrm.com";
+    const existingSuperAdmin = await storage.getUserByEmail(adminEmail);
+    
+    // Check if ANY super admin exists if the default doesn't
+    const allUsers = await storage.getAllUsers();
+    const anySuperAdmin = allUsers.some(u => u.isSuperAdmin);
+
+    if (!existingSuperAdmin && !anySuperAdmin) {
+      console.log(`Creating default super admin (${adminEmail})...`);
+      const passwordHash = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD || "admin123", 10);
+      await storage.createUser({
+        email: adminEmail,
+        passwordHash,
+        firstName: "Super",
+        lastName: "Admin",
+        isSuperAdmin: true,
+        isAdmin: true,
+      });
+    }
   } catch (err) {
     console.error("Error seeding database on startup:", err);
   }
@@ -7020,6 +7049,100 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
+  // === Super Admin Routes ===
+  
+  // Get all organizations (super admin only)
+  app.get("/api/super-admin/organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const organizations = await storage.getOrganizations(true);
+      res.json(organizations);
+    } catch (err) {
+      console.error("Error fetching organizations:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create organization (super admin only)
+  app.post("/api/super-admin/organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { name, slug, description, logoUrl, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry, isActive } = req.body;
+      
+      if (!name || !slug) {
+        return res.status(400).json({ message: "Name and slug are required" });
+      }
+
+      const org = await storage.createOrganization({
+        name,
+        slug,
+        description: description || null,
+        logoUrl: logoUrl || null,
+        churchName: churchName || null,
+        churchEmail: churchEmail || null,
+        churchPhone: churchPhone || null,
+        churchAddress: churchAddress || null,
+        churchCity: churchCity || null,
+        churchState: churchState || null,
+        churchCountry: churchCountry || null,
+        isActive: isActive ?? true,
+      });
+      res.status(201).json(org);
+    } catch (err) {
+      console.error("Error creating organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update organization (super admin only)
+  app.put("/api/super-admin/organizations/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const id = req.params.id;
+      const { name, slug, description, logoUrl, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry, isActive } = req.body;
+
+      const org = await storage.updateOrganization(id, {
+        name,
+        slug,
+        description: description || null,
+        logoUrl: logoUrl || null,
+        churchName: churchName || null,
+        churchEmail: churchEmail || null,
+        churchPhone: churchPhone || null,
+        churchAddress: churchAddress || null,
+        churchCity: churchCity || null,
+        churchState: churchState || null,
+        churchCountry: churchCountry || null,
+        isActive,
+      });
+      res.json(org);
+    } catch (err) {
+      console.error("Error updating organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete organization (super admin only)
+  app.delete("/api/super-admin/organizations/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const id = req.params.id;
+      await storage.deleteOrganization(id);
+      res.json({ message: "Organization deleted" });
+    } catch (err) {
+      console.error("Error deleting organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   return httpServer;
 }
 
@@ -7274,5 +7397,4 @@ async function seedDatabase() {
       isActive: true,
     });
   }
-
 }

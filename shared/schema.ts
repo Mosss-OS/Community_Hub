@@ -2,7 +2,7 @@ export * from "./models/auth";
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb, pgEnum, uuid, date, varchar, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./models/auth";
+import { users, organizations } from "./models/auth";
 import { relations } from "drizzle-orm";
 
 // === TABLE DEFINITIONS ===
@@ -28,6 +28,7 @@ export const branding = pgTable("branding", {
   instagramUrl: text("instagram_url"),
   facebookUrl: text("facebook_url"),
   twitterUrl: text("twitter_url"),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const events = pgTable("events", {
@@ -49,6 +50,7 @@ export const events = pgTable("events", {
   isVirtual: boolean("is_virtual").default(false),
   virtualLink: varchar("virtual_link", { length: 500 }),
   capacity: integer("capacity"),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const eventRsvps = pgTable("event_rsvps", {
@@ -59,6 +61,7 @@ export const eventRsvps = pgTable("event_rsvps", {
   createdAt: timestamp("created_at").defaultNow(),
   attended: boolean("attended").default(false),
   checkedInAt: timestamp("checked_in_at"),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const eventCategories = pgTable("event_categories", {
@@ -67,6 +70,7 @@ export const eventCategories = pgTable("event_categories", {
   color: varchar("color", { length: 20 }).default("#3B82F6"),
   icon: varchar("icon", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const eventFeedback = pgTable("event_feedback", {
@@ -77,6 +81,7 @@ export const eventFeedback = pgTable("event_feedback", {
   comment: text("comment"),
   wouldRecommend: boolean("would_recommend"),
   createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const sermons = pgTable("sermons", {
@@ -94,6 +99,7 @@ export const sermons = pgTable("sermons", {
   thumbnailUrl: text("thumbnail_url"),
   isUpcoming: boolean("is_upcoming").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const prayerRequests = pgTable("prayer_requests", {
@@ -106,6 +112,7 @@ export const prayerRequests = pgTable("prayer_requests", {
   answeredAt: timestamp("answered_at"),
   createdAt: timestamp("created_at").defaultNow(),
   prayCount: integer("pray_count").default(0),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const donations = pgTable("donations", {
@@ -116,6 +123,7 @@ export const donations = pgTable("donations", {
   status: text("status").notNull(), // pending, succeeded, failed
   campaignId: integer("campaign_id").references(() => fundraisingCampaigns.id),
   createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const fundraisingCampaigns = pgTable("fundraising_campaigns", {
@@ -130,6 +138,7 @@ export const fundraisingCampaigns = pgTable("fundraising_campaigns", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const dailyDevotionals = pgTable("daily_devotionals", {
@@ -144,6 +153,7 @@ export const dailyDevotionals = pgTable("daily_devotionals", {
   isPublished: boolean("is_published").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const bibleReadingPlans = pgTable("bible_reading_plans", {
@@ -155,6 +165,7 @@ export const bibleReadingPlans = pgTable("bible_reading_plans", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const bibleReadingProgress = pgTable("bible_reading_progress", {
@@ -164,6 +175,7 @@ export const bibleReadingProgress = pgTable("bible_reading_progress", {
   dayNumber: integer("day_number").notNull(),
   completed: boolean("completed").default(false),
   completedAt: timestamp("completed_at"),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 // === RELATIONS ===
@@ -356,6 +368,7 @@ export const attendance = pgTable("attendance", {
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
   updatedAt: timestamp("updated_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const attendanceLinks = pgTable("attendance_links", {
@@ -370,6 +383,7 @@ export const attendanceLinks = pgTable("attendance_links", {
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const attendanceSettings = pgTable("attendance_settings", {
@@ -431,6 +445,7 @@ export const memberMessages = pgTable("member_messages", {
   replyToId: integer("reply_to_id"),
   senderId: uuid("sender_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const memberMessagesRelations = relations(memberMessages, ({ one }) => ({
@@ -485,6 +500,7 @@ export const music = pgTable("music", {
   playCount: integer("play_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const musicPlaylists = pgTable("music_playlists", {
@@ -570,6 +586,7 @@ export const houseCells = pgTable("house_cells", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: uuid("created_by").references(() => users.id),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 export const houseCellMessages = pgTable("house_cell_messages", {
@@ -762,6 +779,7 @@ export const auditLogs = pgTable("audit_logs", {
   details: jsonb("details"),
   ipAddress: text("ip_address"),
   createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
 });
 
 // === PERMISSIONS ===
@@ -2561,35 +2579,11 @@ export type InsertIntegrationSyncJob = z.infer<typeof insertIntegrationSyncJobSc
 
 // === WHITE-LABEL CHURCH PLATFORM ===
 
-export const organizations = pgTable("organizations", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 100 }).notNull().unique(),
-  domain: varchar("domain", { length: 255 }),
-  logoUrl: varchar("logo_url", { length: 500 }),
-  faviconUrl: varchar("favicon_url", { length: 500 }),
-  primaryColor: varchar("primary_color", { length: 20 }).default("#1a73e8"),
-  secondaryColor: varchar("secondary_color", { length: 20 }).default("#34a853"),
-  accentColor: varchar("accent_color", { length: 20 }).default("#fbbc04"),
-  backgroundColor: varchar("background_color", { length: 20 }).default("#ffffff"),
-  textColor: varchar("text_color", { length: 20 }).default("#202124"),
-  contactEmail: varchar("contact_email", { length: 255 }),
-  contactPhone: varchar("contact_phone", { length: 50 }),
-  address: text("address"),
-  city: varchar("city", { length: 100 }),
-  state: varchar("state", { length: 100 }),
-  country: varchar("country", { length: 100 }).default("Nigeria"),
-  timezone: varchar("timezone", { length: 50 }).default("Africa/Lagos"),
-  isActive: boolean("is_active").default(true),
-  isVerified: boolean("is_verified").default(false),
-  plan: varchar("plan", { length: 50 }).default("free"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// organizations table is now imported from models/auth.ts
 
 export const organizationThemes = pgTable("organization_themes", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
   isDefault: boolean("is_default").default(false),
   config: jsonb("config").$type<Record<string, any>>(),
@@ -2599,7 +2593,7 @@ export const organizationThemes = pgTable("organization_themes", {
 
 export const customPages = pgTable("custom_pages", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 100 }).notNull(),
   content: text("content"),
@@ -2614,7 +2608,7 @@ export const customPages = pgTable("custom_pages", {
 
 export const customMenuItems = pgTable("custom_menu_items", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   menuLocation: varchar("menu_location", { length: 50 }).notNull(),
   label: varchar("label", { length: 100 }).notNull(),
   url: varchar("url", { length: 500 }),
@@ -2628,7 +2622,7 @@ export const customMenuItems = pgTable("custom_menu_items", {
 
 export const emailTemplates = pgTable("email_templates", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
   subject: varchar("subject", { length: 255 }).notNull(),
   body: text("body").notNull(),
@@ -2678,7 +2672,7 @@ export const pushNotificationLogs = pgTable("push_notification_logs", {
 
 export const customFields = pgTable("custom_fields", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   entityType: varchar("entity_type", { length: 50 }).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
   fieldType: varchar("field_type", { length: 50 }).notNull(),
@@ -2694,7 +2688,7 @@ export const customFields = pgTable("custom_fields", {
 
 export const organizationMembers = pgTable("organization_members", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   userId: uuid("user_id").references(() => users.id).notNull(),
   role: varchar("role", { length: 50 }).default("member"),
   status: varchar("status", { length: 50 }).default("active"),
@@ -2704,7 +2698,7 @@ export const organizationMembers = pgTable("organization_members", {
 
 export const organizationSettings = pgTable("organization_settings", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull().unique(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull().unique(),
   settings: jsonb("settings").$type<Record<string, any>>(),
   features: jsonb("features").$type<Record<string, any>>(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -2713,7 +2707,7 @@ export const organizationSettings = pgTable("organization_settings", {
 
 export const customDomains = pgTable("custom_domains", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   domain: varchar("domain", { length: 255 }).notNull().unique(),
   sslEnabled: boolean("ssl_enabled").default(false),
   sslCert: varchar("ssl_cert", { length: 500 }),
@@ -2726,7 +2720,7 @@ export const customDomains = pgTable("custom_domains", {
 
 export const organizationAnalytics = pgTable("organization_analytics", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
   metricType: varchar("metric_type", { length: 100 }).notNull(),
   metricValue: real("metric_value").notNull(),
   metadata: jsonb("metadata").$type<Record<string, any>>(),
