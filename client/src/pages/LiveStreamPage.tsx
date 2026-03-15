@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
+import { buildApiUrl } from "@/lib/api-config";
 
 interface LiveStream {
   id: number; title: string; description: string | null; streamUrl: string | null;
@@ -24,7 +25,7 @@ export default function LiveStreamPage() {
 
   const markAttendanceMutation = useMutation({
     mutationFn: async (streamId: number) => {
-      const res = await fetch(`/api/live-streams/${streamId}/attendance`, { method: "POST", credentials: "include" });
+      const res = await fetch(buildApiUrl(`/api/live-streams/${streamId}/attendance`), { method: "POST", credentials: "include" });
       if (!res.ok) throw new Error("Failed to mark attendance");
       return res.json();
     },
@@ -33,18 +34,18 @@ export default function LiveStreamPage() {
 
   const { data: currentStream, isLoading: loadingCurrent } = useQuery<LiveStream | null>({
     queryKey: ["/api/live-streams/current"],
-    queryFn: async () => { const res = await fetch("/api/live-streams/current"); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
+    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams/current")); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
     refetchInterval: 30000,
   });
 
   const { data: streams, isLoading: loadingStreams } = useQuery<LiveStream[]>({
     queryKey: ["/api/live-streams"],
-    queryFn: async () => { const res = await fetch("/api/live-streams"); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
+    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams")); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
   });
 
   const endStreamMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/live-streams/${id}/end`, { method: "POST", headers: { "Content-Type": "application/json" } });
+      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", headers: { "Content-Type": "application/json" } });
       if (!res.ok) throw new Error("Failed to end stream");
       return res.json();
     },

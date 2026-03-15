@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
+import { buildApiUrl } from "@/lib/api-config";
 
 export default function AdminLiveStreamPage() {
   const [, setLocation] = useLocation();
@@ -24,7 +25,7 @@ export default function AdminLiveStreamPage() {
 
   const createStreamMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetch("/api/live-streams", {
+      const res = await fetch(buildApiUrl("/api/live-streams"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
