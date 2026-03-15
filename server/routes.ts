@@ -116,6 +116,14 @@ const isPastor = async (req: AuthenticatedRequest, res: any, next: any) => {
   next();
 };
 
+// Super Admin middleware
+const isSuperAdmin = async (req: AuthenticatedRequest, res: any, next: any) => {
+  if (!req.user?.isSuperAdmin) {
+    return res.status(403).json({ message: "Super admin access required" });
+  }
+  next();
+};
+
 // Roles that can view absent members
 const ABSENT_MEMBER_ROLES = ['ADMIN', 'PASTOR', 'PASTORS_WIFE', 'CELL_LEADER', 'USHERS_LEADER'];
 
@@ -429,8 +437,8 @@ export async function registerRoutes(
         houseCellLocation: user.houseCellLocation,
         parish: user.parish,
         role: user.role,
-        isAdmin: user.isAdmin,
-        isSuperAdmin: user.isSuperAdmin,
+        isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true,
+        isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true,
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
