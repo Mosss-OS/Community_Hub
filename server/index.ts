@@ -85,7 +85,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await registerRoutes(httpServer, app);
+  try {
+    await registerRoutes(httpServer, app);
+    console.log('Routes registered successfully');
+  } catch (err) {
+    console.error('Failed to register routes:', err);
+  }
 
   // Setup WebSocket
   const { setupWebSocket } = await import('./websocket');
