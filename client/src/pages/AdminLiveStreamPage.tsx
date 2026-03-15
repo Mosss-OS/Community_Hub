@@ -28,6 +28,7 @@ export default function AdminLiveStreamPage() {
       const res = await fetch(buildApiUrl("/api/live-streams"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error("Failed to create stream");
