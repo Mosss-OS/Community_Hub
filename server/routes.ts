@@ -3221,8 +3221,15 @@ export async function registerRoutes(
   app.post("/api/devotionals", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       console.log("Creating devotional with body:", req.body);
+      const { title, content, author, bibleVerse, theme, imageUrl, publishDate } = req.body;
       const devotional = await storage.createDailyDevotional({
-        ...req.body,
+        title,
+        content,
+        author,
+        bibleVerse,
+        theme,
+        imageUrl,
+        publishDate: new Date(publishDate),
         createdBy: req.user!.id,
       });
       res.status(201).json(devotional);
