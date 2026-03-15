@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { buildApiUrl } from "@/lib/api-config";
+import { authFetch } from "@/lib/auth-fetch";
 
 interface BrandingColors {
   primary: string;
@@ -39,7 +40,7 @@ export function useBranding() {
   return useQuery({
     queryKey: ["/api/branding"],
     queryFn: async (): Promise<Branding> => {
-      const res = await fetch(buildApiUrl("/api/branding"));
+      const res = await authFetch(buildApiUrl("/api/branding"));
       if (!res.ok) throw new Error("Failed to fetch branding");
       return res.json();
     },
@@ -50,11 +51,9 @@ export function useUpdateBranding() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: Partial<Branding>): Promise<Branding> => {
-      const res = await fetch(buildApiUrl("/api/branding"), {
+      const res = await authFetch(buildApiUrl("/api/branding"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to update branding");
       return res.json();

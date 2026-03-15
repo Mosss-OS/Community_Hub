@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Event, InsertEvent } from "@/types/api";
 import { buildApiUrl } from "@/lib/api-config";
+import { authFetch } from "@/lib/auth-fetch";
 import { apiRoutes } from "@/lib/api-routes";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -13,9 +14,7 @@ export function useEvents() {
       const endpoint = isAuthenticated 
         ? "/api/events/list-with-rsvps" 
         : apiRoutes.events.list;
-      const res = await fetch(buildApiUrl(endpoint), {
-        credentials: isAuthenticated ? "include" : "omit",
-      });
+      const res = await authFetch(buildApiUrl(endpoint));
       if (!res.ok) throw new Error("Failed to fetch events");
       return res.json();
     },
@@ -26,7 +25,7 @@ export function useEvent(id: number) {
   return useQuery({
     queryKey: [apiRoutes.events.get(id)],
     queryFn: async (): Promise<Event> => {
-      const res = await fetch(buildApiUrl(apiRoutes.events.get(id)));
+      const res = await authFetch(buildApiUrl(apiRoutes.events.get(id)));
       if (!res.ok) throw new Error("Failed to fetch event");
       return res.json();
     },
@@ -38,11 +37,9 @@ export function useCreateEvent() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: InsertEvent): Promise<Event> => {
-      const res = await fetch(buildApiUrl(apiRoutes.events.create), {
+      const res = await authFetch(buildApiUrl(apiRoutes.events.create), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to create event");
       return res.json();
@@ -57,11 +54,9 @@ export function useUpdateEvent() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertEvent> }): Promise<Event> => {
-      const res = await fetch(buildApiUrl(`/api/events/${id}`), {
+      const res = await authFetch(buildApiUrl(`/api/events/${id}`), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to update event");
       return res.json();
@@ -76,9 +71,8 @@ export function useDeleteEvent() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number): Promise<void> => {
-      const res = await fetch(buildApiUrl(`/api/events/${id}`), {
+      const res = await authFetch(buildApiUrl(`/api/events/${id}`), {
         method: "DELETE",
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to delete event");
     },
@@ -94,9 +88,8 @@ export function useRsvpEvent() {
   
   return useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(buildApiUrl(apiRoutes.events.rsvp(id)), {
+      const res = await authFetch(buildApiUrl(apiRoutes.events.rsvp(id)), {
         method: "POST",
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to RSVP");
       return res.json();
@@ -112,9 +105,8 @@ export function useRemoveRsvp() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(buildApiUrl(apiRoutes.events.rsvp(id)), {
+      const res = await authFetch(buildApiUrl(apiRoutes.events.rsvp(id)), {
         method: "DELETE",
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to remove RSVP");
       return res.json();
@@ -129,9 +121,7 @@ export function useEventWithRsvps(id: number) {
   return useQuery({
     queryKey: [apiRoutes.events.withRsvps(id)],
     queryFn: async () => {
-      const res = await fetch(buildApiUrl(apiRoutes.events.withRsvps(id)), {
-        credentials: "include",
-      });
+      const res = await authFetch(buildApiUrl(apiRoutes.events.withRsvps(id)));
       if (!res.ok) throw new Error("Failed to fetch event RSVPs");
       return res.json();
     },
@@ -146,9 +136,7 @@ export function useUserRsvps() {
     queryKey: ["user-rsvps", user?.id],
     queryFn: async () => {
       if (!isAuthenticated || !user) return [];
-      const res = await fetch(buildApiUrl(apiRoutes.events.rsvps), {
-        credentials: "include",
-      });
+      const res = await authFetch(buildApiUrl(apiRoutes.events.rsvps));
       if (!res.ok) {
         console.error("Failed to fetch RSVPs:", res.status);
         return [];
@@ -166,9 +154,8 @@ export function useAddToCalendar() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(buildApiUrl(apiRoutes.events.addToCalendar(id)), {
+      const res = await authFetch(buildApiUrl(apiRoutes.events.addToCalendar(id)), {
         method: "POST",
-        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to add to calendar");
       return res.json();
