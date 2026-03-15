@@ -9,7 +9,8 @@
     "start": "NODE_ENV=production node --import tsx server/index.ts",
     "vercel-build": "npm install",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "migrate": "node --import tsx script/migrate.ts"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
