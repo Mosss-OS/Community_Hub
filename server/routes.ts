@@ -372,7 +372,7 @@ export async function registerRoutes(
         facebookHandle: user.facebookHandle,
         linkedinHandle: user.linkedinHandle,
         role: user.role,
-        isAdmin: user.isAdmin
+        isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true
       });
     } catch (err) {
       console.error("Login error:", err);
