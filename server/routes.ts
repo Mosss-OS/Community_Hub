@@ -199,7 +199,8 @@ export async function registerRoutes(
       facebookHandle: user.facebookHandle,
       linkedinHandle: user.linkedinHandle,
       role: user.role,
-      isAdmin: user.email === 'admin@wccrm.com',
+      isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true,
+      isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true,
       createdAt: user.createdAt,
     });
   });
