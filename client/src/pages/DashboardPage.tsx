@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
-import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply } from "lucide-react";
+import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 
@@ -189,6 +189,9 @@ export default function DashboardPage() {
                   { icon: Home, label: "House Fellowship", value: user.houseFellowship || "Not set" },
                   { icon: Home, label: "House Cell Location", value: user.houseCellLocation || "Not set" },
                   { icon: Building, label: "Parish", value: (user as any).parish || "Not set" },
+                  { icon: Briefcase, label: "Career", value: (user as any).career || "Not set" },
+                  { icon: MapPin, label: "State of Origin", value: (user as any).stateOfOrigin || "Not set" },
+                  { icon: Cake, label: "Birthday", value: (user as any).birthday ? new Date((user as any).birthday).toLocaleDateString() : "Not set" },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center gap-3">
                     <Icon className="h-4 w-4 text-muted-foreground/50" />
@@ -198,14 +201,31 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))}
-                {(user as any).career && (
-                  <div className="flex items-center gap-3"><Building className="h-4 w-4 text-muted-foreground/50" /><div><p className="text-sm text-muted-foreground">Career</p><p className="font-medium text-foreground">{(user as any).career}</p></div></div>
+                
+                {/* Social Media Handles */}
+                {(user as any).twitterHandle && (
+                  <div className="flex items-center gap-3">
+                    <svg className="h-4 w-4 text-muted-foreground/50" fill="currentColor" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+                    <div><p className="text-sm text-muted-foreground">Twitter</p><p className="font-medium text-foreground">{(user as any).twitterHandle}</p></div>
+                  </div>
                 )}
-                {(user as any).stateOfOrigin && (
-                  <div className="flex items-center gap-3"><MapPin className="h-4 w-4 text-muted-foreground/50" /><div><p className="text-sm text-muted-foreground">State of Origin</p><p className="font-medium text-foreground">{(user as any).stateOfOrigin}</p></div></div>
+                {(user as any).instagramHandle && (
+                  <div className="flex items-center gap-3">
+                    <svg className="h-4 w-4 text-muted-foreground/50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                    <div><p className="text-sm text-muted-foreground">Instagram</p><p className="font-medium text-foreground">{(user as any).instagramHandle}</p></div>
+                  </div>
                 )}
-                {(user as any).birthday && (
-                  <div className="flex items-center gap-3"><Calendar className="h-4 w-4 text-muted-foreground/50" /><div><p className="text-sm text-muted-foreground">Birthday</p><p className="font-medium text-foreground">{new Date((user as any).birthday).toLocaleDateString()}</p></div></div>
+                {(user as any).facebookHandle && (
+                  <div className="flex items-center gap-3">
+                    <svg className="h-4 w-4 text-muted-foreground/50" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    <div><p className="text-sm text-muted-foreground">Facebook</p><p className="font-medium text-foreground">{(user as any).facebookHandle}</p></div>
+                  </div>
+                )}
+                {(user as any).linkedinHandle && (
+                  <div className="flex items-center gap-3">
+                    <svg className="h-4 w-4 text-muted-foreground/50" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                    <div><p className="text-sm text-muted-foreground">LinkedIn</p><p className="font-medium text-foreground">{(user as any).linkedinHandle}</p></div>
+                  </div>
                 )}
               </div>
             </div>
