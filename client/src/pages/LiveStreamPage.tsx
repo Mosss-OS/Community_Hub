@@ -34,18 +34,18 @@ export default function LiveStreamPage() {
 
   const { data: currentStream, isLoading: loadingCurrent } = useQuery<LiveStream | null>({
     queryKey: ["/api/live-streams/current"],
-    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams/current")); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
+    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams/current"), { credentials: "include" }); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
     refetchInterval: 30000,
   });
 
   const { data: streams, isLoading: loadingStreams } = useQuery<LiveStream[]>({
     queryKey: ["/api/live-streams"],
-    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams")); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
+    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams"), { credentials: "include" }); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
   });
 
   const endStreamMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", headers: { "Content-Type": "application/json" } });
+      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include" });
       if (!res.ok) throw new Error("Failed to end stream");
       return res.json();
     },

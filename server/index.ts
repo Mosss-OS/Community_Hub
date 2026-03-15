@@ -28,6 +28,8 @@ app.use((req, res, next) => {
     'http://localhost:3000',
     'https://wccrm-lagos.vercel.app',
     'https://wccrm-lagos.vercel.app/',
+    'https://wccrm.onrender.com',
+    'https://wccrm.onrender.com/',
   ];
   
   if (origin && allowedOrigins.includes(origin)) {
