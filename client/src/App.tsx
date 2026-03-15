@@ -130,7 +130,8 @@ function Router() {
 }
 
 function AppContent() {
-  useWebSocket();
+  // WebSocket disabled for now - can be enabled when backend WebSocket is properly configured
+  // useWebSocket();
 
   return (
     <LanguageProvider>

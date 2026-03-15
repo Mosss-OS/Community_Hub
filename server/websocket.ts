@@ -18,11 +18,15 @@ export function setupWebSocket(httpServer: HttpServer) {
     path: '/ws'
   });
 
+  console.log('WebSocket server setting up...');
+
   wss.on('connection', (ws: AuthenticatedWebSocket, req) => {
+    console.log('WebSocket connection request received');
     const url = new URL(req.url || '', `http://${req.headers.host}`);
     const token = url.searchParams.get('token');
 
     if (!token) {
+      console.log('WebSocket connection rejected: No token provided');
       ws.close(4001, 'Authentication required');
       return;
     }
@@ -38,6 +42,8 @@ export function setupWebSocket(httpServer: HttpServer) {
       clients.get(decoded.userId)!.add(ws);
 
       console.log(`WebSocket client connected: ${decoded.userId}`);
+
+      ws.send(JSON.stringify({ type: 'CONNECTED', message: 'Connected to WebSocket' }));
 
       ws.on('pong', () => {
         ws.isAlive = true;
