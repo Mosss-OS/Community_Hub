@@ -3220,6 +3220,7 @@ export async function registerRoutes(
   // Create devotional (admin only)
   app.post("/api/devotionals", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
+      console.log("Creating devotional with body:", req.body);
       const devotional = await storage.createDailyDevotional({
         ...req.body,
         createdBy: req.user!.id,
