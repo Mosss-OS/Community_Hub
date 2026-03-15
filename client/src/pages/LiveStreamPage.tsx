@@ -16,6 +16,15 @@ interface LiveStream {
   endedAt: string | null; viewerCount: number; createdAt: string;
 }
 
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {};
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export default function LiveStreamPage() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
@@ -25,7 +34,7 @@ export default function LiveStreamPage() {
 
   const markAttendanceMutation = useMutation({
     mutationFn: async (streamId: number) => {
-      const res = await fetch(buildApiUrl(`/api/live-streams/${streamId}/attendance`), { method: "POST", credentials: "include" });
+      const res = await fetch(buildApiUrl(`/api/live-streams/${streamId}/attendance`), { method: "POST", credentials: "include", headers: getAuthHeaders() });
       if (!res.ok) throw new Error("Failed to mark attendance");
       return res.json();
     },
@@ -61,7 +70,7 @@ export default function LiveStreamPage() {
 
   const endStreamMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", credentials: "include" });
+      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", credentials: "include", headers: getAuthHeaders() });
       if (!res.ok) throw new Error("Failed to end stream");
       return res.json();
     },
