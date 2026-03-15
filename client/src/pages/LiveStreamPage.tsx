@@ -5,7 +5,7 @@ import { Play, Eye, Users, ArrowLeft, StopCircle, Youtube, CheckCircle } from "l
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, getAuthHeader } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { buildApiUrl } from "@/lib/api-config";
 
@@ -23,9 +23,16 @@ export default function LiveStreamPage() {
   const isAdmin = user?.isAdmin;
   const [hasMarkedAttendance, setHasMarkedAttendance] = useState(false);
 
+  const getAuthHeaders = () => {
+    const headers: Record<string, string> = {};
+    const authHeader = getAuthHeader();
+    if (authHeader) headers["Authorization"] = authHeader;
+    return headers;
+  };
+
   const markAttendanceMutation = useMutation({
     mutationFn: async (streamId: number) => {
-      const res = await fetch(buildApiUrl(`/api/live-streams/${streamId}/attendance`), { method: "POST", credentials: "include" });
+      const res = await fetch(buildApiUrl(`/api/live-streams/${streamId}/attendance`), { method: "POST", credentials: "include", headers: getAuthHeaders() });
       if (!res.ok) throw new Error("Failed to mark attendance");
       return res.json();
     },
@@ -34,18 +41,19 @@ export default function LiveStreamPage() {
 
   const { data: currentStream, isLoading: loadingCurrent } = useQuery<LiveStream | null>({
     queryKey: ["/api/live-streams/current"],
-    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams/current"), { credentials: "include" }); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
+    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams/current"), { credentials: "include", headers: getAuthHeaders() }); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
     refetchInterval: 30000,
   });
 
   const { data: streams, isLoading: loadingStreams } = useQuery<LiveStream[]>({
     queryKey: ["/api/live-streams"],
-    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams"), { credentials: "include" }); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
+    queryFn: async () => { const res = await fetch(buildApiUrl("/api/live-streams"), { credentials: "include", headers: getAuthHeaders() }); if (!res.ok) throw new Error("Failed to fetch"); return res.json(); },
   });
 
   const endStreamMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include" });
+      const headers = { "Content-Type": "application/json", ...getAuthHeaders() };
+      const res = await fetch(buildApiUrl(`/api/live-streams/${id}/end`), { method: "POST", headers, credentials: "include" });
       if (!res.ok) throw new Error("Failed to end stream");
       return res.json();
     },

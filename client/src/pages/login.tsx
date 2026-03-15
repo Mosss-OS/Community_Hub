@@ -10,6 +10,7 @@ import { apiRoutes } from "@/lib/api-routes";
 import { buildApiUrl } from "@/lib/api-config";
 import { Helmet } from "react-helmet";
 import { useLanguage } from "@/hooks/use-language";
+import { setAuthToken } from "@/hooks/use-auth";
 
 type AuthMode = "login" | "signup";
 
@@ -75,6 +76,11 @@ export default function AuthPage() {
           : t("accountCreatedSuccess"),
       });
 
+      // Store token for cross-origin auth
+      if (data.token) {
+        setAuthToken(data.token);
+      }
+      
       queryClient.setQueryData(["auth", "user"], data);
       navigate("/");
     } catch (err) {

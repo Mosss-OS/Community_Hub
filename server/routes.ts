@@ -355,6 +355,7 @@ export async function registerRoutes(
       });
 
       res.json({
+        token, // Return token for cross-origin auth
         id: user.id,
         email: user.email,
         firstName: user.firstName,

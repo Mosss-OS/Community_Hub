@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, getAuthHeader } from "@/hooks/use-auth";
 import { buildApiUrl } from "@/lib/api-config";
 
 export default function AdminLiveStreamPage() {
@@ -25,9 +25,13 @@ export default function AdminLiveStreamPage() {
 
   const createStreamMutation = useMutation({
     mutationFn: async (data: any) => {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const authHeader = getAuthHeader();
+      if (authHeader) headers["Authorization"] = authHeader;
+      
       const res = await fetch(buildApiUrl("/api/live-streams"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify(data),
       });
