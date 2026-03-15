@@ -65,6 +65,11 @@ export default function AdminLiveStreamPage() {
   };
 
   const extractYouTubeVideoId = (url: string) => {
+    // Handle YouTube live URLs: https://youtube.com/live/VIDEO_ID
+    const liveMatch = url.match(/youtube\.com\/live\/([^&\s]+)/);
+    if (liveMatch) return liveMatch[1];
+    
+    // Handle regular YouTube URLs
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/);
     return match ? match[1] : url;
   };
