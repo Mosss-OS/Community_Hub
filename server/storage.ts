@@ -110,7 +110,8 @@ import {
   type OrganizationAnalytic, type InsertOrganizationAnalytic
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, like, or, and, sql, gte, lte, lt, asc } from "drizzle-orm";
+import { eq, desc, like, or, and, sql, gte, lte, lt, asc, count } from "drizzle-orm";
+import { encrypt, decrypt } from "./utils/encryption";
 
 export interface ISermonFilter {
   speaker?: string;
@@ -1442,28 +1443,6 @@ export class DatabaseStorage implements IStorage {
     const [devotional] = await db.select().from(dailyDevotionals).where(and(...conditions));
     return devotional;
   }
-    
-    const [devotional] = await db
-      .select()
-      .from(dailyDevotionals)
-      .where(and(
-        eq(dailyDevotionals.isPublished, true),
-        gte(dailyDevotionals.publishDate, today),
-        lt(dailyDevotionals.publishDate, tomorrow)
-      ))
-      .limit(1);
-    
-    if (!devotional) {
-      const [latest] = await db
-        .select()
-        .from(dailyDevotionals)
-        .where(eq(dailyDevotionals.isPublished, true))
-        .orderBy(desc(dailyDevotionals.publishDate))
-        .limit(1);
-      return latest;
-    }
-    return devotional;
-  }
 
   async createDailyDevotional(devotional: Partial<DailyDevotional>): Promise<DailyDevotional> {
     const [created] = await db.insert(dailyDevotionals).values(devotional as any).returning();
@@ -1917,24 +1896,47 @@ export class DatabaseStorage implements IStorage {
     return key;
   }
 
-  async getApiKeyByKey(key: string): Promise<ApiKey | undefined> {
-    const [apiKey] = await db.select().from(apiKeys).where(eq(apiKeys.key, key));
-    return apiKey;
-  }
+   async getApiKeyByKey(key: string): Promise<ApiKey | undefined> {
+     // First, get all API keys that match the prefix (to limit decryption)
+     // In a real implementation, we'd use the prefix to narrow down
+     // For now, we'll get all and decrypt in memory (not ideal for large datasets)
+     const [apiKeys] = await db.select().from(apiKeys);
+     
+     // Constant-time comparison to avoid timing attacks
+     for (const storedApiKey of apiKeys) {
+       if (storedApiKey.key && typeof storedApiKey.key === 'string') {
+         try {
+           const decryptedKey = decrypt(storedApiKey.key);
+           // Use constant-time comparison
+           if (constantTimeEquals(decryptedKey, key)) {
+             return storedApiKey;
+           }
+         } catch (err) {
+           // If decryption fails, skip this key
+           console.warn(`Failed to decrypt API key ${storedApiKey.id}`);
+           continue;
+         }
+       }
+     }
+     return undefined;
+   }
 
-  async createApiKey(apiKeyData: InsertApiKey & { key: string; prefix: string }): Promise<ApiKey> {
-    const [created] = await db.insert(apiKeys).values({
-      name: apiKeyData.name,
-      userId: apiKeyData.userId,
-      key: apiKeyData.key,
-      prefix: apiKeyData.prefix,
-      permissions: apiKeyData.permissions,
-      rateLimit: apiKeyData.rateLimit,
-      expiresAt: apiKeyData.expiresAt,
-      isActive: apiKeyData.isActive,
-    }).returning();
-    return created;
-  }
+   async createApiKey(apiKeyData: InsertApiKey & { key: string; prefix: string }): Promise<ApiKey> {
+     // Encrypt the API key before storage
+     const encryptedKey = encrypt(apiKeyData.key);
+     
+     const [created] = await db.insert(apiKeys).values({
+       name: apiKeyData.name,
+       userId: apiKeyData.userId,
+       key: encryptedKey,
+       prefix: apiKeyData.prefix,
+       permissions: apiKeyData.permissions,
+       rateLimit: apiKeyData.rateLimit,
+       expiresAt: apiKeyData.expiresAt,
+       isActive: apiKeyData.isActive,
+     }).returning();
+     return created;
+   }
 
   async updateApiKey(id: number, updates: Partial<ApiKey>): Promise<ApiKey> {
     const [updated] = await db
@@ -1959,10 +1961,16 @@ export class DatabaseStorage implements IStorage {
     return webhook as any;
   }
 
-  async createWebhook(webhookData: InsertWebhook): Promise<Webhook> {
-    const [created] = await db.insert(webhooks).values(webhookData as any).returning();
-    return created as any;
-  }
+   async createWebhook(webhookData: InsertWebhook): Promise<Webhook> {
+     // Encrypt the webhook secret before storage
+     const encryptedSecret = encrypt(webhookData.secret || '');
+     
+     const [created] = await db.insert(webhooks).values({
+       ...webhookData,
+       secret: encryptedSecret,
+     } as any).returning();
+     return created as any;
+   }
 
   async updateWebhook(id: number, updates: Partial<Webhook>): Promise<Webhook> {
     const [updated] = await db
@@ -3877,6 +3885,654 @@ export class DatabaseStorage implements IStorage {
 
   async deleteOrganization(id: string): Promise<void> {
     await db.delete(organizations).where(eq(organizations.id, id));
+  }
+
+  // Organization Approval Workflow Methods
+  async getPendingOrganizations(): Promise<Organization[]> {
+    return db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.approvalStatus, 'pending'))
+      .orderBy(desc(organizations.createdAt));
+  }
+
+  async approveOrganization(id: string, approvedBy: string): Promise<Organization> {
+    const [updated] = await db
+      .update(organizations)
+      .set({
+        approvalStatus: 'approved',
+        isActive: true,
+        approvedAt: new Date(),
+        approvedBy,
+        updatedAt: new Date(),
+      })
+      .where(eq(organizations.id, id))
+      .returning();
+    return updated;
+  }
+
+  async rejectOrganization(id: string, rejectedBy: string, reason: string): Promise<Organization> {
+    const [updated] = await db
+      .update(organizations)
+      .set({
+        approvalStatus: 'rejected',
+        isActive: false,
+        rejectionReason: reason,
+        updatedAt: new Date(),
+      })
+      .where(eq(organizations.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getOrganizationApprovalHistory(orgId: string): Promise<any[]> {
+    // Return approval/rejection history for an organization
+    const org = await this.getOrganization(orgId);
+    if (!org) return [];
+    
+    const history: any[] = [];
+    if (org.approvedAt) {
+      history.push({
+        action: 'approved',
+        at: org.approvedAt,
+        by: org.approvedBy,
+      });
+    }
+    if (org.rejectionReason) {
+      history.push({
+        action: 'rejected',
+        reason: org.rejectionReason,
+        at: org.updatedAt,
+      });
+    }
+    return history;
+  }
+
+  // Organization Management Dashboard Methods
+  async getOrganizationDetails(orgId: string): Promise<any> {
+    const org = await this.getOrganization(orgId);
+    if (!org) throw new Error('Organization not found');
+
+    // Get counts
+    const memberCount = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.organizationId, orgId));
+
+    const eventCount = await db
+      .select({ count: count() })
+      .from(events)
+      .where(eq(events.organizationId, orgId));
+
+    const sermonCount = await db
+      .select({ count: count() })
+      .from(sermons)
+      .where(eq(sermons.organizationId, orgId));
+
+    return {
+      ...org,
+      stats: {
+        memberCount: memberCount[0]?.count || 0,
+        eventCount: eventCount[0]?.count || 0,
+        sermonCount: sermonCount[0]?.count || 0,
+      },
+    };
+  }
+
+  async getOrganizationStats(orgId: string): Promise<any> {
+    // Get member statistics
+    const memberStats = await db
+      .select({
+        total: count(),
+        verified: count(users.isVerified),
+      })
+      .from(users)
+      .where(eq(users.organizationId, orgId));
+
+    // Get event statistics
+    const eventStats = await db
+      .select({
+        total: count(),
+      })
+      .from(events)
+      .where(eq(events.organizationId, orgId));
+
+    // Get recent activity (members joined in last 30 days)
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentMembers = await db
+      .select({ count: count() })
+      .from(users)
+      .where(
+        and(
+          eq(users.organizationId, orgId),
+          gte(users.createdAt, thirtyDaysAgo)
+        )
+      );
+
+    return {
+      members: {
+        total: memberStats[0]?.total || 0,
+        verified: memberStats[0]?.verified || 0,
+        recent: recentMembers[0]?.count || 0,
+      },
+      events: {
+        total: eventStats[0]?.total || 0,
+      },
+    };
+  }
+
+  async activateOrganization(orgId: string): Promise<Organization> {
+    const [updated] = await db
+      .update(organizations)
+      .set({
+        isActive: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(organizations.id, orgId))
+      .returning();
+    return updated;
+  }
+
+  async deactivateOrganization(orgId: string): Promise<Organization> {
+    const [updated] = await db
+      .update(organizations)
+      .set({
+        isActive: false,
+        updatedAt: new Date(),
+      })
+      .where(eq(organizations.id, orgId))
+      .returning();
+    return updated;
+  }
+
+  async searchOrganizations(options: {
+    query?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<Organization[]> {
+    const conditions = [];
+    
+    if (options.query) {
+      conditions.push(
+        or(
+          like(organizations.name, `%${options.query}%`),
+          like(organizations.slug, `%${options.query}%`),
+          like(organizations.description, `%${options.query}%`)
+        )
+      );
+    }
+    
+    if (options.status) {
+      conditions.push(eq(organizations.approvalStatus, options.status));
+    }
+    
+    let orderBy;
+    if (options.sortBy === 'name') {
+      orderBy = options.sortOrder === 'desc' ? desc(organizations.name) : asc(organizations.name);
+    } else if (options.sortBy === 'createdAt') {
+      orderBy = options.sortOrder === 'desc' ? desc(organizations.createdAt) : asc(organizations.createdAt);
+    } else {
+      orderBy = desc(organizations.createdAt);
+    }
+    
+    if (conditions.length > 0) {
+      return db
+        .select()
+        .from(organizations)
+        .where(and(...conditions))
+        .orderBy(orderBy);
+    }
+    
+    return db
+      .select()
+      .from(organizations)
+      .orderBy(orderBy);
+  }
+
+  // Cross-Organization Member Management Methods
+  async getAllMembersAcrossOrganizations(options: {
+    organizationId?: string;
+    search?: string;
+    role?: string;
+    page: number;
+    limit: number;
+  }): Promise<{ members: User[]; total: number; page: number; totalPages: number }> {
+    const conditions = [];
+    
+    if (options.organizationId) {
+      conditions.push(eq(users.organizationId, options.organizationId));
+    }
+    
+    if (options.role) {
+      conditions.push(eq(users.role, options.role));
+    }
+    
+    if (options.search) {
+      const searchPattern = `%${options.search}%`;
+      conditions.push(
+        or(
+          like(users.firstName, searchPattern),
+          like(users.lastName, searchPattern),
+          like(users.email, searchPattern)
+        )
+      );
+    }
+    
+    // Get total count
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+    
+    const total = Number(countResult?.count || 0);
+    const totalPages = Math.ceil(total / options.limit);
+    const offset = (options.page - 1) * options.limit;
+    
+    // Get paginated results
+    const members = await db
+      .select()
+      .from(users)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(users.createdAt))
+      .limit(options.limit)
+      .offset(offset);
+    
+    return {
+      members,
+      total,
+      page: options.page,
+      totalPages,
+    };
+  }
+
+  async getMemberCrossOrgDetails(memberId: string): Promise<any> {
+    const member = await this.getUserById(memberId);
+    if (!member) throw new Error('Member not found');
+
+    // Get organization details
+    const org = member.organizationId 
+      ? await this.getOrganization(member.organizationId)
+      : null;
+
+    // Get attendance stats
+    const attendanceCount = await db
+      .select({ count: count() })
+      .from(attendance)
+      .where(eq(attendance.userId, memberId));
+
+    // Get event RSVPs
+    const rsvpCount = await db
+      .select({ count: count() })
+      .from(eventRsvps)
+      .where(eq(eventRsvps.userId, memberId));
+
+    return {
+      ...member,
+      organization: org,
+      stats: {
+        attendanceCount: attendanceCount[0]?.count || 0,
+        rsvpCount: rsvpCount[0]?.count || 0,
+      },
+    };
+  }
+
+  async transferMemberToOrganization(memberId: string, toOrganizationId: string, transferredBy: string, reason?: string): Promise<User> {
+    // Verify target organization exists
+    const targetOrg = await this.getOrganization(toOrganizationId);
+    if (!targetOrg) throw new Error('Target organization not found');
+
+    // Update member's organization
+    const [updated] = await db
+      .update(users)
+      .set({
+        organizationId: toOrganizationId,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, memberId))
+      .returning();
+
+    // Log the transfer in audit logs
+    await db.insert(auditLogs).values({
+      userId: transferredBy,
+      action: 'MEMBER_TRANSFER',
+      entityType: 'user',
+      entityId: memberId,
+      details: {
+        fromOrganizationId: updated.organizationId,
+        toOrganizationId,
+        reason,
+      },
+    });
+
+    return updated;
+  }
+
+  async getMemberActivityAcrossOrgs(memberId: string, limit: number): Promise<any[]> {
+    // Get recent attendance
+    const attendanceRecords = await db
+      .select({
+        type: sql<string>`'attendance'`,
+        date: attendance.serviceDate,
+        details: attendance.serviceName,
+      })
+      .from(attendance)
+      .where(eq(attendance.userId, memberId))
+      .orderBy(desc(attendance.serviceDate))
+      .limit(limit / 2);
+
+    // Get recent event RSVPs
+    const rsvpRecords = await db
+      .select({
+        type: sql<string>`'rsvp'`,
+        date: eventRsvps.createdAt,
+        details: events.title,
+      })
+      .from(eventRsvps)
+      .leftJoin(events, eq(eventRsvps.eventId, events.id))
+      .where(eq(eventRsvps.userId, memberId))
+      .orderBy(desc(eventRsvps.createdAt))
+      .limit(limit / 2);
+
+    // Combine and sort by date
+    const allActivity = [...attendanceRecords, ...rsvpRecords]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, limit);
+
+    return allActivity;
+  }
+
+  async bulkUpdateMembers(memberIds: string[], updates: Partial<User>, updatedBy: string, reason?: string): Promise<User[]> {
+    const results: User[] = [];
+
+    for (const memberId of memberIds) {
+      const [updated] = await db
+        .update(users)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(users.id, memberId))
+        .returning();
+      
+      if (updated) {
+        results.push(updated);
+        
+        // Log the bulk update
+        await db.insert(auditLogs).values({
+          userId: updatedBy,
+          action: 'BULK_MEMBER_UPDATE',
+          entityType: 'user',
+          entityId: memberId,
+          details: { updates, reason },
+        });
+      }
+    }
+
+    return results;
+  }
+
+  async bulkTransferMembers(memberIds: string[], toOrganizationId: string, transferredBy: string, reason?: string): Promise<User[]> {
+    // Verify target organization exists
+    const targetOrg = await this.getOrganization(toOrganizationId);
+    if (!targetOrg) throw new Error('Target organization not found');
+
+    const results: User[] = [];
+
+    for (const memberId of memberIds) {
+      const [updated] = await db
+        .update(users)
+        .set({
+          organizationId: toOrganizationId,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, memberId))
+        .returning();
+      
+      if (updated) {
+        results.push(updated);
+        
+        // Log the transfer
+        await db.insert(auditLogs).values({
+          userId: transferredBy,
+          action: 'BULK_MEMBER_TRANSFER',
+          entityType: 'user',
+          entityId: memberId,
+          details: { toOrganizationId, reason },
+        });
+      }
+    }
+
+    return results;
+  }
+
+  // Platform-Wide Analytics Methods
+  async getPlatformOverview(): Promise<any> {
+    // Get total organizations
+    const [orgCount] = await db
+      .select({ count: count() })
+      .from(organizations);
+
+    // Get total members
+    const [memberCount] = await db
+      .select({ count: count() })
+      .from(users);
+
+    // Get active organizations
+    const [activeOrgCount] = await db
+      .select({ count: count() })
+      .from(organizations)
+      .where(eq(organizations.isActive, true));
+
+    // Get pending approvals
+    const [pendingCount] = await db
+      .select({ count: count() })
+      .from(organizations)
+      .where(eq(organizations.approvalStatus, 'pending'));
+
+    // Get recent registrations (last 30 days)
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const [recentMembers] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(gte(users.createdAt, thirtyDaysAgo));
+
+    return {
+      organizations: {
+        total: Number(orgCount?.count || 0),
+        active: Number(activeOrgCount?.count || 0),
+        pending: Number(pendingCount?.count || 0),
+      },
+      members: {
+        total: Number(memberCount?.count || 0),
+        recent: Number(recentMembers?.count || 0),
+      },
+    };
+  }
+
+  async getPlatformGrowthMetrics(period: string): Promise<any> {
+    let daysBack = 30;
+    if (period === '7d') daysBack = 7;
+    else if (period === '90d') daysBack = 90;
+    else if (period === '365d') daysBack = 365;
+
+    const startDate = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000);
+    
+    // Get daily member registrations
+    const memberGrowth = await db
+      .select({
+        date: sql<string>`DATE(${users.createdAt})`,
+        count: count(),
+      })
+      .from(users)
+      .where(gte(users.createdAt, startDate))
+      .groupBy(sql`DATE(${users.createdAt})`)
+      .orderBy(sql`DATE(${users.createdAt})`);
+
+    // Get organization registrations
+    const orgGrowth = await db
+      .select({
+        date: sql<string>`DATE(${organizations.createdAt})`,
+        count: count(),
+      })
+      .from(organizations)
+      .where(gte(organizations.createdAt, startDate))
+      .groupBy(sql`DATE(${organizations.createdAt})`)
+      .orderBy(sql`DATE(${organizations.createdAt})`);
+
+    return {
+      period,
+      memberGrowth,
+      organizationGrowth: orgGrowth,
+    };
+  }
+
+  async getPopularOrganizations(limit: number): Promise<any[]> {
+    // Get organizations ranked by member count
+    const popularOrgs = await db
+      .select({
+        id: organizations.id,
+        name: organizations.name,
+        slug: organizations.slug,
+        memberCount: count(users.id),
+      })
+      .from(organizations)
+      .leftJoin(users, eq(users.organizationId, organizations.id))
+      .where(eq(organizations.isActive, true))
+      .groupBy(organizations.id, organizations.name, organizations.slug)
+      .orderBy(desc(count(users.id)))
+      .limit(limit);
+
+    return popularOrgs;
+  }
+
+  async getActivityTrends(period: string, metric?: string): Promise<any> {
+    let daysBack = 30;
+    if (period === '7d') daysBack = 7;
+    else if (period === '90d') daysBack = 90;
+
+    const startDate = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000);
+
+    // Get attendance trends
+    const attendanceTrends = await db
+      .select({
+        date: sql<string>`DATE(${attendance.serviceDate})`,
+        count: count(),
+      })
+      .from(attendance)
+      .where(gte(attendance.serviceDate, startDate))
+      .groupBy(sql`DATE(${attendance.serviceDate})`)
+      .orderBy(sql`DATE(${attendance.serviceDate})`);
+
+    // Get event RSVP trends
+    const rsvpTrends = await db
+      .select({
+        date: sql<string>`DATE(${eventRsvps.createdAt})`,
+        count: count(),
+      })
+      .from(eventRsvps)
+      .where(gte(eventRsvps.createdAt, startDate))
+      .groupBy(sql`DATE(${eventRsvps.createdAt})`)
+      .orderBy(sql`DATE(${eventRsvps.createdAt})`);
+
+    return {
+      period,
+      attendance: attendanceTrends,
+      rsvps: rsvpTrends,
+    };
+  }
+
+  async getMemberEngagementMetrics(): Promise<any> {
+    // Get members with most attendance records
+    const topAttendees = await db
+      .select({
+        userId: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        attendanceCount: count(attendance.id),
+      })
+      .from(users)
+      .leftJoin(attendance, eq(attendance.userId, users.id))
+      .groupBy(users.id, users.firstName, users.lastName)
+      .orderBy(desc(count(attendance.id)))
+      .limit(10);
+
+    // Get average attendance per service
+    const [avgAttendance] = await db
+      .select({
+        avg: sql<number>`AVG(${count(attendance.id)})`,
+      })
+      .from(attendance)
+      .groupBy(attendance.serviceName);
+
+    // Get most active organizations by attendance
+    const orgEngagement = await db
+      .select({
+        orgId: organizations.id,
+        orgName: organizations.name,
+        attendanceCount: count(attendance.id),
+      })
+      .from(organizations)
+      .leftJoin(users, eq(users.organizationId, organizations.id))
+      .leftJoin(attendance, eq(attendance.userId, users.id))
+      .groupBy(organizations.id, organizations.name)
+      .orderBy(desc(count(attendance.id)))
+      .limit(10);
+
+    return {
+      topAttendees,
+      organizationEngagement: orgEngagement,
+    };
+  }
+
+  async getPlatformEventStats(period: string): Promise<any> {
+    let daysBack = 30;
+    if (period === '7d') daysBack = 7;
+    else if (period === '90d') daysBack = 90;
+
+    const startDate = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000);
+
+    // Total events created
+    const [eventCount] = await db
+      .select({ count: count() })
+      .from(events)
+      .where(gte(events.createdAt, startDate));
+
+    // Total RSVPs
+    const [rsvpCount] = await db
+      .select({ count: count() })
+      .from(eventRsvps)
+      .where(gte(eventRsvps.createdAt, startDate));
+
+    // Most popular events
+    const popularEvents = await db
+      .select({
+        eventId: events.id,
+        title: events.title,
+        rsvpCount: count(eventRsvps.id),
+      })
+      .from(events)
+      .leftJoin(eventRsvps, eq(eventRsvps.eventId, events.id))
+      .where(gte(events.createdAt, startDate))
+      .groupBy(events.id, events.title)
+      .orderBy(desc(count(eventRsvps.id)))
+      .limit(10);
+
+    // Events by category
+    const eventsByCategory = await db
+      .select({
+        category: events.category,
+        count: count(),
+      })
+      .from(events)
+      .where(gte(events.createdAt, startDate))
+      .groupBy(events.category)
+      .orderBy(desc(count()));
+
+    return {
+      period,
+      totalEvents: Number(eventCount?.count || 0),
+      totalRsvps: Number(rsvpCount?.count || 0),
+      popularEvents,
+      eventsByCategory,
+    };
   }
 
   // Organization Themes
