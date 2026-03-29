@@ -57,7 +57,10 @@ function Router() {
   const [location] = useLocation();
   const { user, isLoading } = useAuth();
 
+  console.log('[Router] Rendering, isLoading:', isLoading, 'user:', user);
+
   if (isLoading) {
+    console.log('[Router] Showing loading spinner');
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

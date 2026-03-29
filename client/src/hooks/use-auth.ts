@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import type { User } from "@/types/api";
 import { buildApiUrl } from "@/lib/api-config";
 import { apiRoutes } from "@/lib/api-routes";
@@ -37,31 +38,71 @@ async function fetchUser(): Promise<User | null> {
     headers["Authorization"] = `Bearer ${token}`;
   }
   
-  const response = await fetch(buildApiUrl(apiRoutes.auth.user), {
-    credentials: "include",
-    headers,
-  });
+  const url = buildApiUrl(apiRoutes.auth.user);
+  console.log('[Auth] Fetching user from:', url);
+  
+  try {
+    const response = await fetch(url, {
+      credentials: "include",
+      headers,
+    });
 
-  if (response.status === 401) {
-    setStoredToken(null);
-    return null;
+    console.log('[Auth] Response status:', response.status);
+
+    if (response.status === 401) {
+      console.log('[Auth] Got 401, returning null');
+      setStoredToken(null);
+      return null;
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      console.error('[Auth] Error response:', errorText);
+      throw new Error(`${response.status}: ${response.statusText}`);
+    }
+
+    const user = await response.json();
+    console.log('[Auth] Got user:', user);
+    return user;
+  } catch (error) {
+    console.error('[Auth] Fetch error:', error);
+    throw error;
   }
-
-  if (!response.ok) {
-    throw new Error(`${response.status}: ${response.statusText}`);
-  }
-
-  return response.json();
 }
 
 export function useAuth() {
   const queryClient = useQueryClient();
-  const { data: user, isLoading } = useQuery<User | null>({
+  const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["auth", "user"],
     queryFn: fetchUser,
     retry: false,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
+
+  console.log('[useAuth] Query result:', { user, isLoading, error });
+  
+  if (error) {
+    console.error('[useAuth] Query error:', error);
+  }
+  
+  if (!isLoading && !user && !error) {
+    console.log('[useAuth] User is null, not authenticated');
+  }
+  
+  // Add a timeout to help debug if query is stuck
+  React.useEffect(() => {
+    console.log('[useAuth] Effect running, isLoading:', isLoading);
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.log('[useAuth] Still loading after 5 seconds - query might be stuck');
+      }
+    }, 5000);
+    
+    return () => {
+      console.log('[useAuth] Cleaning up effect');
+      clearTimeout(timeout);
+    };
+  }, [isLoading]);
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
