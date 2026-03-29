@@ -575,14 +575,14 @@ export async function registerRoutes(
     try {
       const { email, password, firstName, lastName, isAdmin, isSuperAdmin } = signupSchema.parse(req.body);
       
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
-      }
+       // Check if user already exists
+       const existingUser = await storage.getUserByEmail(email);
+       if (existingUser) {
+         return res.status(400).json({ message: "User already exists" });
+       }
 
-       // Hash password
-       const passwordHash = await bcrypt.hash(password, 10);
+       // Hash password with increased rounds for better security
+       const passwordHash = await bcrypt.hash(password, 12);
        
        // Create user
        const user = await storage.createUser({
