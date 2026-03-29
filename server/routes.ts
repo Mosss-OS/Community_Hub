@@ -1,4 +1,4 @@
-import type { Express, Request } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage, type ISermonFilter } from "./storage";
 import { db } from "./db";
@@ -175,6 +175,28 @@ const isSuperAdmin = async (req: AuthenticatedRequest, res: any, next: any) => {
   if (!req.user?.isSuperAdmin) {
     return res.status(403).json({ message: "Super admin access required" });
   }
+  next();
+};
+
+// CSRF protection middleware
+const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
+  // Only check CSRF for state-changing methods
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+    return next();
+  }
+
+  // Get token from header or body (common places to send CSRF token)
+  const token = req.headers['x-csrf-token'] || 
+                req.body?.['_csrf'] ||
+                req.query?.['_csrf'];
+
+  // Get cookie
+  const cookieToken = req.cookies?.['csrf_token'];
+
+  if (!token || !cookieToken || token !== cookieToken) {
+    return res.status(403).json({ message: 'CSRF token mismatch' });
+  }
+
   next();
 };
 
@@ -428,7 +450,7 @@ export async function registerRoutes(
   });
 
   // Get privacy settings
-  app.get("/api/gdpr/privacy", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+  app.get("/api/gdpr/privacy", isAuthenticated, csrfProtection, async (req, res) => {
     try {
       const userId = req.user!.id;
       const user = await storage.getUserById(userId);
@@ -470,8 +492,8 @@ export async function registerRoutes(
     }
   });
 
-  // Login with rate limiting
-  app.post("/api/auth/login", loginLimiter, async (req, res) => {
+  // Login with rate limiting and CSRF protection
+  app.post("/api/auth/login", loginLimiter, csrfProtection, async (req, res) => {
     try {
       const { email, password } = loginSchema.parse(req.body);
       
@@ -548,8 +570,8 @@ export async function registerRoutes(
     }
   });
 
-  // Signup with rate limiting
-  app.post("/api/auth/signup", signupLimiter, async (req, res) => {
+  // Signup with rate limiting and CSRF protection
+  app.post("/api/auth/signup", signupLimiter, csrfProtection, async (req, res) => {
     try {
       const { email, password, firstName, lastName, isAdmin, isSuperAdmin } = signupSchema.parse(req.body);
       
@@ -559,31 +581,39 @@ export async function registerRoutes(
         return res.status(400).json({ message: "User already exists" });
       }
 
-      // Hash password
-      const passwordHash = await bcrypt.hash(password, 10);
-      
-      // Create user
-      const user = await storage.createUser({
-        email,
-        passwordHash,
-        firstName,
-        lastName: lastName || '',
-        isAdmin: !!isAdmin,
-        isSuperAdmin: !!isSuperAdmin,
-      });
-
-      const token = jwt.sign({ 
-        userId: user.id,
-        organizationId: user.organizationId 
-      }, JWT_SECRET, { expiresIn: '7d' });
-      
-      const isProduction = process.env.NODE_ENV === 'production';
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+       // Hash password
+       const passwordHash = await bcrypt.hash(password, 10);
+       
+       // Create user
+       const user = await storage.createUser({
+         email,
+         passwordHash,
+         firstName,
+         lastName: lastName || '',
+         isAdmin: !!isAdmin,
+         isSuperAdmin: !!isSuperAdmin,
+       });
+       
+       const token = jwt.sign({ 
+         userId: user.id,
+         organizationId: user.organizationId 
+       }, JWT_SECRET, { expiresIn: '7d' });
+       
+       const isProduction = process.env.NODE_ENV === 'production';
+       const csrfToken = crypto.randomBytes(32).toString('hex');
+       res.cookie('token', token, {
+         httpOnly: true,
+         secure: isProduction,
+         sameSite: isProduction ? 'none' : 'lax',
+         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+       });
+       // Set CSRF token cookie (non-httpOnly so client can read it)
+       res.cookie('csrf_token', csrfToken, {
+         httpOnly: false, // Must be false so client-side JavaScript can read it
+         secure: isProduction,
+         sameSite: isProduction ? 'none' : 'lax',
+         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+       });
 
       res.status(201).json({
         id: user.id,
@@ -609,13 +639,21 @@ export async function registerRoutes(
 
   // Logout
   app.post("/api/auth/logout", (req, res) => {
-    const isProduction = process.env.NODE_ENV === 'production';
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: '/',
-    });
+       const isProduction = process.env.NODE_ENV === 'production';
+       const csrfToken = crypto.randomBytes(32).toString('hex');
+       res.cookie('token', token, {
+         httpOnly: true,
+         secure: isProduction,
+         sameSite: isProduction ? 'none' : 'lax',
+         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+       });
+       // Set CSRF token cookie (non-httpOnly so client can read it)
+       res.cookie('csrf_token', csrfToken, {
+         httpOnly: false, // Must be false so client-side JavaScript can read it
+         secure: isProduction,
+         sameSite: isProduction ? 'none' : 'lax',
+         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+       });
     res.json({ message: "Logged out successfully" });
   });
 
@@ -2392,7 +2430,7 @@ export async function registerRoutes(
   });
 
   // Update privacy settings
-  app.put("/api/privacy", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+  app.put("/api/privacy", isAuthenticated, csrfProtection, async (req, res) => {
     try {
       const userId = req.user!.id;
       const settings = await storage.updatePrivacySettings(userId, req.body);
