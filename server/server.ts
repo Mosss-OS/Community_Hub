@@ -25,8 +25,11 @@ declare global {
   }
 }
 
-// JWT secret (in production, use a secure environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+// JWT secret - must be set via environment variable
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 // Authentication schemas
 const loginSchema = z.object({

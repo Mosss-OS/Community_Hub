@@ -43,8 +43,11 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-// JWT secret (in production, use a secure environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
+// JWT secret - must be set via environment variable
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 // Authentication schemas
 const loginSchema = z.object({
@@ -7426,6 +7429,371 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
       res.json(branding);
     } catch (err) {
       console.error("Error updating organization branding:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === ORGANIZATION APPROVAL WORKFLOW ===
+
+  // Get pending organizations for approval (super admin only)
+  app.get("/api/super-admin/organizations/pending", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const organizations = await storage.getPendingOrganizations();
+      res.json(organizations);
+    } catch (err) {
+      console.error("Error fetching pending organizations:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Approve organization (super admin only)
+  app.post("/api/super-admin/organizations/:id/approve", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const id = req.params.id as string;
+      const org = await storage.approveOrganization(id, req.user!.id);
+      
+      // TODO: Send approval email notification
+      // await sendOrganizationApprovalEmail(org);
+      
+      res.json({ message: "Organization approved successfully", organization: org });
+    } catch (err) {
+      console.error("Error approving organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Reject organization (super admin only)
+  app.post("/api/super-admin/organizations/:id/reject", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const id = req.params.id as string;
+      const { reason } = req.body;
+      
+      if (!reason) {
+        return res.status(400).json({ message: "Rejection reason is required" });
+      }
+      
+      const org = await storage.rejectOrganization(id, req.user!.id, reason);
+      
+      // TODO: Send rejection email notification
+      // await sendOrganizationRejectionEmail(org, reason);
+      
+      res.json({ message: "Organization rejected", organization: org });
+    } catch (err) {
+      console.error("Error rejecting organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get organization approval history (super admin only)
+  app.get("/api/super-admin/organizations/:id/approval-history", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const history = await storage.getOrganizationApprovalHistory(req.params.id as string);
+      res.json(history);
+    } catch (err) {
+      console.error("Error fetching approval history:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === ORGANIZATION MANAGEMENT DASHBOARD ===
+
+  // Get organization details with statistics (super admin only)
+  app.get("/api/super-admin/organizations/:id/details", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const orgId = req.params.id as string;
+      const details = await storage.getOrganizationDetails(orgId);
+      res.json(details);
+    } catch (err) {
+      console.error("Error fetching organization details:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get organization statistics (super admin only)
+  app.get("/api/super-admin/organizations/:id/stats", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const orgId = req.params.id as string;
+      const stats = await storage.getOrganizationStats(orgId);
+      res.json(stats);
+    } catch (err) {
+      console.error("Error fetching organization stats:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Activate organization (super admin only)
+  app.post("/api/super-admin/organizations/:id/activate", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const orgId = req.params.id as string;
+      const org = await storage.activateOrganization(orgId);
+      res.json({ message: "Organization activated", organization: org });
+    } catch (err) {
+      console.error("Error activating organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Deactivate organization (super admin only)
+  app.post("/api/super-admin/organizations/:id/deactivate", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const orgId = req.params.id as string;
+      const org = await storage.deactivateOrganization(orgId);
+      res.json({ message: "Organization deactivated", organization: org });
+    } catch (err) {
+      console.error("Error deactivating organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Search organizations with filters (super admin only)
+  app.get("/api/super-admin/organizations/search", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { q, status, sortBy, sortOrder } = req.query;
+      const results = await storage.searchOrganizations({
+        query: q as string,
+        status: status as string,
+        sortBy: sortBy as string,
+        sortOrder: sortOrder as 'asc' | 'desc',
+      });
+      res.json(results);
+    } catch (err) {
+      console.error("Error searching organizations:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === CROSS-ORGANIZATION MEMBER MANAGEMENT ===
+
+  // Get all members across all organizations (super admin only)
+  app.get("/api/super-admin/members", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { orgId, search, role, page = 1, limit = 50 } = req.query;
+      const results = await storage.getAllMembersAcrossOrganizations({
+        organizationId: orgId as string,
+        search: search as string,
+        role: role as string,
+        page: parseInt(page as string) || 1,
+        limit: parseInt(limit as string) || 50,
+      });
+      res.json(results);
+    } catch (err) {
+      console.error("Error fetching members:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get member details across organizations (super admin only)
+  app.get("/api/super-admin/members/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const memberId = req.params.id as string;
+      const details = await storage.getMemberCrossOrgDetails(memberId);
+      res.json(details);
+    } catch (err) {
+      console.error("Error fetching member details:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Transfer member between organizations (super admin only)
+  app.post("/api/super-admin/members/:id/transfer", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const memberId = req.params.id as string;
+      const { toOrganizationId, reason } = req.body;
+      
+      if (!toOrganizationId) {
+        return res.status(400).json({ message: "Target organization ID is required" });
+      }
+      
+      const result = await storage.transferMemberToOrganization(memberId, toOrganizationId, req.user!.id, reason);
+      res.json({ message: "Member transferred successfully", member: result });
+    } catch (err) {
+      console.error("Error transferring member:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get member activity across organizations (super admin only)
+  app.get("/api/super-admin/members/:id/activity", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const memberId = req.params.id as string;
+      const { limit = 50 } = req.query;
+      const activity = await storage.getMemberActivityAcrossOrgs(memberId, parseInt(limit as string) || 50);
+      res.json(activity);
+    } catch (err) {
+      console.error("Error fetching member activity:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Bulk update members (super admin only)
+  app.post("/api/super-admin/members/bulk-update", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { memberIds, updates, reason } = req.body;
+      
+      if (!memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
+        return res.status(400).json({ message: "Member IDs array is required" });
+      }
+      
+      const results = await storage.bulkUpdateMembers(memberIds, updates, req.user!.id, reason);
+      res.json({ message: `Updated ${results.length} members`, results });
+    } catch (err) {
+      console.error("Error bulk updating members:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Bulk transfer members (super admin only)
+  app.post("/api/super-admin/members/bulk-transfer", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { memberIds, toOrganizationId, reason } = req.body;
+      
+      if (!memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
+        return res.status(400).json({ message: "Member IDs array is required" });
+      }
+      
+      if (!toOrganizationId) {
+        return res.status(400).json({ message: "Target organization ID is required" });
+      }
+      
+      const results = await storage.bulkTransferMembers(memberIds, toOrganizationId, req.user!.id, reason);
+      res.json({ message: `Transferred ${results.length} members`, results });
+    } catch (err) {
+      console.error("Error bulk transferring members:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === PLATFORM-WIDE ANALYTICS ===
+
+  // Get platform overview statistics (super admin only)
+  app.get("/api/super-admin/analytics/overview", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const overview = await storage.getPlatformOverview();
+      res.json(overview);
+    } catch (err) {
+      console.error("Error fetching platform overview:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get organization growth metrics (super admin only)
+  app.get("/api/super-admin/analytics/growth", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { period = '30d' } = req.query;
+      const growth = await storage.getPlatformGrowthMetrics(period as string);
+      res.json(growth);
+    } catch (err) {
+      console.error("Error fetching growth metrics:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get most popular organizations (super admin only)
+  app.get("/api/super-admin/analytics/popular-organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { limit = 10 } = req.query;
+      const popular = await storage.getPopularOrganizations(parseInt(limit as string) || 10);
+      res.json(popular);
+    } catch (err) {
+      console.error("Error fetching popular organizations:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get activity trends (super admin only)
+  app.get("/api/super-admin/analytics/activity-trends", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { period = '30d', metric } = req.query;
+      const trends = await storage.getActivityTrends(period as string, metric as string);
+      res.json(trends);
+    } catch (err) {
+      console.error("Error fetching activity trends:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get member engagement metrics (super admin only)
+  app.get("/api/super-admin/analytics/engagement", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const engagement = await storage.getMemberEngagementMetrics();
+      res.json(engagement);
+    } catch (err) {
+      console.error("Error fetching engagement metrics:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get event statistics across platform (super admin only)
+  app.get("/api/super-admin/analytics/events", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { period = '30d' } = req.query;
+      const eventStats = await storage.getPlatformEventStats(period as string);
+      res.json(eventStats);
+    } catch (err) {
+      console.error("Error fetching event statistics:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
