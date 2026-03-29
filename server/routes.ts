@@ -35,15 +35,71 @@ import { sendNewMessageNotification } from "./websocket";
 import { processVideoClip } from "./video-processing";
 import { publicVapidKey } from "./services/push-notifications";
 
-const upload = multer({ dest: path.join(process.cwd(), "uploads", "videos") });
+// File upload configurations with security improvements
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(process.cwd(), "uploads", "images"));
+  },
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    // Generate a random filename to prevent overwriting and path traversal
+    const randomName = crypto.randomBytes(16).toString("hex");
+    cb(null, `${randomName}${extension}`);
+  }
+});
+
+const uploadStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(process.cwd(), "uploads", "videos"));
+  },
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    // Generate a random filename to prevent overwriting and path traversal
+    const randomName = crypto.randomBytes(16).toString("hex");
+    cb(null, `${randomName}${extension}`);
+  }
+});
+
 const imageUpload = multer({ 
-  dest: path.join(process.cwd(), "uploads", "images"),
+  storage: imageStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    // Allowed image extensions
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+    const extension = path.extname(file.originalname).toLowerCase();
+    
+    // Check file extension
+    if (!allowedExtensions.includes(extension)) {
+      return cb(new Error("Invalid image file type. Allowed formats: JPG, JPEG, PNG, GIF, WEBP, SVG"));
+    }
+    
+    // Check MIME type
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error('Only images are allowed'));
+      cb(new Error("Invalid image file type"));
+    }
+  }
+});
+
+const upload = multer({ 
+  storage: uploadStorage,
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for videos
+  fileFilter: (req, file, cb) => {
+    // Allowed video extensions
+    const allowedExtensions = [".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv"];
+    const extension = path.extname(file.originalname).toLowerCase();
+    
+    // Check file extension
+    if (!allowedExtensions.includes(extension)) {
+      return cb(new Error("Invalid video file type. Allowed formats: MP4, AVI, MOV, WMV, FLV, WEBM, MKV"));
+    }
+    
+    // Check MIME type
+    if (file.mimetype.startsWith("video/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid video file type"));
     }
   }
 });
