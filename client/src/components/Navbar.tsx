@@ -15,6 +15,7 @@ import {
 import { Menu, ChevronDown, LogOut, LayoutDashboard, CalendarCheck, QrCode, Shield, Bell, Music, Mic, Users, Heart, BookOpen, Video, X, MessageCircle, Compass, Sparkles, PartyPopper } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export function Navbar() {
@@ -175,6 +176,7 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LanguageSelector variant="navbar" />
 
           {user ? (
