@@ -49,6 +49,10 @@ export const organizations = pgTable('organizations', {
   facebookUrl: text('facebook_url'),
   twitterUrl: text('twitter_url'),
   isActive: boolean('is_active').default(true).notNull(),
+  approvalStatus: text('approval_status').default('pending').notNull(), // 'pending', 'approved', 'rejected'
+  rejectionReason: text('rejection_reason'),
+  approvedAt: timestamp('approved_at'),
+  approvedBy: uuid('approved_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
