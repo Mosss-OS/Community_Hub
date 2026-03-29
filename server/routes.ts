@@ -78,9 +78,39 @@ const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   firstName: z.string().min(1),
+  lastName: z.string().min(1),
+});
+
+const updateUserSchema = z.object({
+  firstName: z.string().optional(),
   lastName: z.string().optional(),
-  isAdmin: z.boolean().optional(),
-  isSuperAdmin: z.boolean().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  houseFellowship: z.string().optional(),
+  career: z.string().optional(),
+  stateOfOrigin: z.string().optional(),
+  birthday: z.string().optional(),
+  twitterHandle: z.string().optional(),
+  instagramHandle: z.string().optional(),
+  facebookHandle: z.string().optional(),
+  linkedinHandle: z.string().optional(),
+});
+
+// Create campus schema
+const createCampusSchema = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1).max(20),
+  address: z.string().min(1),
+  city: z.string().min(1),
+  state: z.string().min(1),
+  country: z.string().min(1),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+  website: z.string().url().optional(),
+  pastorId: z.string().uuid().optional(),
+  isHeadquarters: z.boolean().optional(),
+  timezone: z.string().optional(),
+  logoUrl: z.string().url().optional(),
 });
 
 // Authentication middleware
@@ -682,33 +712,41 @@ export async function registerRoutes(
     res.json({ message: "Role updated successfully" });
   });
 
-  // Update user profile (admin only)
+// Update user profile (admin only)
   app.put("/api/admin/users/:id", isAuthenticated, isAdmin, async (req, res) => {
-    const userId = req.params.id as string;
-    const { firstName, lastName, phone, address, houseFellowship, career, stateOfOrigin, birthday, twitterHandle, instagramHandle, facebookHandle, linkedinHandle } = req.body;
-    
-    const user = await storage.getUserById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    try {
+      const userId = req.params.id as string;
+      const updateData = updateUserSchema.parse(req.body);
+      
+      const user = await storage.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await storage.updateUser(userId, {
+        firstName: updateData.firstName ?? user.firstName,
+        lastName: updateData.lastName ?? user.lastName,
+        phone: updateData.phone ?? user.phone,
+        address: updateData.address ?? user.address,
+        houseFellowship: updateData.houseFellowship ?? user.houseFellowship,
+        career: updateData.career ?? user.career,
+        stateOfOrigin: updateData.stateOfOrigin ?? user.stateOfOrigin,
+        birthday: updateData.birthday ? new Date(updateData.birthday) : user.birthday,
+        twitterHandle: updateData.twitterHandle ?? user.twitterHandle,
+        instagramHandle: updateData.instagramHandle ?? user.instagramHandle,
+        facebookHandle: updateData.facebookHandle ?? user.facebookHandle,
+        linkedinHandle: updateData.linkedinHandle ?? user.linkedinHandle,
+      });
+      
+      const updatedUser = await storage.getUserById(userId);
+      res.json(updatedUser);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      console.error("Error updating user profile:", err);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    await storage.updateUser(userId, {
-      firstName: firstName ?? user.firstName,
-      lastName: lastName ?? user.lastName,
-      phone: phone ?? user.phone,
-      address: address ?? user.address,
-      houseFellowship: houseFellowship ?? user.houseFellowship,
-      career: career ?? user.career,
-      stateOfOrigin: stateOfOrigin ?? user.stateOfOrigin,
-      birthday: birthday ? new Date(birthday) : user.birthday,
-      twitterHandle: twitterHandle ?? user.twitterHandle,
-      instagramHandle: instagramHandle ?? user.instagramHandle,
-      facebookHandle: facebookHandle ?? user.facebookHandle,
-      linkedinHandle: linkedinHandle ?? user.linkedinHandle,
-    });
-
-    const updatedUser = await storage.getUserById(userId);
-    res.json(updatedUser);
   });
 
   // === MEMBER ROUTES ===
@@ -2129,12 +2167,27 @@ export async function registerRoutes(
   // Create campus (admin)
   app.post("/api/campuses", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const { name, code, address, city, state, country, phone, email, website, pastorId, isHeadquarters, timezone, logoUrl } = req.body;
+      const campusData = createCampusSchema.parse(req.body);
       const campus = await storage.createCampus({
-        name, code, address, city, state, country, phone, email, website, pastorId, isHeadquarters: isHeadquarters || false, timezone, logoUrl,
+        name: campusData.name,
+        code: campusData.code,
+        address: campusData.address,
+        city: campusData.city,
+        state: campusData.state,
+        country: campusData.country,
+        phone: campusData.phone,
+        email: campusData.email,
+        website: campusData.website,
+        pastorId: campusData.pastorId,
+        isHeadquarters: campusData.isHeadquarters ?? false,
+        timezone: campusData.timezone,
+        logoUrl: campusData.logoUrl,
       });
       res.json(campus);
     } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
       console.error("Error creating campus:", err);
       res.status(500).json({ message: "Internal server error" });
     }
@@ -2144,9 +2197,13 @@ export async function registerRoutes(
   app.put("/api/campuses/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
-      const campus = await storage.updateCampus(id, req.body);
+      const updateData = createCampusSchema.partial().parse(req.body);
+      const campus = await storage.updateCampus(id, updateData);
       res.json(campus);
     } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
       console.error("Error updating campus:", err);
       res.status(500).json({ message: "Internal server error" });
     }
