@@ -4340,25 +4340,32 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
   try {
     await seedDatabase();
     
-    // Ensure at least one SuperAdmin exists
-    const adminEmail = process.env.SUPER_ADMIN_EMAIL || "superadmin@wccrm.com";
-    const existingSuperAdmin = await storage.getUserByEmail(adminEmail);
-    
-    // Check if ANY super admin exists if the default doesn't
+    // Check if ANY super admin exists
     const allUsers = await storage.getAllUsers();
     const anySuperAdmin = allUsers.some(u => u.isSuperAdmin);
 
-    if (!existingSuperAdmin && !anySuperAdmin) {
-      console.log(`Creating default super admin (${adminEmail})...`);
-      const passwordHash = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD || "superadmin123", 10);
-      await storage.createUser({
-        email: adminEmail,
-        passwordHash,
-        firstName: "Super",
-        lastName: "Admin",
-        isSuperAdmin: true,
-        isAdmin: true,
-      });
+    // Only create initial super admin if environment variables are set AND no super admin exists
+    // This is a ONE-TIME setup - remove these env vars after first admin is created
+    const adminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const adminPassword = process.env.SUPER_ADMIN_PASSWORD;
+
+    if (!anySuperAdmin && adminEmail && adminPassword) {
+      const existingUser = await storage.getUserByEmail(adminEmail);
+      if (!existingUser) {
+        console.log(`Creating initial super admin from environment variables...`);
+        const passwordHash = await bcrypt.hash(adminPassword, 12);
+        await storage.createUser({
+          email: adminEmail,
+          passwordHash,
+          firstName: "Super",
+          lastName: "Admin",
+          isSuperAdmin: true,
+          isAdmin: true,
+        });
+        console.log("Initial super admin created. Remove SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD from environment variables.");
+      }
+    } else if (!anySuperAdmin) {
+      console.warn("WARNING: No super admin exists. Use the invite system or set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD to create one.");
     }
   } catch (err) {
     console.error("Error seeding database on startup:", err);
@@ -7704,6 +7711,52 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
       res.json({ message: `Transferred ${results.length} members`, results });
     } catch (err) {
       console.error("Error bulk transferring members:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Invite a new super admin (super admin only)
+  app.post("/api/super-admin/invite", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      
+      const { email, firstName, lastName } = req.body;
+      
+      if (!email || !firstName) {
+        return res.status(400).json({ message: "Email and first name are required" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+      
+      // Generate a secure random password
+      const tempPassword = crypto.randomBytes(16).toString('hex');
+      const passwordHash = await bcrypt.hash(tempPassword, 12);
+      
+      const newUser = await storage.createUser({
+        email,
+        passwordHash,
+        firstName,
+        lastName: lastName || '',
+        isSuperAdmin: true,
+        isAdmin: true,
+      });
+      
+      // TODO: Send invitation email with temp password and setup link
+      
+      res.status(201).json({ 
+        message: "Super admin invited successfully",
+        userId: newUser.id,
+        // In production, don't return the temp password - send via email instead
+        tempPassword 
+      });
+    } catch (err) {
+      console.error("Error inviting super admin:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
