@@ -5,6 +5,25 @@ import { db } from "./db";
 import { supportedLanguages, groupJoinRequests, groupActivityLogs, volunteerSkills, volunteerBadges, volunteerOpportunities, userReports, pushSubscriptions, notificationPreferences } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { api } from "@shared/routes";
+import rateLimit from 'express-rate-limit';
+
+// Rate limiters for auth endpoints
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: { message: 'Too many login attempts, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const signupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 2, // limit each IP to 2 requests per windowMs
+  message: { message: 'Too many signups from this IP, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -421,8 +440,8 @@ export async function registerRoutes(
     }
   });
 
-  // Login
-  app.post("/api/auth/login", async (req, res) => {
+  // Login with rate limiting
+  app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const { email, password } = loginSchema.parse(req.body);
       
@@ -499,8 +518,8 @@ export async function registerRoutes(
     }
   });
 
-  // Signup
-  app.post("/api/auth/signup", async (req, res) => {
+  // Signup with rate limiting
+  app.post("/api/auth/signup", signupLimiter, async (req, res) => {
     try {
       const { email, password, firstName, lastName, isAdmin, isSuperAdmin } = signupSchema.parse(req.body);
       
