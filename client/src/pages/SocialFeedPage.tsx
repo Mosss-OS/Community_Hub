@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
@@ -258,13 +259,13 @@ export default function SocialFeedPage() {
           {loadingPosts ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="bg-card">
                   <CardContent className="pt-6">
                     <div className="flex gap-4">
-                      <div className="h-10 w-10 bg-gray-200 rounded-full" />
+                      <Skeleton className="h-10 w-10 rounded-full" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-1/4" />
-                        <div className="h-16 bg-gray-200 rounded" />
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-16 w-full" />
                       </div>
                     </div>
                   </CardContent>

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Plus, Lock, Globe, UserPlus, LogOut } from "lucide-react";
 
@@ -145,13 +146,15 @@ export default function GroupsPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-6 py-10">
-        <div className="animate-pulse space-y-5">
-          <div className="h-10 bg-gray-200 rounded w-1/4"></div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-52 bg-gray-200 rounded-2xl"></div>
-            ))}
-          </div>
+        <Skeleton className="h-10 w-1/4 mb-5" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-52 bg-card border rounded-card p-4 space-y-3">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          ))}
         </div>
       </div>
     );

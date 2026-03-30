@@ -1,10 +1,3 @@
-const TOKEN_KEY = 'auth_token';
-
-function getStoredToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
-
 export interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
 }
@@ -21,13 +14,8 @@ export async function authFetch(url: string, options: FetchOptions = {}): Promis
     headers["Content-Type"] = "application/json";
   }
   
-  // Add auth header if not skipped
-  if (!skipAuth) {
-    const token = getStoredToken();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
+  // Note: Authentication is handled via httpOnly cookies, so we don't add an Authorization header.
+  // The cookie will be sent automatically because we are using credentials: "include".
   
   return fetch(url, {
     ...fetchOptions,
