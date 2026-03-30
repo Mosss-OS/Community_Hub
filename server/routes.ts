@@ -862,6 +862,21 @@ export async function registerRoutes(
       houseFellowship: user.houseFellowship,
       houseCellLocation: user.houseCellLocation,
       parish: user.parish,
+      career: user.career,
+      stateOfOrigin: user.stateOfOrigin,
+      birthday: user.birthday,
+      twitterHandle: user.twitterHandle,
+      instagramHandle: user.instagramHandle,
+      facebookHandle: user.facebookHandle,
+      linkedinHandle: user.linkedinHandle,
+      profileVisibility: user.profileVisibility,
+      showEmail: user.showEmail,
+      showPhone: user.showPhone,
+      showAddress: user.showAddress,
+      showBirthday: user.showBirthday,
+      showCareer: user.showCareer,
+      showSocial: user.showSocial,
+      showInDirectory: user.showInDirectory,
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -871,7 +886,7 @@ export async function registerRoutes(
   // Update current user's profile
   app.put("/api/members/me", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     const userId = req.user!.id;
-    const { firstName, lastName, phone, address, houseFellowship, parish, houseCellLocation, career, stateOfOrigin, birthday, twitterHandle, instagramHandle, facebookHandle, linkedinHandle } = req.body;
+    const { firstName, lastName, phone, address, houseFellowship, parish, houseCellLocation, career, stateOfOrigin, birthday, twitterHandle, instagramHandle, facebookHandle, linkedinHandle, profileVisibility, showEmail, showPhone, showAddress, showBirthday, showCareer, showSocial, showInDirectory } = req.body;
     
     const user = await storage.getUserById(userId);
     if (!user) {
@@ -893,6 +908,14 @@ export async function registerRoutes(
       instagramHandle: instagramHandle ?? user.instagramHandle,
       facebookHandle: facebookHandle ?? user.facebookHandle,
       linkedinHandle: linkedinHandle ?? user.linkedinHandle,
+      profileVisibility: profileVisibility ?? user.profileVisibility,
+      showEmail: showEmail ?? user.showEmail,
+      showPhone: showPhone ?? user.showPhone,
+      showAddress: showAddress ?? user.showAddress,
+      showBirthday: showBirthday ?? user.showBirthday,
+      showCareer: showCareer ?? user.showCareer,
+      showSocial: showSocial ?? user.showSocial,
+      showInDirectory: showInDirectory ?? user.showInDirectory,
     });
 
     res.json({
@@ -912,6 +935,14 @@ export async function registerRoutes(
       instagramHandle: updatedUser.instagramHandle,
       facebookHandle: updatedUser.facebookHandle,
       linkedinHandle: updatedUser.linkedinHandle,
+      profileVisibility: updatedUser.profileVisibility,
+      showEmail: updatedUser.showEmail,
+      showPhone: updatedUser.showPhone,
+      showAddress: updatedUser.showAddress,
+      showBirthday: updatedUser.showBirthday,
+      showCareer: updatedUser.showCareer,
+      showSocial: updatedUser.showSocial,
+      showInDirectory: updatedUser.showInDirectory,
       role: updatedUser.role,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
