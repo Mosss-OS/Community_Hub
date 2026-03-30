@@ -47,6 +47,7 @@ import SocialFeedPage from "@/pages/SocialFeedPage";
 import CelebrationsPage from "@/pages/CelebrationsPage";
 import { useWebSocket } from "@/hooks/use-websocket";
 import LanguageSettingsPage from "@/pages/LanguageSettingsPage";
+import StaffDirectoryPage from "@/pages/StaffDirectoryPage";
 import { LanguageProvider } from "@/hooks/use-language";
 
 import { useLocation, Redirect } from "wouter";
@@ -110,6 +111,7 @@ function Router() {
               <Route path="/attendance/scan" component={QRScannerPage} />
               <Route path="/attendance/absent" component={AbsentMembersPage} />
               <Route path="/members" component={MembersPage} />
+              <Route path="/staff" component={StaffDirectoryPage} />
               <Route path="/devotionals" component={DevotionalsPage} />
               <Route path="/live" component={LiveStreamPage} />
               <Route path="/admin/live-stream/new" component={AdminLiveStreamPage} />

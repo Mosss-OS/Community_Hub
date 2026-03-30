@@ -50,6 +50,7 @@ export function Navbar() {
 
   const discoverLinks = [
     { href: "/members", label: t("members") || "Members", icon: Users },
+    { href: "/staff", label: "Staff & Leaders", icon: Shield },
     { href: "/groups", label: t("groups"), icon: Compass },
   ];
 
