@@ -1069,6 +1069,57 @@ export async function registerRoutes(
     });
   });
 
+  // Get member's own activity logs
+  app.get("/api/members/activity", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    const userId = req.user!.id;
+    const limit = parseInt(req.query.limit as string) || 50;
+    
+    try {
+      const activities = await storage.getMemberActivityLogs(userId, limit);
+      res.json(activities);
+    } catch (err) {
+      console.error("Error fetching activity:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Log a new activity
+  app.post("/api/members/activity", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+      const { type, description, metadata } = req.body;
+      
+      if (!type || !description) {
+        return res.status(400).json({ message: "Type and description are required" });
+      }
+      
+      const activity = await storage.createMemberActivityLog({
+        userId: req.user.id,
+        type,
+        description,
+        metadata: metadata || {},
+      });
+      
+      res.json(activity);
+    } catch (err) {
+      console.error("Error logging activity:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get today's engagement metrics for current user
+  app.get("/api/analytics/my-engagement", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+      
+      const metrics = await storage.getMyEngagementMetrics(req.user.id);
+      res.json(metrics);
+    } catch (err) {
+      console.error("Error fetching engagement:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Verify user (admin only)
   app.post("/api/admin/users/:id/verify", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     const userIdParam = req.params.id;

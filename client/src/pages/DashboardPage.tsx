@@ -14,9 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
-import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake } from "lucide-react";
+import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, QrCode, Download } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function DashboardPage() {
   const { user, isLoading, refetch } = useAuth();
@@ -249,6 +250,59 @@ export default function DashboardPage() {
                   <p className="text-sm text-muted-foreground">Member Since</p>
                   <p className="font-medium text-foreground">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}</p>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Check-in QR Code */}
+          <div className="glass-card-strong rounded-3xl overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <QrCode className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground font-[--font-display]">Check-in QR Code</h3>
+                  <p className="text-muted-foreground text-sm">Scan at church services</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-white p-4 rounded-2xl shadow-sm">
+                  <QRCodeSVG 
+                    value={`${window.location.origin}/attendance/checkin?user=${user.id}`}
+                    size={160}
+                    level="M"
+                    includeMargin={true}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  Show this QR code at church services for quick check-in
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3 gap-2"
+                  onClick={() => {
+                    const canvas = document.createElement('canvas');
+                    const svg = document.querySelector('canvas + svg')?.parentElement?.querySelector('svg') as SVGElement;
+                    const svgData = new XMLSerializer().serializeToString(svg || document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
+                    const img = new Image();
+                    img.onload = () => {
+                      canvas.width = 200;
+                      canvas.height = 200;
+                      const ctx = canvas.getContext('2d');
+                      ctx?.drawImage(img, 0, 0);
+                      const pngFile = canvas.toDataURL('image/png');
+                      const downloadLink = document.createElement('a');
+                      downloadLink.download = `checkin-qr-${user.firstName || 'member'}.png`;
+                      downloadLink.href = pngFile;
+                      downloadLink.click();
+                    };
+                  }}
+                >
+                  <Download className="h-4 w-4" />
+                  Download QR Code
+                </Button>
               </div>
             </div>
           </div>

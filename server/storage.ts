@@ -15,7 +15,7 @@ import {
   sermonClips,
   supportedLanguages,
   posts, postLikes, postComments, commentLikes, postShares, userConnections, hashtags, postHashtags,
-  userEngagementMetrics, spiritualHealthScores, discipleshipAnalytics, groupAnalytics, analyticsReports,
+  userEngagementMetrics, spiritualHealthScores, memberActivityLogs, discipleshipAnalytics, groupAnalytics, analyticsReports,
   counselingRequests, counselingNotes, counselingFollowups, pastoralVisits,
   sermonEmbeddings, sermonViews, userSermonPreferences, sermonRecommendations,
   chatConversations, chatMessages, chatbotIntents, chatbotPreferences, chatbotAnalytics,
@@ -2735,6 +2735,26 @@ export class DatabaseStorage implements IStorage {
     
     const [created] = await db.insert(userEngagementMetrics).values(metrics).returning();
     return created;
+  }
+
+  // Member Activity Logs
+  async createMemberActivityLog(activity: InsertMemberActivityLog): Promise<MemberActivityLog> {
+    const [created] = await db.insert(memberActivityLogs).values(activity).returning();
+    return created;
+  }
+
+  async getMemberActivityLogs(userId: string, limit = 50): Promise<MemberActivityLog[]> {
+    return db.select().from(memberActivityLogs)
+      .where(eq(memberActivityLogs.userId, userId))
+      .orderBy(desc(memberActivityLogs.createdAt))
+      .limit(limit);
+  }
+
+  async getMyEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
+    const today = new Date().toISOString().split('T')[0];
+    const [metrics] = await db.select().from(userEngagementMetrics)
+      .where(and(eq(userEngagementMetrics.userId, userId), eq(userEngagementMetrics.date, today)));
+    return metrics || null;
   }
 
   // Spiritual Health Scores
