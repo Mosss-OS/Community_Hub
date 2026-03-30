@@ -104,6 +104,7 @@ export function PrayerCard({ request }: PrayerCardProps) {
           </Button>
         )}
       </CardFooter>
-    </Card>
+      </Card>
+    </motion.div>
   );
 }
