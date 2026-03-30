@@ -222,11 +222,13 @@ export interface IStorage {
   getDonations(): Promise<Donation[]>;
 
   // Event RSVPs
-  rsvpToEvent(eventId: number, userId: string): Promise<EventRsvp>;
+  rsvpToEvent(eventId: number, userId: string, status?: string): Promise<EventRsvp>;
   removeRsvp(eventId: number, userId: string): Promise<void>;
   getUserRsvps(userId: string): Promise<EventRsvp[]>;
   getEventRsvps(eventId: number): Promise<EventRsvp[]>;
   markAddedToCalendar(eventId: number, userId: string): Promise<EventRsvp>;
+  getWaitlistCount(eventId: number): Promise<number>;
+  promoteFromWaitlist(eventId: number): Promise<EventRsvp | null>;
 
   // Event Categories
   getEventCategories(): Promise<EventCategory[]>;
@@ -808,15 +810,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Event RSVPs
-  async rsvpToEvent(eventId: number, userId: string): Promise<EventRsvp> {
+  async rsvpToEvent(eventId: number, userId: string, status: string = 'going'): Promise<EventRsvp> {
     const existing = await db.select().from(eventRsvps).where(
       and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.userId, userId))
     );
     if (existing.length > 0) {
+      // Update status if different
+      if (existing[0].rsvpStatus !== status) {
+        const [updated] = await db.update(eventRsvps)
+          .set({ rsvpStatus: status })
+          .where(and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.userId, userId)))
+          .returning();
+        return updated;
+      }
       return existing[0];
     }
-    const [rsvp] = await db.insert(eventRsvps).values({ eventId, userId }).returning();
+    const [rsvp] = await db.insert(eventRsvps).values({ eventId, userId, rsvpStatus: status }).returning();
     return rsvp;
+  }
+
+  async getWaitlistCount(eventId: number): Promise<number> {
+    const result = await db.select().from(eventRsvps).where(
+      and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.rsvpStatus, 'waitlist'))
+    );
+    return result.length;
+  }
+
+  async promoteFromWaitlist(eventId: number): Promise<EventRsvp | null> {
+    const [firstWaitlisted] = await db.select().from(eventRsvps)
+      .where(and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.rsvpStatus, 'waitlist')))
+      .orderBy(asc(eventRsvps.createdAt))
+      .limit(1);
+    
+    if (!firstWaitlisted) return null;
+    
+    const [promoted] = await db.update(eventRsvps)
+      .set({ rsvpStatus: 'going' })
+      .where(eq(eventRsvps.id, firstWaitlisted.id))
+      .returning();
+    return promoted;
   }
 
   async removeRsvp(eventId: number, userId: string): Promise<void> {

@@ -1316,7 +1316,25 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Event not found" });
       }
 
-      const rsvp = await storage.rsvpToEvent(eventId, userId);
+      // Check if event has capacity limit
+      if (event.capacity && event.capacity > 0) {
+        const rsvps = await storage.getEventRsvps(eventId);
+        const confirmedCount = rsvps.filter(r => r.rsvpStatus !== 'waitlist').length;
+        
+        if (confirmedCount >= event.capacity) {
+          // Add to waitlist
+          const rsvp = await storage.rsvpToEvent(eventId, userId, 'waitlist');
+          const waitlistPosition = rsvps.filter(r => r.rsvpStatus === 'waitlist').length + 1;
+          return res.json({ 
+            message: "Added to waitlist", 
+            rsvp,
+            waitlist: true,
+            waitlistPosition
+          });
+        }
+      }
+
+      const rsvp = await storage.rsvpToEvent(eventId, userId, 'going');
       res.json({ message: "RSVP successful", rsvp });
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });
@@ -1329,7 +1347,32 @@ export async function registerRoutes(
       const eventId = Number(req.params.id);
       const userId = req.user!.id;
       
+      const rsvp = await storage.getEventRsvps(eventId);
+      const userRsvp = rsvp.find(r => r.userId === userId);
+      
       await storage.removeRsvp(eventId, userId);
+      
+      // If user was confirmed (not on waitlist) and there's capacity, promote from waitlist
+      if (userRsvp && userRsvp.rsvpStatus !== 'waitlist') {
+        const event = await storage.getEvent(eventId);
+        if (event && event.capacity && event.capacity > 0) {
+          const promoted = await storage.promoteFromWaitlist(eventId);
+          if (promoted) {
+            const promotedUser = await storage.getUserById(promoted.userId);
+            if (promotedUser) {
+              await storage.createMessage({
+                userId: promoted.userId,
+                type: "EVENT_WAITLIST",
+                title: "Event Spot Available!",
+                content: `Great news! A spot has opened up for an event you were on the waitlist for. You've been automatically confirmed.`,
+                priority: "normal",
+                createdBy: userId,
+              });
+            }
+          }
+        }
+      }
+      
       res.json({ message: "RSVP removed" });
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });

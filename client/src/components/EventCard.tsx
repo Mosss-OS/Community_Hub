@@ -211,11 +211,18 @@ export function EventCard({ event }: EventCardProps) {
       return;
     }
     rsvp(event.id, {
-      onSuccess: () => {
-        toast({
-          title: "RSVP Confirmed!",
-          description: "We look forward to seeing you there.",
-        });
+      onSuccess: (data: any) => {
+        if (data.waitlist) {
+          toast({
+            title: "Added to Waitlist",
+            description: `This event is full. You're #${data.waitlistPosition} on the waitlist.`,
+          });
+        } else {
+          toast({
+            title: "RSVP Confirmed!",
+            description: "We look forward to seeing you there.",
+          });
+        }
       },
       onError: () => {
         toast({
@@ -287,7 +294,14 @@ export function EventCard({ event }: EventCardProps) {
             {(event as any).rsvpCount !== undefined && (
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-600" />
-                <span className="text-green-600 font-medium">{(event as any).rsvpCount} attending</span>
+                <span className="text-green-600 font-medium">
+                  {(event as any).rsvpCount} attending
+                  {event.capacity && event.capacity > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      ({Math.max(0, event.capacity - (event as any).rsvpCount)} spots left)
+                    </span>
+                  )}
+                </span>
               </div>
             )}
           </div>
@@ -296,12 +310,15 @@ export function EventCard({ event }: EventCardProps) {
           {isRsvped ? (
             <>
               <Button 
-                variant="default"
+                variant={userRsvp?.rsvpStatus === 'waitlist' ? 'secondary' : 'default'}
                 disabled
                 size="sm"
-                className="text-xs sm:text-sm py-2 sm:py-3 bg-green-600 cursor-not-allowed rounded-lg"
+                className={`text-xs sm:text-sm py-2 sm:py-3 cursor-not-allowed rounded-lg ${
+                  userRsvp?.rsvpStatus === 'waitlist' ? 'bg-amber-100 text-amber-700' : 'bg-green-600'
+                }`}
               >
-                <Check className="w-3.5 h-3.5 mr-1" /> RSVPED
+                <Check className="w-3.5 h-3.5 mr-1" /> 
+                {userRsvp?.rsvpStatus === 'waitlist' ? 'ON WAITLIST' : 'RSVPED'}
               </Button>
               <div className="relative">
                 <Button 
