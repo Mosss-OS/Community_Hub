@@ -38,6 +38,25 @@ function calculateProfileCompleteness(user: any) {
   return Math.round((filledFields / PROFILE_FIELDS.length) * 100);
 }
 
+const PROFILE_FIELDS = [
+  { key: 'phone', label: 'Phone Number' },
+  { key: 'address', label: 'Address' },
+  { key: 'parish', label: 'Parish' },
+  { key: 'houseFellowship', label: 'House Fellowship' },
+  { key: 'houseCellLocation', label: 'House Cell Location' },
+  { key: 'career', label: 'Career' },
+  { key: 'stateOfOrigin', label: 'State of Origin' },
+  { key: 'birthday', label: 'Birthday' },
+];
+
+function calculateProfileCompleteness(user: any) {
+  const filledFields = PROFILE_FIELDS.filter(field => {
+    const value = (user as any)[field.key];
+    return value && value.toString().trim() !== '';
+  }).length;
+  return Math.round((filledFields / PROFILE_FIELDS.length) * 100);
+}
+
 export default function DashboardPage() {
   const { user, isLoading, refetch } = useAuth();
   const { data: myPrayers, isLoading: isPrayersLoading } = useMyPrayerRequests();
