@@ -14,10 +14,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
-import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, QrCode, Download, AlertCircle } from "lucide-react";
+import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
+
+const PROFILE_FIELDS = [
+  { key: 'phone', label: 'Phone Number' },
+  { key: 'address', label: 'Address' },
+  { key: 'parish', label: 'Parish' },
+  { key: 'houseFellowship', label: 'House Fellowship' },
+  { key: 'houseCellLocation', label: 'House Cell Location' },
+  { key: 'career', label: 'Career' },
+  { key: 'stateOfOrigin', label: 'State of Origin' },
+  { key: 'birthday', label: 'Birthday' },
+];
+
+function calculateProfileCompleteness(user: any) {
+  const filledFields = PROFILE_FIELDS.filter(field => {
+    const value = (user as any)[field.key];
+    return value && value.toString().trim() !== '';
+  }).length;
+  return Math.round((filledFields / PROFILE_FIELDS.length) * 100);
+}
 
 const PROFILE_FIELDS = [
   { key: 'phone', label: 'Phone Number' },
