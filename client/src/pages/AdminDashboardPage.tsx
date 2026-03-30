@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Users, Shield, Calendar, FileText, Plus, Trash2, Edit, Palette, Heart, Search, MapPin, Clock, User, Mail, Phone, BarChart3, Link, QrCode, TrendingUp, Video, DollarSign, TrendingDown, CheckCircle, HandsPraying } from "lucide-react";
+import { Loader2, Users, Shield, Calendar, FileText, Plus, Trash2, Edit, Palette, Heart, Search, MapPin, Clock, User, Mail, Phone, BarChart3, Link, QrCode, TrendingUp, Video, DollarSign, TrendingDown, CheckCircle, HeartHandshake } from "lucide-react";
 import { apiRoutes } from "@/lib/api-routes";
 import { buildApiUrl } from "@/lib/api-config";
 import type { Event, Sermon, InsertEvent, InsertSermon, UserRole } from "@/types/api";
@@ -1004,53 +1004,160 @@ export default function AdminDashboardPage() {
 
           {/* Overview Tab */}
           <TabsContent value="overview">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{users?.length || 0}</div>
-                  <p className="text-xs text-muted-foreground">Registered members</p>
-                </CardContent>
-              </Card>
+            {isStatsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-1">Quick Stats</h2>
+                  <p className="text-sm text-gray-500">Key metrics for your church platform</p>
+                </div>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-blue-700">Total Members</CardTitle>
+                      <Users className="h-5 w-5 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-blue-900">{dashboardStats?.totalMembers || 0}</div>
+                      <p className="text-xs text-blue-600 mt-1">Registered members</p>
+                      <Button variant="link" className="p-0 h-auto mt-2 text-blue-600" asChild>
+                        <a href="/analytics?tab=members">View details →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Administrators</CardTitle>
-                  <Shield className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {users?.filter(u => u.isAdmin).length || 0}
+                  <Card className="border-green-100 bg-gradient-to-br from-green-50 to-white">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-green-700">Total Donations</CardTitle>
+                      <DollarSign className="h-5 w-5 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-green-900">${(dashboardStats?.totalDonations || 0).toLocaleString()}</div>
+                      <p className="text-xs text-green-600 mt-1">All time giving</p>
+                      <Button variant="link" className="p-0 h-auto mt-2 text-green-600" asChild>
+                        <a href="/analytics?tab=donations">View details →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-purple-700">Recent Donations</CardTitle>
+                      <TrendingUp className="h-5 w-5 text-purple-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-purple-900">${(dashboardStats?.recentDonations || 0).toLocaleString()}</div>
+                      <p className="text-xs text-purple-600 mt-1">Last 30 days</p>
+                      <Button variant="link" className="p-0 h-auto mt-2 text-purple-600" asChild>
+                        <a href="/analytics?tab=donations">View details →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-amber-100 bg-gradient-to-br from-amber-50 to-white">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-amber-700">Recent Attendance</CardTitle>
+                      <CheckCircle className="h-5 w-5 text-amber-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold text-amber-900">{dashboardStats?.recentAttendance || 0}</div>
+                      <p className="text-xs text-amber-600 mt-1">Check-ins (30 days)</p>
+                      <Button variant="link" className="p-0 h-auto mt-2 text-amber-600" asChild>
+                        <a href="/attendance/analytics">View details →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mt-6">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Events</CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{dashboardStats?.totalEvents || 0}</div>
+                      <p className="text-xs text-muted-foreground">Total events</p>
+                      <Button variant="link" className="p-0 h-auto mt-2" asChild>
+                        <a href="/events">Manage events →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Sermons</CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{dashboardStats?.totalSermons || 0}</div>
+                      <p className="text-xs text-muted-foreground">Total sermons</p>
+                      <Button variant="link" className="p-0 h-auto mt-2" asChild>
+                        <a href="/sermons">Manage sermons →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Prayer Requests</CardTitle>
+                      <HeartHandshake className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{dashboardStats?.totalPrayers || 0}</div>
+                      <p className="text-xs text-muted-foreground">Total requests</p>
+                      <Button variant="link" className="p-0 h-auto mt-2" asChild>
+                        <a href="/prayer">View prayers →</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Administrators</CardTitle>
+                      <Shield className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{users?.filter(u => u.isAdmin).length || 0}</div>
+                      <p className="text-xs text-muted-foreground">Admin accounts</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200">
+                  <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="/analytics" target="_blank">
+                        <BarChart3 className="w-4 h-4 mr-2" />
+                        Full Analytics
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="/attendance/analytics" target="_blank">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Attendance Reports
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="/members" target="_blank">
+                        <Users className="w-4 h-4 mr-2" />
+                        Member Directory
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="/groups" target="_blank">
+                        <Link className="w-4 h-4 mr-2" />
+                        Group Management
+                      </a>
+                    </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Admin accounts</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Events</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{events?.length || 0}</div>
-                  <p className="text-xs text-muted-foreground">Total events</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Sermons</CardTitle>
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{sermons?.length || 0}</div>
-                  <p className="text-xs text-muted-foreground">Total sermons</p>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </>
+            )}
           </TabsContent>
         </Tabs>
 
