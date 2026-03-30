@@ -140,6 +140,8 @@ export interface PrayerRequest {
   isAnonymous?: boolean;
   createdAt: string;
   prayCount?: number;
+  isAnswered?: boolean;
+  answeredAt?: string;
 }
 
 export interface Donation {

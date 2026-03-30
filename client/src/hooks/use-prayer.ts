@@ -62,3 +62,20 @@ export function useMyPrayerRequests() {
     },
   });
 }
+
+export function useMarkPrayerAnswered() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number): Promise<PrayerRequest> => {
+      const res = await fetch(buildApiUrl(`/api/prayer-requests/${id}/answer`), {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to mark prayer as answered");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [apiRoutes.prayer.list] });
+    },
+  });
+}
