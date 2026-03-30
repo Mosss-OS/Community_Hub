@@ -26,7 +26,8 @@ interface FundraisingCampaign {
 }
 
 interface Donation {
-  id: number; amount: number; status: string; createdAt: string;
+  id: number; amount: number; status: string; createdAt: string; isRecurring?: boolean;
+  recurringFrequency?: string; recurringActive?: boolean; nextDonationDate?: string;
 }
 
 const formatCurrency = (cents: number) =>
@@ -37,12 +38,18 @@ const formatDate = (dateStr: string | null) => {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const getRecurringImpact = (amount: number, frequency: string) => {
+  const yearly = frequency === 'weekly' ? amount * 52 : frequency === 'biweekly' ? amount * 26 : amount * 12;
+  return { monthly: amount, yearly };
+};
+
 export default function GivePage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
   const { mutate: donate, isPending } = useCreateDonation();
   const [givingType, setGivingType] = useState("one-time");
+  const [recurringFrequency, setRecurringFrequency] = useState<"weekly" | "biweekly" | "monthly">("monthly");
   const [campaigns, setCampaigns] = useState<FundraisingCampaign[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loadingCampaigns, setLoadingCampaigns] = useState(true);
@@ -79,13 +86,25 @@ export default function GivePage() {
   });
 
   const onSubmit = (data: { amount: number }) => {
-    const payload = {
+    const payload: any = {
       amount: Math.round(data.amount * 100), currency: "usd", status: "succeeded",
       userId: user?.id || null, campaignId: selectedCampaign,
     };
+    
+    if (givingType === "recurring") {
+      payload.isRecurring = true;
+      payload.recurringFrequency = recurringFrequency;
+      const nextDate = new Date();
+      if (recurringFrequency === "weekly") nextDate.setDate(nextDate.getDate() + 7);
+      else if (recurringFrequency === "biweekly") nextDate.setDate(nextDate.getDate() + 14);
+      else nextDate.setMonth(nextDate.getMonth() + 1);
+      payload.nextDonationDate = nextDate.toISOString();
+      payload.recurringActive = true;
+    }
+    
     donate(payload, {
       onSuccess: () => {
-        toast({ title: t("thankYou"), description: t("donationSuccess") });
+        toast({ title: t("thankYou"), description: givingType === "recurring" ? "Your recurring donation has been set up!" : t("donationSuccess") });
         form.reset();
         if (selectedCampaign) {
           setCampaigns(prev => prev.map(c =>
@@ -148,6 +167,27 @@ export default function GivePage() {
                         <TabsTrigger value="one-time" className="rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm">{t("oneTime")}</TabsTrigger>
                         <TabsTrigger value="recurring" className="rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm">{t("recurring")}</TabsTrigger>
                       </TabsList>
+                      {givingType === "recurring" && (
+                        <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/20">
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {(["weekly", "biweekly", "monthly"] as const).map((freq) => (
+                              <Button key={freq} type="button" variant={recurringFrequency === freq ? "default" : "outline"} size="sm" onClick={() => setRecurringFrequency(freq)} className="rounded-lg">
+                                {freq === "weekly" ? "Weekly" : freq === "biweekly" ? "Bi-weekly" : "Monthly"}
+                              </Button>
+                            ))}
+                          </div>
+                          {form.watch("amount") > 0 && (() => {
+                            const impact = getRecurringImpact(form.watch("amount"), recurringFrequency);
+                            return (
+                              <div className="text-sm text-muted-foreground">
+                                <p className="font-medium text-foreground mb-2">Impact of your recurring gift:</p>
+                                <p>Monthly: <span className="font-bold text-foreground">{formatCurrency(impact.monthly * 100)}</span></p>
+                                <p>Yearly: <span className="font-bold text-foreground">{formatCurrency(impact.yearly * 100)}</span></p>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
 
                       <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -289,32 +329,73 @@ export default function GivePage() {
               <div className="glass-card rounded-3xl p-12 text-center"><p className="text-muted-foreground">{t("loginToViewHistory")}</p></div>
             ) : loadingDonations ? (
               <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-            ) : donations.length === 0 ? (
-              <div className="glass-card rounded-3xl p-12 text-center"><Heart className="h-12 w-12 mx-auto text-muted-foreground/20 mb-4" /><p className="text-muted-foreground">{t("noDonations")}</p></div>
             ) : (
-              <div className="glass-card-strong rounded-3xl overflow-hidden">
-                <div className="p-6 border-b border-border/20">
-                  <h3 className="text-xl font-bold font-[--font-display]">{t("donationHistory")}</h3>
-                  <p className="text-muted-foreground text-sm mt-1">{t("thankYouGenerosity")}</p>
-                </div>
-                <div className="p-4 space-y-3">
-                  {donations.map((donation) => (
-                    <div key={donation.id} className="flex items-center justify-between p-4 glass-card rounded-2xl hover:shadow-md transition-all">
-                      <div>
-                        <p className="font-bold text-foreground">{formatCurrency(donation.amount)}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(donation.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        donation.status === 'succeeded' ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'
-                      }`}>
-                        {donation.status === 'succeeded' ? t("completed") : donation.status}
-                      </span>
+              <>
+                {donations.filter(d => d.isRecurring && d.recurringActive).length > 0 && (
+                  <div className="glass-card-strong rounded-3xl overflow-hidden border-l-4 border-l-green-500">
+                    <div className="p-6 border-b border-border/20 bg-green-500/5">
+                      <h3 className="text-xl font-bold font-[--font-display] flex items-center gap-2"><TrendingUp className="h-5 w-5 text-green-600" /> Active Recurring Donations</h3>
+                      <p className="text-muted-foreground text-sm mt-1">Manage your scheduled giving</p>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="p-4 space-y-3">
+                      {donations.filter(d => d.isRecurring && d.recurringActive).map((donation) => (
+                        <div key={donation.id} className="flex items-center justify-between p-4 glass-card rounded-2xl">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-foreground">{formatCurrency(donation.amount)}</p>
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium capitalize">
+                                {donation.recurringFrequency?.replace("_", " ")}
+                              </span>
+                            </div>
+                            {donation.nextDonationDate && (
+                              <p className="text-sm text-muted-foreground">
+                                Next: {new Date(donation.nextDonationDate).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                          <Button variant="outline" size="sm" className="text-destructive border-destructive/50 hover:bg-destructive/10" onClick={async () => {
+                            if (confirm("Are you sure you want to cancel this recurring donation?")) {
+                              await fetch(buildApiUrl(`/api/donations/${donation.id}/cancel`), { method: "POST", credentials: "include" });
+                              toast({ title: "Recurring donation cancelled" });
+                              window.location.reload();
+                            }
+                          }}>
+                            Cancel
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {donations.filter(d => !d.isRecurring).length > 0 ? (
+                  <div className="glass-card-strong rounded-3xl overflow-hidden">
+                    <div className="p-6 border-b border-border/20">
+                      <h3 className="text-xl font-bold font-[--font-display]">{t("donationHistory")}</h3>
+                      <p className="text-muted-foreground text-sm mt-1">{t("thankYouGenerosity")}</p>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {donations.filter(d => !d.isRecurring).map((donation) => (
+                        <div key={donation.id} className="flex items-center justify-between p-4 glass-card rounded-2xl hover:shadow-md transition-all">
+                          <div>
+                            <p className="font-bold text-foreground">{formatCurrency(donation.amount)}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(donation.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            donation.status === 'succeeded' ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'
+                          }`}>
+                            {donation.status === 'succeeded' ? t("completed") : donation.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : donations.filter(d => d.isRecurring && d.recurringActive).length === 0 ? (
+                  <div className="glass-card rounded-3xl p-12 text-center"><Heart className="h-12 w-12 mx-auto text-muted-foreground/20 mb-4" /><p className="text-muted-foreground">{t("noDonations")}</p></div>
+                ) : null}
+              </>
             )}
           </TabsContent>
         </Tabs>

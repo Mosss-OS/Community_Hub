@@ -3695,6 +3695,21 @@ export async function registerRoutes(
     }
   });
 
+  // Cancel recurring donation
+  app.post("/api/donations/:id/cancel", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const donation = await storage.cancelRecurringDonation(id, req.user!.id);
+      if (!donation) {
+        return res.status(404).json({ message: "Donation not found or not authorized" });
+      }
+      res.json({ success: true, message: "Recurring donation cancelled" });
+    } catch (err) {
+      console.error("Error cancelling donation:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // === DAILY DEVOTIONAL ROUTES ===
 
   // Get today's devotional (public)

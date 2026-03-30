@@ -327,6 +327,7 @@ export interface IStorage {
   updateFundraisingCampaign(id: number, campaign: Partial<InsertFundraisingCampaign>): Promise<FundraisingCampaign>;
   deleteFundraisingCampaign(id: number): Promise<void>;
   getDonationHistory(userId: string): Promise<Donation[]>;
+  cancelRecurringDonation(id: number, userId: string): Promise<Donation | null>;
 
   // Daily Devotionals
   getDailyDevotionals(publishedOnly?: boolean, organizationId?: string): Promise<DailyDevotional[]>;
@@ -1475,6 +1476,14 @@ export class DatabaseStorage implements IStorage {
 
   async getDonationHistory(userId: string): Promise<Donation[]> {
     return db.select().from(donations).where(eq(donations.userId, userId)).orderBy(desc(donations.createdAt));
+  }
+
+  async cancelRecurringDonation(id: number, userId: string): Promise<Donation | null> {
+    const [donation] = await db.select().from(donations).where(and(eq(donations.id, id), eq(donations.userId, userId)));
+    if (!donation) return null;
+    
+    const [updated] = await db.update(donations).set({ recurringActive: false }).where(eq(donations.id, id)).returning();
+    return updated;
   }
 
   // Daily Devotionals
