@@ -31,7 +31,7 @@ export function useWebSocket() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // In development, use localhost:3000 for WebSocket, in production use same host
     const wsHost = import.meta.env.DEV ? 'localhost:3000' : window.location.host;
-    const wsUrl = `${wsProtocol}//${wsHost}/ws?token=${token}`;
+    const wsUrl = `${wsProtocol}//${wsHost}/ws`;
 
     try {
       const ws = new WebSocket(wsUrl);

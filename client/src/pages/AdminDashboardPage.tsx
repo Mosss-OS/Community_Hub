@@ -183,7 +183,12 @@ function BrandingForm({ branding, onSubmit, isLoading }: { branding: Branding | 
               className="mb-2"
             />
             <p className="text-xs text-gray-500">Upload a logo (recommended: 200x200px, PNG or JPG)</p>
-            {uploadingLogo && <p className="text-xs text-blue-500 mt-1">Uploading...</p>}
+            {uploadingLogo && (
+              <div className="mt-2 space-y-1">
+                <Progress value={uploadProgress} className="h-2" />
+                <p className="text-xs text-blue-500">Uploading... {uploadProgress}%</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="mt-2">
