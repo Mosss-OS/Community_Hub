@@ -5,6 +5,7 @@ import { useUserRsvps } from "@/hooks/use-events";
 import { useMyMessages, useUnreadCount, useMarkAsRead, useSendMessage, useReplyToMessage } from "@/hooks/use-messages";
 import { usePermissions } from "@/hooks/use-permissions";
 import { useAbsentMembers } from "@/hooks/use-attendance";
+import { useWatchHistory, useClearWatchHistory } from "@/hooks/use-watch-history";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,8 @@ export default function DashboardPage() {
   const replyToMessage = useReplyToMessage();
   const { canViewAbsentMembers, canFollowUpAbsent, canSendMessages } = usePermissions();
   const { data: absentMembers, isLoading: isAbsentLoading, error: absentError } = useAbsentMembers(3);
+  const { data: watchHistory, isLoading: isWatchHistoryLoading } = useWatchHistory();
+  const clearWatchHistory = useClearWatchHistory();
   const { toast } = useToast();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -478,6 +481,62 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center py-6 text-muted-foreground"><p>You haven't RSVP'd to any events yet.</p><Button variant="ghost" asChild className="mt-2"><Link href="/events">Browse Events</Link></Button></div>
+              )}
+            </div>
+          </div>
+
+          {/* Watch History */}
+          <div className="md:col-span-2 glass-card-strong rounded-3xl overflow-hidden">
+            <div className="p-6 border-b border-border/20 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Play className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-bold text-foreground font-[--font-display]">Watch History</h3>
+                {watchHistory && watchHistory.length > 0 && <span className="ml-2 text-sm text-muted-foreground">({watchHistory.length})</span>}
+              </div>
+              {watchHistory && watchHistory.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => { if (confirm('Clear your watch history?')) clearWatchHistory.mutate(); }} className="text-muted-foreground hover:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-1" /> Clear
+                </Button>
+              )}
+            </div>
+            <div className="p-4">
+              {isWatchHistoryLoading ? (
+                <div className="flex items-center justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+              ) : watchHistory && watchHistory.length > 0 ? (
+                <div className="space-y-3">
+                  {watchHistory.slice(0, 5).map((item) => (
+                    <Link key={item.id} href={`/sermons/${item.sermonId}`}>
+                      <div className="flex items-center gap-4 p-4 glass-card rounded-2xl hover:shadow-md transition-all cursor-pointer">
+                        <div className="w-16 h-12 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden">
+                          {item.sermon?.thumbnailUrl ? (
+                            <img src={item.sermon.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <Play className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-foreground truncate">{item.sermon?.title || 'Sermon'}</p>
+                          <p className="text-xs text-muted-foreground">{item.sermon?.preacher || 'Unknown'}</p>
+                        </div>
+                        {item.completed && <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">Completed</span>}
+                        {item.watchProgress && !item.completed && <span className="text-xs bg-amber-500/10 text-amber-600 px-2 py-1 rounded-full font-medium">{Math.round(item.watchProgress * 100)}%</span>}
+                      </div>
+                    </Link>
+                  ))}
+                  {watchHistory.length > 5 && (
+                    <Button variant="outline" className="w-full rounded-2xl" asChild>
+                      <Link href="/sermons"><span>View All Sermons</span></Link>
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Play className="h-8 w-8 mx-auto mb-2 text-muted-foreground/20" />
+                  <p>No watch history yet.</p>
+                  <Button variant="ghost" asChild className="mt-2">
+                    <Link href="/sermons">Browse Sermons</Link>
+                  </Button>
+                </div>
               )}
             </div>
           </div>
