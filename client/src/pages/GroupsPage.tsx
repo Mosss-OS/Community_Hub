@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Lock, Globe, UserPlus, LogOut } from "lucide-react";
+import { Users, Plus, Lock, Globe, UserPlus, LogOut, Clock, Check, X, UserCheck } from "lucide-react";
 
 interface Group {
   id: number;
@@ -22,6 +22,7 @@ interface Group {
   creatorId: string;
   creatorName: string | null;
   isMember: boolean;
+  requestStatus?: "PENDING" | "APPROVED" | "REJECTED" | null;
   createdAt: string;
 }
 
@@ -31,6 +32,19 @@ interface GroupMember {
   firstName: string;
   lastName: string;
   email: string;
+  role?: string;
+}
+
+interface JoinRequest {
+  id: number;
+  groupId: number;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  message: string | null;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
 }
 
 async function fetchGroups(): Promise<Group[]> {
@@ -48,6 +62,14 @@ async function fetchMyGroups(): Promise<Group[]> {
 async function fetchGroupMembers(groupId: number): Promise<GroupMember[]> {
   const response = await fetch(buildApiUrl(`/api/groups/${groupId}/members`));
   if (!response.ok) throw new Error("Failed to fetch members");
+  return response.json();
+}
+
+async function fetchJoinRequests(groupId: number): Promise<JoinRequest[]> {
+  const response = await fetch(buildApiUrl(`/api/groups/${groupId}/join-requests`), {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Failed to fetch join requests");
   return response.json();
 }
 
@@ -71,6 +93,28 @@ async function joinGroup(groupId: number) {
   return response.json();
 }
 
+async function requestJoinGroup(groupId: number, message?: string) {
+  const response = await fetch(buildApiUrl(`/api/groups/${groupId}/join-request`), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ message }),
+  });
+  if (!response.ok) throw new Error("Failed to request join group");
+  return response.json();
+}
+
+async function reviewJoinRequest(requestId: number, status: "APPROVED" | "REJECTED") {
+  const response = await fetch(buildApiUrl(`/api/groups/join-requests/${requestId}`), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) throw new Error("Failed to review join request");
+  return response.json();
+}
+
 async function leaveGroup(groupId: number) {
   const response = await fetch(buildApiUrl(`/api/groups/${groupId}/leave`), {
     method: "POST",
@@ -86,6 +130,10 @@ export default function GroupsPage() {
   const queryClient = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [requestMessage, setRequestMessage] = useState("");
+  const [requestingGroupId, setRequestingGroupId] = useState<number | null>(null);
+  const [showRequestsDialog, setShowRequestsDialog] = useState(false);
   const [newGroup, setNewGroup] = useState({ name: "", description: "", isPrivate: false });
 
   const { data: groups, isLoading } = useQuery({
@@ -103,6 +151,12 @@ export default function GroupsPage() {
     queryKey: ["group-members", selectedGroup?.id],
     queryFn: () => fetchGroupMembers(selectedGroup!.id),
     enabled: !!selectedGroup,
+  });
+
+  const { data: joinRequests, refetch: refetchRequests } = useQuery({
+    queryKey: ["group-join-requests", selectedGroup?.id],
+    queryFn: () => fetchJoinRequests(selectedGroup!.id),
+    enabled: !!selectedGroup && !!user,
   });
 
   const createMutation = useMutation({
@@ -128,6 +182,35 @@ export default function GroupsPage() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to join group", variant: "destructive" });
+    },
+  });
+
+  const requestJoinMutation = useMutation({
+    mutationFn: ({ groupId, message }: { groupId: number; message?: string }) => 
+      requestJoinGroup(groupId, message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      setShowRequestDialog(false);
+      setRequestMessage("");
+      setRequestingGroupId(null);
+      toast({ title: "Success", description: "Request sent! Waiting for approval." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to send request", variant: "destructive" });
+    },
+  });
+
+  const reviewRequestMutation = useMutation({
+    mutationFn: ({ requestId, status }: { requestId: number; status: "APPROVED" | "REJECTED" }) => 
+      reviewJoinRequest(requestId, status),
+    onSuccess: () => {
+      refetchRequests();
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: ["my-groups"] });
+      toast({ title: "Success", description: "Request reviewed!" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to review request", variant: "destructive" });
     },
   });
 
@@ -254,6 +337,15 @@ export default function GroupsPage() {
                 <CardContent>
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                     <span>{group.memberCount} members</span>
+                    {group.isPrivate && members?.find(m => m.userId === user?.id && (m.role === "ADMIN" || m.role === "OWNER")) && (
+                      <Badge variant="secondary" className="cursor-pointer hover:bg-gray-200" onClick={() => {
+                        setSelectedGroup(group);
+                        setShowRequestsDialog(true);
+                      }}>
+                        <Users className="w-3 h-3 mr-1" />
+                        Requests
+                      </Badge>
+                    )}
                   </div>
                   <Button
                     variant="outline"
@@ -319,10 +411,22 @@ export default function GroupsPage() {
                           <Users className="w-4 h-4 mr-2" />
                           Member
                         </Button>
-                      ) : group.isPrivate ? (
+                      ) : group.requestStatus === "PENDING" ? (
                         <Button disabled variant="outline" className="w-full">
+                          <Clock className="w-4 h-4 mr-2" />
+                          Request Pending
+                        </Button>
+                      ) : group.isPrivate ? (
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => {
+                            setRequestingGroupId(group.id);
+                            setShowRequestDialog(true);
+                          }}
+                        >
                           <Lock className="w-4 h-4 mr-2" />
-                          Private Group
+                          Request to Join
                         </Button>
                       ) : (
                         <Button
@@ -346,6 +450,100 @@ export default function GroupsPage() {
           </div>
         )}
       </div>
+
+      {/* Request to Join Dialog */}
+      <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request to Join Group</DialogTitle>
+            <DialogDescription>
+              Send a request to join this private group. The group admin will review your request.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="requestMessage">Message (optional)</Label>
+              <Textarea
+                id="requestMessage"
+                value={requestMessage}
+                onChange={e => setRequestMessage(e.target.value)}
+                placeholder="Tell the group why you'd like to join..."
+                rows={3}
+              />
+            </div>
+            <Button
+              onClick={() => requestingGroupId && requestJoinMutation.mutate({ groupId: requestingGroupId, message: requestMessage })}
+              disabled={requestJoinMutation.isPending}
+              className="w-full"
+            >
+              {requestJoinMutation.isPending ? "Sending..." : "Send Request"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Join Requests Dialog */}
+      <Dialog open={showRequestsDialog} onOpenChange={setShowRequestsDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Join Requests</DialogTitle>
+            <DialogDescription>
+              Review and manage requests to join {selectedGroup?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+            {!joinRequests || joinRequests.length === 0 ? (
+              <p className="text-center text-gray-500 py-4">No pending requests</p>
+            ) : (
+              joinRequests.map(request => (
+                <div key={request.id} className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-medium">{request.firstName} {request.lastName}</p>
+                      <p className="text-sm text-gray-500">{request.email}</p>
+                    </div>
+                    <Badge 
+                      className={
+                        request.status === "APPROVED" ? "bg-green-500" :
+                        request.status === "REJECTED" ? "bg-red-500" :
+                        "bg-yellow-500"
+                      }
+                    >
+                      {request.status}
+                    </Badge>
+                  </div>
+                  {request.message && (
+                    <p className="text-sm text-gray-600 mb-3 italic">"{request.message}"</p>
+                  )}
+                  {request.status === "PENDING" && (
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        onClick={() => reviewRequestMutation.mutate({ requestId: request.id, status: "APPROVED" })}
+                        disabled={reviewRequestMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        className="flex-1"
+                        onClick={() => reviewRequestMutation.mutate({ requestId: request.id, status: "REJECTED" })}
+                        disabled={reviewRequestMutation.isPending}
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
