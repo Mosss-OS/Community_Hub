@@ -364,7 +364,7 @@ const canSendMessages = async (req: AuthenticatedRequest, res: any, next: any) =
   // Check user's role from database
   try {
     const user = await storage.getUserById(req.user.id);
-    console.log('User role from DB:', user?.role);
+    console.log('User role checked from DB');
     if (user && CAN_SEND_MESSAGE_ROLES.includes(user.role)) {
       return next();
     }
