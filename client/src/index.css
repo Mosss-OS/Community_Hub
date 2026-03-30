@@ -32,6 +32,7 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-card: 0.75rem;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -245,4 +246,9 @@ button, input, textarea, select { font-size: 0.8125rem; }
 .shimmer-border {
   position: relative;
   border: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* Consistent card styling */
+.card {
+  border-radius: var(--radius-card);
 }

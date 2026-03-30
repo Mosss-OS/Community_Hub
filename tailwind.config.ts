@@ -9,6 +9,7 @@ export default {
         lg: ".5625rem", /* 9px */
         md: ".375rem", /* 6px */
         sm: ".1875rem", /* 3px */
+        card: "0.75rem", /* 12px - consistent card border radius */
       },
       colors: {
         // Flat / base colors (regular buttons)
