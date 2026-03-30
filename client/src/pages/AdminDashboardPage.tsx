@@ -15,11 +15,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Users, Shield, Calendar, FileText, Plus, Trash2, Edit, Palette, Heart, Search, MapPin, Clock, User, Mail, Phone, BarChart3, Link, QrCode, TrendingUp, Video } from "lucide-react";
+import { Loader2, Users, Shield, Calendar, FileText, Plus, Trash2, Edit, Palette, Heart, Search, MapPin, Clock, User, Mail, Phone, BarChart3, Link, QrCode, TrendingUp, Video, DollarSign, TrendingDown, CheckCircle, HandsPraying } from "lucide-react";
 import { apiRoutes } from "@/lib/api-routes";
 import { buildApiUrl } from "@/lib/api-config";
 import type { Event, Sermon, InsertEvent, InsertSermon, UserRole } from "@/types/api";
 import { USER_ROLES } from "@/types/api";
+
+interface DashboardStats {
+  totalMembers: number;
+  totalDonations: number;
+  totalEvents: number;
+  totalSermons: number;
+  totalPrayers: number;
+  recentDonations: number;
+  recentAttendance: number;
+}
 
 interface AdminUser {
   id: string;
@@ -344,6 +354,18 @@ export default function AdminDashboardPage() {
       if (!res.ok) throw new Error("Failed to fetch sermons");
       return res.json();
     },
+  });
+
+  const { data: dashboardStats, isLoading: isStatsLoading } = useQuery<DashboardStats>({
+    queryKey: ["/api/analytics/dashboard"],
+    queryFn: async () => {
+      const res = await fetch(buildApiUrl("/api/analytics/dashboard"), {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch dashboard stats");
+      return res.json();
+    },
+    enabled: user?.isAdmin === true,
   });
 
   const createEvent = useMutation({
