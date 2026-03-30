@@ -7,6 +7,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageSEO } from "@/components/PageSEO";
 import { format } from "date-fns";
 import { LocationMap } from "@/components/LocationMap";
 import { motion } from "framer-motion";
@@ -28,6 +29,7 @@ export default function HomePage() {
   const { data: sermons, isLoading: loadingSermons } = useSermons();
   const { data: events, isLoading: loadingEvents } = useEvents();
   const { user } = useAuth();
+
   const { t } = useLanguage();
 
   const upcomingEvents = events
@@ -35,7 +37,12 @@ export default function HomePage() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
   return (
-    <div className="flex flex-col">
+    <>
+      <PageSEO 
+        title="Home" 
+        description="Welcome to CHub - your church community platform. Access sermons, events, devotionals, and connect with your church family."
+      />
+      <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative min-h-[85vh] sm:min-h-[100vh] flex items-center justify-center overflow-hidden">
         {/* Background image */}
@@ -291,6 +298,7 @@ export default function HomePage() {
 
       <LocationMap />
     </div>
+    </>
   );
 }
 

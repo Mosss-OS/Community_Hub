@@ -172,8 +172,8 @@ const createCampusSchema = z.object({
 // Authentication middleware
 const isAuthenticated = async (req: AuthenticatedRequest, res: any, next: any) => {
   console.log('=== AUTH CHECK ===');
-  console.log('Cookies:', req.cookies);
-  console.log('Auth header:', req.headers.authorization);
+  console.log('Cookies: [REDACTED]');
+  console.log('Auth header: [REDACTED]');
   try {
     const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
     
