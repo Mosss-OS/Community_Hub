@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, MessageSquare, Bell, Send, Reply } from "lucide-react";
-import { format } from "date-fns";
+import { Loader2, MessageSquare, Bell, Send, Reply, Check, CheckCheck } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 export default function MessagesPage() {
   const { data: messages, isLoading } = useMyMessages();
@@ -107,7 +108,14 @@ export default function MessagesPage() {
                   >
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg">{message.title}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-lg">{message.title}</CardTitle>
+                          {message.isRead ? (
+                            <CheckCheck className="h-4 w-4 text-blue-500" />
+                          ) : (
+                            <Check className="h-4 w-4 text-gray-400" />
+                          )}
+                        </div>
                         <div className="flex items-center gap-2">
                           {message.priority === 'high' && (
                             <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Urgent</span>
@@ -122,7 +130,12 @@ export default function MessagesPage() {
                       <p className="text-gray-600 line-clamp-2 mb-3">{message.content}</p>
                       <div className="flex items-center justify-between text-sm text-gray-400">
                         <span>{format(new Date(message.createdAt), "MMM d, yyyy 'at' h:mm a")}</span>
-                        <span className="capitalize">{message.type.toLowerCase().replace('_', ' ')}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="capitalize">{message.type.toLowerCase().replace('_', ' ')}</span>
+                          {message.isRead && message.readAt && (
+                            <span className="text-blue-500">• Read {formatDistanceToNow(new Date(message.readAt), { addSuffix: true })}</span>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -141,10 +154,21 @@ export default function MessagesPage() {
                     <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Urgent</span>
                   )}
                   <CardTitle>{selectedMessage.title}</CardTitle>
+                  {selectedMessage.isRead ? (
+                    <CheckCheck className="h-4 w-4 text-blue-500" />
+                  ) : (
+                    <Check className="h-4 w-4 text-gray-400" />
+                  )}
                 </div>
-                <p className="text-sm text-gray-500">
-                  {format(new Date(selectedMessage.createdAt), "MMM d, yyyy 'at' h:mm a")}
-                </p>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span>{format(new Date(selectedMessage.createdAt), "MMM d, yyyy 'at' h:mm a")}</span>
+                  {selectedMessage.isRead && selectedMessage.readAt && (
+                    <span className="text-blue-500 flex items-center gap-1">
+                      <CheckCheck className="h-3 w-3" />
+                      Read {formatDistanceToNow(new Date(selectedMessage.readAt), { addSuffix: true })}
+                    </span>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
