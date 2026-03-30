@@ -3990,6 +3990,34 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
+  // Resend check-in notification
+  app.post("/api/attendance/checkin-notification", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { eventId, eventTitle, eventDate } = req.body;
+      
+      if (!eventId || !eventTitle || !eventDate) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      const checkinMessage = await storage.createMessage({
+        userId,
+        type: "CHECKIN_CONFIRMATION",
+        title: "Check-in Confirmed!",
+        content: `You've successfully checked in for ${eventTitle} on ${new Date(eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. Thank you for attending!`,
+        priority: "normal",
+        createdBy: userId,
+      });
+      
+      sendNewMessageNotification(userId, checkinMessage);
+      
+      res.json({ success: true, message: "Check-in notification sent" });
+    } catch (err) {
+      console.error("Error sending check-in notification:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Manual check-in (admin/leader only)
   app.post("/api/attendance/manual", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     try {
