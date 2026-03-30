@@ -1629,6 +1629,27 @@ export const insertUserEngagementMetricsSchema = createInsertSchema(userEngageme
 export type UserEngagementMetrics = typeof userEngagementMetrics.$inferSelect;
 export type InsertUserEngagementMetrics = z.infer<typeof insertUserEngagementMetricsSchema>;
 
+// Member Activity Logs
+export const memberActivityLogs = pgTable("member_activity_logs", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull(),
+  description: text("description").notNull(),
+  metadata: jsonb("metadata").default("{}"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const memberActivityLogsRelations = relations(memberActivityLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [memberActivityLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertMemberActivityLogSchema = createInsertSchema(memberActivityLogs).omit({ id: true, createdAt: true });
+export type MemberActivityLog = typeof memberActivityLogs.$inferSelect;
+export type InsertMemberActivityLog = z.infer<typeof insertMemberActivityLogSchema>;
+
 export const insertSpiritualHealthScoreSchema = createInsertSchema(spiritualHealthScores).omit({ id: true, calculatedAt: true });
 export type SpiritualHealthScore = typeof spiritualHealthScores.$inferSelect;
 export type InsertSpiritualHealthScore = z.infer<typeof insertSpiritualHealthScoreSchema>;
