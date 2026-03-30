@@ -68,6 +68,10 @@ export default function DashboardPage() {
     birthday: (user as any)?.birthday ? new Date((user as any).birthday).toISOString().split('T')[0] : "",
     twitterHandle: (user as any)?.twitterHandle || "", instagramHandle: (user as any)?.instagramHandle || "",
     facebookHandle: (user as any)?.facebookHandle || "", linkedinHandle: (user as any)?.linkedinHandle || "",
+    profileVisibility: (user as any)?.profileVisibility || "members",
+    showInDirectory: (user as any)?.showInDirectory !== false,
+    showPhone: (user as any)?.showPhone !== false,
+    showBirthday: (user as any)?.showBirthday !== false,
   });
 
   useEffect(() => {
@@ -81,6 +85,10 @@ export default function DashboardPage() {
         birthday: (user as any)?.birthday ? new Date((user as any).birthday).toISOString().split('T')[0] : "",
         twitterHandle: (user as any)?.twitterHandle || "", instagramHandle: (user as any)?.instagramHandle || "",
         facebookHandle: (user as any)?.facebookHandle || "", linkedinHandle: (user as any)?.linkedinHandle || "",
+        profileVisibility: (user as any)?.profileVisibility || "members",
+        showInDirectory: (user as any)?.showInDirectory !== false,
+        showPhone: (user as any)?.showPhone !== false,
+        showBirthday: (user as any)?.showBirthday !== false,
       });
     }
   }, [user]);
@@ -162,6 +170,41 @@ export default function DashboardPage() {
                   <div><Label htmlFor="instagramHandle">Instagram</Label><Input id="instagramHandle" value={formData.instagramHandle} onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })} placeholder="@username" className="rounded-2xl border-border/50 bg-card/50" /></div>
                   <div><Label htmlFor="facebookHandle">Facebook</Label><Input id="facebookHandle" value={formData.facebookHandle} onChange={(e) => setFormData({ ...formData, facebookHandle: e.target.value })} placeholder="Facebook profile" className="rounded-2xl border-border/50 bg-card/50" /></div>
                   <div><Label htmlFor="linkedinHandle">LinkedIn</Label><Input id="linkedinHandle" value={formData.linkedinHandle} onChange={(e) => setFormData({ ...formData, linkedinHandle: e.target.value })} placeholder="LinkedIn profile" className="rounded-2xl border-border/50 bg-card/50" /></div>
+                </div>
+                <div className="border-t border-border/20 pt-4 space-y-3">
+                  <Label className="text-sm font-medium">Privacy Settings</Label>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Show in Directory</p>
+                      <p className="text-xs text-muted-foreground">Appear in member directory</p>
+                    </div>
+                    <input type="checkbox" checked={formData.showInDirectory ?? true} onChange={(e) => setFormData({ ...formData, showInDirectory: e.target.checked })} className="h-4 w-4 rounded border-border/50" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Profile Visibility</p>
+                      <p className="text-xs text-muted-foreground">Who can see your profile</p>
+                    </div>
+                    <select value={formData.profileVisibility ?? 'members'} onChange={(e) => setFormData({ ...formData, profileVisibility: e.target.value })} className="rounded-xl border border-border/50 bg-card/50 px-3 py-1.5 text-sm">
+                      <option value="everyone">Everyone</option>
+                      <option value="members">Members Only</option>
+                      <option value="nobody">Nobody</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Show Phone Number</p>
+                      <p className="text-xs text-muted-foreground">Display phone in profile</p>
+                    </div>
+                    <input type="checkbox" checked={formData.showPhone ?? true} onChange={(e) => setFormData({ ...formData, showPhone: e.target.checked })} className="h-4 w-4 rounded border-border/50" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Show Birthday</p>
+                      <p className="text-xs text-muted-foreground">Display birthday in profile</p>
+                    </div>
+                    <input type="checkbox" checked={formData.showBirthday ?? true} onChange={(e) => setFormData({ ...formData, showBirthday: e.target.checked })} className="h-4 w-4 rounded border-border/50" />
+                  </div>
                 </div>
                 <Button type="submit" disabled={isUpdating} className="w-full rounded-2xl gradient-accent text-primary-foreground font-bold shadow-lg">
                   {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
