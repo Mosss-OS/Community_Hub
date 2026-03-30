@@ -3925,7 +3925,17 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
         createdBy: userId,
       });
 
-      res.status(201).json(attendance);
+      const checkinMessage = await storage.createMessage({
+        userId: targetUserId,
+        type: "CHECKIN_CONFIRMATION",
+        title: "Check-in Recorded!",
+        content: `Your attendance for ${serviceName} on ${new Date(serviceDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} has been recorded.`,
+        priority: "normal",
+        createdBy: userId,
+      });
+      sendNewMessageNotification(targetUserId, checkinMessage);
+
+      res.status(201).json({ ...attendance, messageSent: true });
     } catch (err) {
       console.error("Error manual check-in:", err);
       res.status(500).json({ message: "Internal server error" });
@@ -4086,7 +4096,17 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
         createdBy: link.createdBy,
       });
 
-      res.status(201).json(attendance);
+      const checkinMessage = await storage.createMessage({
+        userId,
+        type: "CHECKIN_CONFIRMATION",
+        title: "Check-in Confirmed!",
+        content: `You've successfully checked in for ${link.serviceName} on ${link.serviceDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. See you there!`,
+        priority: "normal",
+        createdBy: userId,
+      });
+      sendNewMessageNotification(userId, checkinMessage);
+
+      res.status(201).json({ ...attendance, messageSent: true });
     } catch (err) {
       console.error("Error checking in via link:", err);
       res.status(500).json({ message: "Internal server error" });
