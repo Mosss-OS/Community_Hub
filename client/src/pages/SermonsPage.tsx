@@ -93,7 +93,11 @@ export default function SermonsPage() {
     return Array.from(new Set([...speakers, ...sermonTopics.speakers]));
   }, [allSermons, sermonTopics.speakers]);
 
-  const uniqueTopics = useMemo(() => sermonTopics.topics, [sermonTopics.topics]);
+  const uniqueTopics = useMemo(() => {
+    if (!allSermons) return sermonTopics.topics;
+    const topics = allSermons.map(s => s.topic).filter((t): t is string => Boolean(t));
+    return Array.from(new Set([...topics, ...sermonTopics.topics]));
+  }, [allSermons, sermonTopics.topics]);
 
   return (
     <div className="min-h-screen bg-background pb-10 sm:pb-16 md:pb-24">
@@ -197,6 +201,7 @@ export default function SermonsPage() {
             { key: "status" as const, placeholder: t("status"), options: [{ value: "all", label: t("allMessages") }, { value: "past", label: t("pastMessages") }, { value: "upcoming", label: t("upcomingMessages") }] },
             { key: "series" as const, placeholder: t("series"), options: [{ value: "all", label: t("allSeries") }, ...uniqueSeries.map(s => ({ value: s, label: s }))] },
             { key: "speaker" as const, placeholder: t("speaker"), options: [{ value: "all", label: t("allSpeakers") }, ...uniqueSpeakers.map(s => ({ value: s, label: s }))] },
+            { key: "topic" as const, placeholder: t("topic"), options: [{ value: "all", label: t("allTopics") || "All Topics" }, ...uniqueTopics.map(t => ({ value: t, label: t }))] },
           ].map(({ key, placeholder, options }) => (
             <Select key={key} value={filters[key] || "all"} onValueChange={(value) => handleFilterChange(key, value)}>
               <SelectTrigger className="w-full sm:w-[180px] bg-card/50 rounded-xl sm:rounded-2xl border-border/50 h-9 sm:h-11 backdrop-blur-sm text-xs sm:text-sm"><SelectValue placeholder={placeholder} /></SelectTrigger>

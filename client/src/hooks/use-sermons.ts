@@ -12,7 +12,7 @@ export interface SermonFilters {
 }
 
 export function useSermons(filters?: SermonFilters) {
-  const queryKey = filters?.speaker || filters?.series || filters?.status || filters?.search
+  const queryKey = filters?.speaker || filters?.series || filters?.status || filters?.search || filters?.topic
     ? [apiRoutes.sermons.list, filters]
     : [apiRoutes.sermons.list];
 
@@ -24,6 +24,7 @@ export function useSermons(filters?: SermonFilters) {
       if (filters?.series) params.append("series", filters.series);
       if (filters?.status) params.append("status", filters.status);
       if (filters?.search) params.append("search", filters.search);
+      if (filters?.topic) params.append("topic", filters.topic);
       
       const url = params.toString() 
         ? `${buildApiUrl(apiRoutes.sermons.list)}?${params}`
