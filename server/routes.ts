@@ -3523,7 +3523,7 @@ export async function registerRoutes(
   // Create devotional (admin only)
   app.post("/api/devotionals", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      console.log("Creating devotional with body:", req.body);
+      console.log("Creating devotional");
       const { title, content, author, bibleVerse, theme, imageUrl, publishDate } = req.body;
       const orgId = getOrganizationId(req);
       const devotional = await storage.createDailyDevotional({
@@ -4383,8 +4383,7 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
 
   // Send message to member (NO AUTH for testing)
   app.post("/api/messages/send", async (req: AuthenticatedRequest, res) => {
-    console.log('=== MESSAGE SEND REQUEST (NO AUTH) ===');
-    console.log('Body:', req.body);
+    console.log('Message send request received');
     try {
       const { userId, type, title, content, priority } = req.body;
       
