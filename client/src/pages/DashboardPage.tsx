@@ -14,10 +14,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
-import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, QrCode, Download } from "lucide-react";
+import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, QrCode, Download, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
+
+const PROFILE_FIELDS = [
+  { key: 'phone', label: 'Phone Number' },
+  { key: 'address', label: 'Address' },
+  { key: 'parish', label: 'Parish' },
+  { key: 'houseFellowship', label: 'House Fellowship' },
+  { key: 'houseCellLocation', label: 'House Cell Location' },
+  { key: 'career', label: 'Career' },
+  { key: 'stateOfOrigin', label: 'State of Origin' },
+  { key: 'birthday', label: 'Birthday' },
+];
+
+function calculateProfileCompleteness(user: any) {
+  const filledFields = PROFILE_FIELDS.filter(field => {
+    const value = (user as any)[field.key];
+    return value && value.toString().trim() !== '';
+  }).length;
+  return Math.round((filledFields / PROFILE_FIELDS.length) * 100);
+}
 
 export default function DashboardPage() {
   const { user, isLoading, refetch } = useAuth();
@@ -169,6 +188,47 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+          {/* Profile Completeness */}
+          {(() => {
+            const completeness = calculateProfileCompleteness(user);
+            const missingFields = PROFILE_FIELDS.filter(field => {
+              const value = (user as any)[field.key];
+              return !value || value.toString().trim() === '';
+            });
+            return (
+              <div className="md:col-span-2 glass-card-strong rounded-3xl overflow-hidden border-l-4 border-l-amber-500">
+                <div className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+                      <AlertCircle className="h-5 w-5 text-amber-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base font-bold text-foreground font-[--font-display]">Profile Completeness</h3>
+                      <p className="text-sm text-muted-foreground">{completeness}% complete</p>
+                    </div>
+                    <span className="text-2xl font-bold text-amber-500">{completeness}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2.5 mb-4">
+                    <div className="bg-gradient-to-r from-amber-400 to-amber-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${completeness}%` }} />
+                  </div>
+                  {missingFields.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs text-muted-foreground mb-2 font-medium">Missing information:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {missingFields.map(field => (
+                          <span key={field.key} className="text-xs bg-muted px-2.5 py-1 rounded-full text-muted-foreground">{field.label}</span>
+                        ))}
+                      </div>
+                      <Button size="sm" className="mt-3 rounded-2xl bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border border-amber-500/20" onClick={() => setIsEditOpen(true)}>
+                        <Edit className="mr-1.5 h-3 w-3" /> Complete Your Profile
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Profile Card */}
           <div className="glass-card-strong rounded-3xl overflow-hidden">
             <div className="p-6">
