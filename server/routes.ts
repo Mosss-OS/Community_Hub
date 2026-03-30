@@ -291,7 +291,7 @@ const detectSubdomain = async (req: AuthenticatedRequest, res: any, next: any) =
       if (org) {
         (req as any).organizationId = org.id;
         (req as any).organization = org;
-        console.log(`Subdomain detected: ${subdomain}, Organization: ${org.name}`);
+        console.log('Subdomain detected for organization');
       } else {
         console.log(`Subdomain not found: ${subdomain}`);
       }
