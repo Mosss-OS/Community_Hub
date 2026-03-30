@@ -10,7 +10,11 @@ import {
   MapPin, 
   Loader2, 
   Calendar,
-  AlertCircle
+  AlertCircle,
+  Download,
+  RefreshCw,
+  Target,
+  CheckCircle2
 } from "lucide-react";
 import { buildApiUrl } from "@/lib/api-config";
 
@@ -29,11 +33,24 @@ interface StatsData {
   byService: { serviceType: string; count: number }[];
 }
 
+interface CheckinStats {
+  total: number;
+  online: number;
+  offline: number;
+  totalMembers: number;
+  expectedAttendance: number;
+  checkInRate: number;
+  lastUpdated: string;
+  byService: { serviceType: string; serviceName: string; count: number }[];
+}
+
 export default function AttendanceAnalyticsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [dateRange, setDateRange] = useState<"week" | "month" | "quarter">("month");
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [checkinStats, setCheckinStats] = useState<CheckinStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkinLoading, setCheckinLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const now = new Date();
@@ -87,6 +104,32 @@ export default function AttendanceAnalyticsPage() {
       fetchStats();
     }
   }, [user, dateRange]);
+
+  useEffect(() => {
+    async function fetchCheckinStats() {
+      setCheckinLoading(true);
+      
+      try {
+        const url = buildApiUrl("/api/attendance/checkin-stats");
+        const res = await fetch(url, { credentials: "include" });
+        
+        if (res.ok) {
+          const data = await res.json();
+          setCheckinStats(data);
+        }
+      } catch (err) {
+        console.error("Error fetching check-in stats:", err);
+      } finally {
+        setCheckinLoading(false);
+      }
+    }
+
+    if (user?.isAdmin) {
+      fetchCheckinStats();
+      const interval = setInterval(fetchCheckinStats, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   if (authLoading) {
     return (
@@ -151,6 +194,61 @@ export default function AttendanceAnalyticsPage() {
 
       {!loading && !error && stats && (
         <>
+          {checkinStats && (
+            <Card className="mb-8 border-primary/20 bg-primary/5">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg">Today's Check-in Live</CardTitle>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <RefreshCw className="h-3 w-3" />
+                    <span>Updates every 30s</span>
+                    {checkinStats.lastUpdated && (
+                      <span>Last updated: {new Date(checkinStats.lastUpdated).toLocaleTimeString()}</span>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-4 mb-4">
+                  <div className="text-center p-4 bg-background rounded-xl">
+                    <div className="text-4xl font-bold text-primary">{checkinStats.total}</div>
+                    <p className="text-sm text-muted-foreground mt-1">Checked In</p>
+                  </div>
+                  <div className="text-center p-4 bg-background rounded-xl">
+                    <div className="text-4xl font-bold text-green-600">{checkinStats.offline}</div>
+                    <p className="text-sm text-muted-foreground mt-1">In Person</p>
+                  </div>
+                  <div className="text-center p-4 bg-background rounded-xl">
+                    <div className="text-4xl font-bold text-blue-600">{checkinStats.online}</div>
+                    <p className="text-sm text-muted-foreground mt-1">Online</p>
+                  </div>
+                  <div className="text-center p-4 bg-background rounded-xl">
+                    <div className="text-4xl font-bold text-amber-600">{checkinStats.checkInRate}%</div>
+                    <p className="text-sm text-muted-foreground mt-1">Check-in Rate</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-background rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Expected: {checkinStats.expectedAttendance}</span>
+                    <span className="text-sm text-muted-foreground ml-4">Total Members: {checkinStats.totalMembers}</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    const today = new Date();
+                    const start = new Date(today);
+                    start.setDate(start.getDate() - 7);
+                    window.open(buildApiUrl(`/api/attendance/export?startDate=${start.toISOString()}&endDate=${today.toISOString()}&format=csv`), "_blank");
+                  }}>
+                    <Download className="h-4 w-4 mr-1" /> Export CSV
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid gap-4 md:grid-cols-4 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

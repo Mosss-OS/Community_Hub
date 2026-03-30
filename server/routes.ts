@@ -4292,6 +4292,68 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
+  // Get real-time check-in stats for today (admin only)
+  app.get("/api/attendance/checkin-stats", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const stats = await storage.getCheckinStats(today, tomorrow);
+      const totalMembers = await db.select().from(users).where(eq(users.organizationId, req.user!.organizationId));
+      
+      res.json({
+        ...stats,
+        totalMembers: totalMembers.length,
+        expectedAttendance: Math.round(totalMembers.length * 0.6),
+        checkInRate: totalMembers.length > 0 ? Math.round((stats.total / totalMembers.length) * 100) : 0,
+        lastUpdated: new Date(),
+      });
+    } catch (err) {
+      console.error("Error fetching check-in stats:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Export attendance list (admin only)
+  app.get("/api/attendance/export", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { startDate, endDate, format } = req.query;
+      
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "Start date and end date are required" });
+      }
+
+      const attendance = await storage.getAttendanceForExport(
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+
+      if (format === 'csv') {
+        const headers = ['Name', 'Email', 'Service Type', 'Service Name', 'Check-in Time', 'Attendance Type'];
+        const rows = attendance.map(a => [
+          `${a.user?.firstName || ''} ${a.user?.lastName || ''}`,
+          a.user?.email || '',
+          a.serviceType,
+          a.serviceName || '',
+          a.checkInTime ? new Date(a.checkInTime).toISOString() : '',
+          a.attendanceType,
+        ]);
+        
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=attendance.csv');
+        return res.send(csv);
+      }
+
+      res.json(attendance);
+    } catch (err) {
+      console.error("Error exporting attendance:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Get dashboard stats (admin only)
   app.get("/api/analytics/dashboard", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {

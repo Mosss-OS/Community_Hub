@@ -272,6 +272,15 @@ export interface IStorage {
     byService: { serviceType: string; count: number }[];
   }>;
 
+  getCheckinStats(startDate: Date, endDate: Date): Promise<{
+    total: number;
+    online: number;
+    offline: number;
+    byService: { serviceType: string; serviceName: string; count: number }[];
+  }>;
+
+  getAttendanceForExport(startDate: Date, endDate: Date): Promise<any[]>;
+
   // Dashboard & Reporting Analytics
   getDashboardStats(): Promise<{
     totalMembers: number;
@@ -993,6 +1002,70 @@ export class DatabaseStorage implements IStorage {
     }));
 
     return { total, online, offline, byService };
+  }
+
+  async getCheckinStats(startDate: Date, endDate: Date): Promise<{
+    total: number;
+    online: number;
+    offline: number;
+    byService: { serviceType: string; serviceName: string; count: number }[];
+  }> {
+    const conditions = [
+      gte(attendance.serviceDate, startDate),
+      lt(attendance.serviceDate, endDate)
+    ];
+
+    const records = await db.select().from(attendance).where(and(...conditions));
+    
+    const total = records.length;
+    const online = records.filter(r => r.isOnline).length;
+    const offline = total - online;
+
+    const byServiceMap = new Map<string, { serviceType: string; serviceName: string; count: number }>();
+    for (const record of records) {
+      const key = `${record.serviceType}-${record.serviceName}`;
+      const existing = byServiceMap.get(key);
+      if (existing) {
+        existing.count++;
+      } else {
+        byServiceMap.set(key, {
+          serviceType: record.serviceType,
+          serviceName: record.serviceName || record.serviceType,
+          count: 1
+        });
+      }
+    }
+    
+    const byService = Array.from(byServiceMap.values());
+
+    return { total, online, offline, byService };
+  }
+
+  async getAttendanceForExport(startDate: Date, endDate: Date): Promise<any[]> {
+    const conditions = [
+      gte(attendance.serviceDate, startDate),
+      lte(attendance.serviceDate, endDate)
+    ];
+
+    const records = await db
+      .select({
+        id: attendance.id,
+        serviceType: attendance.serviceType,
+        serviceName: attendance.serviceName,
+        serviceDate: attendance.serviceDate,
+        checkInTime: attendance.checkInTime,
+        attendanceType: attendance.attendanceType,
+        isOnline: attendance.isOnline,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+      })
+      .from(attendance)
+      .leftJoin(users, eq(attendance.userId, users.id))
+      .where(and(...conditions))
+      .orderBy(desc(attendance.checkInTime));
+
+    return records;
   }
 
   // Absence Detection
