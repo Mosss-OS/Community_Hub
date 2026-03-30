@@ -98,6 +98,8 @@ export const sermons = pgTable("sermons", {
   description: text("description"),
   thumbnailUrl: text("thumbnail_url"),
   isUpcoming: boolean("is_upcoming").default(false),
+  transcript: text("transcript"),
+  transcriptTimestamps: jsonb("transcript_timestamps").$type<{ timestamp: number; text: string }[]>(),
   createdAt: timestamp("created_at").defaultNow(),
   organizationId: uuid("organization_id").references(() => organizations.id),
 });

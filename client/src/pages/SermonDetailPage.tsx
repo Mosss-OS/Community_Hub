@@ -3,7 +3,7 @@ import { useSermon, useShareSermon, useDownloadSermon } from "@/hooks/use-sermon
 import { useAuth } from "@/hooks/use-auth";
 import { useRecordOnlineAttendance } from "@/hooks/use-attendance";
 import { format } from "date-fns";
-import { Play, Calendar, User, ArrowLeft, Share2, Download, Headphones, X, Check, Link as LinkIcon, Eye, Loader2 } from "lucide-react";
+import { Play, Calendar, User, ArrowLeft, Share2, Download, Headphones, X, Check, Link as LinkIcon, Eye, Loader2, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -204,8 +204,8 @@ export default function SermonDetailPage() {
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-8">
-          {/* Description */}
-          <div className="lg:col-span-2">
+          {/* Description & Transcript */}
+          <div className="lg:col-span-2 space-y-5 md:space-y-8">
             <Card className="border border-gray-100">
               <CardContent className="p-4 md:p-6">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4">About this message</h2>
@@ -214,6 +214,48 @@ export default function SermonDetailPage() {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Transcript */}
+            {(sermon as any).transcript && (
+              <Card className="border border-gray-100">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-primary" />
+                      <h2 className="text-lg md:text-xl font-semibold text-gray-900">Transcript</h2>
+                    </div>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Search transcript..."
+                        className="pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        id="transcript-search"
+                      />
+                    </div>
+                  </div>
+                  <div className="prose prose-sm max-w-none text-gray-600 leading-relaxed max-h-96 overflow-y-auto" id="transcript-content">
+                    {(sermon as any).transcriptTimestamps ? (
+                      <div className="space-y-3">
+                        {(sermon as any).transcriptTimestamps.map((segment: any, idx: number) => (
+                          <div key={idx} className="flex gap-3 group cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors" onClick={() => {
+                            const video = document.querySelector('video') as HTMLVideoElement;
+                            if (video) video.currentTime = segment.timestamp;
+                          }}>
+                            <span className="text-xs text-primary font-mono bg-primary/10 px-2 py-1 rounded shrink-0">
+                              {Math.floor(segment.timestamp / 60)}:{String(Math.floor(segment.timestamp % 60)).padStart(2, '0')}
+                            </span>
+                            <p className="text-sm">{segment.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{(sermon as any).transcript}</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
