@@ -2048,6 +2048,53 @@ export async function registerRoutes(
     }
   });
 
+  // Get user's sermon watch history with sermon details
+  app.get("/api/sermons/watch-history", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const views = await storage.getUserSermonViewsWithDetails(userId);
+      res.json(views);
+    } catch (err) {
+      console.error("Error fetching watch history:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update watch progress for a sermon
+  app.post("/api/sermons/watch-progress", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { sermonId, watchProgress, completed } = req.body;
+      
+      if (!sermonId) {
+        return res.status(400).json({ message: "Sermon ID is required" });
+      }
+      
+      const view = await storage.recordSermonView(
+        sermonId, 
+        userId, 
+        Math.round((watchProgress || 0) * 60), 
+        completed || false
+      );
+      res.json(view);
+    } catch (err) {
+      console.error("Error updating watch progress:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Clear user's watch history
+  app.delete("/api/sermons/watch-history", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      await storage.clearUserSermonViews(userId);
+      res.json({ message: "Watch history cleared" });
+    } catch (err) {
+      console.error("Error clearing watch history:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Get popular sermons
   app.get("/api/sermons/popular", async (req, res) => {
     try {

@@ -3151,6 +3151,35 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async getUserSermonViewsWithDetails(userId: string, limit = 50) {
+    const views = await db.select().from(sermonViews)
+      .where(eq(sermonViews.userId, userId))
+      .orderBy(desc(sermonViews.viewedAt))
+      .limit(limit);
+    
+    const sermonIds = [...new Set(views.map(v => v.sermonId))];
+    const sermons = await db.select().from(sermons)
+      .where(inArray(sermons.id, sermonIds));
+    
+    const sermonMap = new Map(sermons.map(s => [s.id, s]));
+    
+    return views.map(view => ({
+      ...view,
+      sermon: sermonMap.get(view.sermonId) ? {
+        id: sermonMap.get(view.sermonId)!.id,
+        title: sermonMap.get(view.sermonId)!.title,
+        preacher: sermonMap.get(view.sermonId)!.preacher,
+        seriesName: sermonMap.get(view.sermonId)!.seriesName,
+        thumbnailUrl: sermonMap.get(view.sermonId)!.thumbnailUrl,
+        duration: sermonMap.get(view.sermonId)!.duration,
+      } : null,
+    }));
+  }
+
+  async clearUserSermonViews(userId: string): Promise<void> {
+    await db.delete(sermonViews).where(eq(sermonViews.userId, userId));
+  }
+
   async getPopularSermons(limit = 10): Promise<any[]> {
     const views = await db.select().from(sermonViews);
     const sermonCounts = views.reduce((acc, v) => {
