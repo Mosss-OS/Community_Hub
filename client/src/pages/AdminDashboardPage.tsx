@@ -848,48 +848,65 @@ export default function AdminDashboardPage() {
 
           {/* Sermons Tab */}
           <TabsContent value="sermons">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Sermon Management</CardTitle>
-                  <CardDescription>Create and manage sermons</CardDescription>
-                </div>
-                <CreateSermonDialog onSubmit={(data) => createSermon.mutate(data)} isLoading={createSermon.isPending} />
-              </CardHeader>
-              <CardContent>
-                {isSermonsLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <div className="space-y-6">
+              {/* Series Management Section */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Sermon Series</CardTitle>
+                    <CardDescription>Manage sermon series</CardDescription>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {sermons?.map((sermon) => (
-                      <div key={sermon.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{sermon.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {sermon.speaker} • {new Date(sermon.date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <EditSermonDialog 
-                            sermon={sermon} 
-                            onSubmit={(data) => updateSermon.mutate({ id: sermon.id, data })} 
-                            isLoading={updateSermon.isPending} 
-                          />
-                          <Button variant="destructive" size="icon" onClick={() => deleteSermon.mutate(sermon.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    {sermons?.length === 0 && (
-                      <p className="text-center py-8 text-muted-foreground">No sermons yet</p>
-                    )}
+                </CardHeader>
+                <CardContent>
+                  <SeriesManagement />
+                </CardContent>
+              </Card>
+
+              {/* Individual Sermons Section */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Individual Sermons</CardTitle>
+                    <CardDescription>Create and manage sermons</CardDescription>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <CreateSermonDialog onSubmit={(data) => createSermon.mutate(data)} isLoading={createSermon.isPending} />
+                </CardHeader>
+                <CardContent>
+                  {isSermonsLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {sermons?.map((sermon) => (
+                        <div key={sermon.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{sermon.title}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {sermon.speaker} • {new Date(sermon.date).toLocaleDateString()}
+                              {sermon.series && <span className="ml-2 text-purple-600">• {sermon.series}</span>}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <EditSermonDialog 
+                              sermon={sermon} 
+                              onSubmit={(data) => updateSermon.mutate({ id: sermon.id, data })} 
+                              isLoading={updateSermon.isPending} 
+                            />
+                            <Button variant="destructive" size="icon" onClick={() => deleteSermon.mutate(sermon.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      {sermons?.length === 0 && (
+                        <p className="text-center py-8 text-muted-foreground">No sermons yet</p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Attendance Tab */}
@@ -1490,7 +1507,7 @@ function EditSermonDialog({ sermon, onSubmit, isLoading }: EditSermonDialogProps
                 onChange={e => setFormData({...formData, isUpcoming: e.target.checked})}
                 className="w-4 h-4"
               />
-              <Label htmlFor="editUpcoming">Upcoming Message</Label>
+              <Label htmlFor="editUpcoming" className="font-normal">Mark as upcoming</Label>
             </div>
           </div>
           <div>
@@ -1518,5 +1535,156 @@ function EditSermonDialog({ sermon, onSubmit, isLoading }: EditSermonDialogProps
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface SermonSeries {
+  name: string;
+  count: number;
+  thumbnailUrl?: string;
+}
+
+function SeriesManagement() {
+  const { data: seriesList, isLoading, refetch } = useQuery<SermonSeries[]>({
+    queryKey: ["/api/sermons/series"],
+    queryFn: async () => {
+      const res = await fetch("/api/sermons/series", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch series");
+      return res.json();
+    },
+  });
+
+  const renameMutation = useMutation({
+    mutationFn: async ({ oldName, newName }: { oldName: string; newName: string }) => {
+      const res = await fetch(`/api/sermons/series/${encodeURIComponent(oldName)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ newName }),
+      });
+      if (!res.ok) throw new Error("Failed to rename series");
+      return res.json();
+    },
+    onSuccess: () => {
+      refetch();
+      toast({ title: "Series renamed successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to rename series", variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const res = await fetch(`/api/sermons/series/${encodeURIComponent(name)}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete series");
+      return res.json();
+    },
+    onSuccess: () => {
+      refetch();
+      toast({ title: "Series deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete series", variant: "destructive" });
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!seriesList || seriesList.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+        <p>No sermon series yet.</p>
+        <p className="text-sm mt-2">Create sermons with a series name to see them here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {seriesList.map((series) => (
+        <SeriesItem
+          key={series.name}
+          series={series}
+          onRename={(newName) => renameMutation.mutate({ oldName: series.name, newName })}
+          onDelete={() => deleteMutation.mutate(series.name)}
+          isRenaming={renameMutation.isPending}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SeriesItem({ series, onRename, onDelete, isRenaming }: { series: SermonSeries; onRename: (newName: string) => void; onDelete: () => void; isRenaming: boolean }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(series.name);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleSave = () => {
+    if (newName.trim() && newName !== series.name) {
+      onRename(newName.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setNewName(series.name);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="flex items-center gap-4 p-4 border rounded-lg">
+      {series.thumbnailUrl && (
+        <img src={series.thumbnailUrl} alt={series.name} className="w-16 h-16 rounded-lg object-cover" />
+      )}
+      <div className="flex-1">
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <Input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="max-w-xs"
+              autoFocus
+            />
+            <Button size="sm" onClick={handleSave} disabled={isRenaming}>Save</Button>
+            <Button size="sm" variant="outline" onClick={handleCancel}>Cancel</Button>
+          </div>
+        ) : (
+          <>
+            <h4 className="font-semibold">{series.name}</h4>
+            <p className="text-sm text-muted-foreground">{series.count} sermon{series.count !== 1 ? "s" : ""}</p>
+          </>
+        )}
+      </div>
+      {!isEditing && (
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+            <Edit className="h-4 w-4 mr-1" />
+            Rename
+          </Button>
+          {showConfirm ? (
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="destructive" onClick={onDelete} disabled={isRenaming}>Confirm</Button>
+              <Button size="sm" variant="outline" onClick={() => setShowConfirm(false)}>Cancel</Button>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => setShowConfirm(true)}>
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

@@ -1688,6 +1688,102 @@ export async function registerRoutes(
     }
   });
 
+  // === SERMON SERIES MANAGEMENT (Admin only) ===
+
+  // Get all sermon series with sermon counts
+  app.get("/api/sermons/series", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const sermons = await storage.getSermons({});
+      const seriesMap = new Map<string, { name: string; count: number; thumbnailUrl?: string }>();
+      
+      sermons.forEach(sermon => {
+        if (sermon.series) {
+          const existing = seriesMap.get(sermon.series);
+          if (existing) {
+            existing.count++;
+          } else {
+            seriesMap.set(sermon.series, { 
+              name: sermon.series, 
+              count: 1,
+              thumbnailUrl: sermon.thumbnailUrl 
+            });
+          }
+        }
+      });
+
+      const series = Array.from(seriesMap.entries())
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.count - a.count);
+
+      res.json(series);
+    } catch (err) {
+      console.error("Error fetching sermon series:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get sermons by series
+  app.get("/api/sermons/series/:name", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const seriesName = decodeURIComponent(req.params.name);
+      const sermons = await storage.getSermons({ series: seriesName });
+      res.json(sermons);
+    } catch (err) {
+      console.error("Error fetching sermons by series:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update sermon series name (renames series for all sermons)
+  app.put("/api/sermons/series/:oldName", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const oldName = decodeURIComponent(req.params.oldName);
+      const { newName } = req.body;
+
+      if (!newName || typeof newName !== "string") {
+        return res.status(400).json({ message: "New series name is required" });
+      }
+
+      if (newName === oldName) {
+        return res.json({ message: "Series name unchanged" });
+      }
+
+      const sermons = await storage.getSermons({});
+      const sermonsToUpdate = sermons.filter(s => s.series === oldName);
+      
+      let updatedCount = 0;
+      for (const sermon of sermonsToUpdate) {
+        await storage.updateSermon(sermon.id, { series: newName });
+        updatedCount++;
+      }
+
+      res.json({ message: `Updated ${updatedCount} sermons from "${oldName}" to "${newName}"` });
+    } catch (err) {
+      console.error("Error updating sermon series:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete sermon series (removes series from all sermons)
+  app.delete("/api/sermons/series/:name", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const seriesName = decodeURIComponent(req.params.name);
+      const sermons = await storage.getSermons({});
+      const sermonsToUpdate = sermons.filter(s => s.series === seriesName);
+      
+      let updatedCount = 0;
+      for (const sermon of sermonsToUpdate) {
+        await storage.updateSermon(sermon.id, { series: undefined });
+        updatedCount++;
+      }
+
+      res.json({ message: `Removed series "${seriesName}" from ${updatedCount} sermons` });
+    } catch (err) {
+      console.error("Error deleting sermon series:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // AI Sermon Search - Advanced search by verse, topic, or keyword
   app.get("/api/sermons/search/advanced", async (req, res) => {
     try {
