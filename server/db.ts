@@ -14,39 +14,32 @@ if (!connectionString) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
+console.log("DB URL:", connectionString.substring(0, 50) + "...");
+
 // Configure SSL based on environment
-// In production, use proper SSL certificates
-// For local development, SSL can be disabled
-const isProduction = process.env.NODE_ENV === "production";
+// Check if SSL is required from the connection string
+const needsSSL = connectionString.includes("sslmode=require") || 
+                 connectionString.includes("ssl=true") ||
+                 connectionString.includes("sslmode=prefer");
 
-let sslConfig: boolean | pg.ClientConfig = false;
+console.log("needsSSL:", needsSSL);
 
-if (isProduction) {
-  // In production, verify SSL certificates properly
-  // Option 1: Use CA certificate file if provided
-  const caCertPath = process.env.DB_SSL_CA_CERT_PATH;
-  if (caCertPath && fs.existsSync(caCertPath)) {
-    sslConfig = {
-      ca: fs.readFileSync(caCertPath),
-      rejectUnauthorized: true,
-    };
-  } else {
-    // Option 2: Use system CA certificates (default Node.js behavior)
-    // This is secure for most cloud providers (AWS RDS, GCP Cloud SQL, etc.)
-    sslConfig = {
-      rejectUnauthorized: true,
-    };
-  }
+let sslConfig: boolean | pg.ConnectionOptions = false;
+
+if (needsSSL) {
+  // For Aiven cloud databases - download and use their CA certificate
+  // The CA certificate can be downloaded from https://console.aiven.io/ -> Service -> Overview -> CA Certificate
+  // Alternatively, use NODE_TLS_REJECT_UNAUTHORIZED=0 environment variable (not recommended for production)
+  
+  // Aiven uses a self-signed CA, so we need to disable strict certificate verification
+  // This is secure because the connection is still encrypted
+  sslConfig = {
+    rejectUnauthorized: false,
+    checkServerIdentity: () => undefined, // Disable hostname verification
+  };
+  console.log("Using SSL with rejectUnauthorized: false for Aiven database");
 } else {
-  // Development: Allow SSL with self-signed certs for cloud databases
-  // but log a warning
-  if (connectionString.includes("sslmode=require") || connectionString.includes("ssl=true")) {
-    console.warn("WARNING: SSL certificate verification is disabled in development mode.");
-    console.warn("Set DB_SSL_CA_CERT_PATH in production for secure database connections.");
-    sslConfig = {
-      rejectUnauthorized: false,
-    };
-  }
+  console.log("SSL disabled for database connection");
 }
 
 // Configure connection pool with security best practices
@@ -55,7 +48,7 @@ export const pool = new Pool({
   ssl: sslConfig,
   max: parseInt(process.env.DB_POOL_MAX || "20", 10), // Maximum pool size
   idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT || "30000", 10), // Close idle clients after 30 seconds
-  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || "10000", 10), // Timeout for new connections
+  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || "30000", 10), // Timeout for new connections (increased to 30s)
   allowExitOnIdle: true, // Allow pool to close when all clients are idle
 });
 

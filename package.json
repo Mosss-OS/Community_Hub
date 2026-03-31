@@ -1,16 +1,17 @@
 {
-  "name": "rest-express",
+  "name": "community-hub",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development node --import tsx server/index.ts",
-    "build": "echo 'Build completed - using tsx for production'",
-    "start": "NODE_ENV=production node --import tsx server/index.ts",
-    "vercel-build": "npm install",
-    "check": "tsc",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=development node --import tsx server/index.ts",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm install && npm run build && cp -r dist ../public",
+    "build:server": "echo 'Server ready'",
+    "start": "NODE_ENV=production PORT=3000 node --import tsx server/index.ts",
+    "start:production": "NODE_ENV=production node --import tsx server/index.ts",
     "db:push": "drizzle-kit push",
-    "migrate": "node --import tsx script/migrate.ts"
+    "db:migrate": "node --import tsx script/migrate.ts"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

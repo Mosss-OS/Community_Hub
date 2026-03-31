@@ -56,12 +56,12 @@ export default function AuthPage() {
             lastName: formData.name?.split(' ').slice(1).join(' ') || ''
           };
 
-      const response = await fetch(buildApiUrl(endpoint), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData),
-        credentials: "include",
-      });
+       const response = await fetch(buildApiUrl(endpoint), {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(requestData),
+         credentials: "include",
+       });
 
       const data = await response.json();
 

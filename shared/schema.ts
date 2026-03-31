@@ -98,8 +98,6 @@ export const sermons = pgTable("sermons", {
   description: text("description"),
   thumbnailUrl: text("thumbnail_url"),
   isUpcoming: boolean("is_upcoming").default(false),
-  transcript: text("transcript"),
-  transcriptTimestamps: jsonb("transcript_timestamps").$type<{ timestamp: number; text: string }[]>(),
   createdAt: timestamp("created_at").defaultNow(),
   organizationId: uuid("organization_id").references(() => organizations.id),
 });
@@ -1049,15 +1047,15 @@ export const privacySettings = pgTable("privacy_settings", {
   showAttendance: boolean("show_attendance").default(true),
   showDonations: boolean("show_donations").default(false),
   showPrayerRequests: boolean("show_prayer_requests").default(true),
-  allowMessaging: boolean("allow_messaging").default(true),
-  showInDirectory: boolean("show_in_directory").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+    allowMessaging: boolean("allow_messaging").default(true),
+    showInDirectory: boolean("show_in_directory").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
 });
-
+// Content Flags Table
 export const contentFlags = pgTable("content_flags", {
-  id: serial("id").primaryKey(),
-  contentType: text("content_type").notNull(), // prayer_request, message, event, comment, etc.
+    id: serial("id").primaryKey(),
+    contentType: text("content_type").notNull(), // prayer_request, message, event, comment, etc.
   contentId: integer("content_id").notNull(),
   reporterId: uuid("reporter_id").references(() => users.id),
   reason: text("reason").notNull(), // spam, inappropriate, abusive, harassment, other
@@ -2152,20 +2150,7 @@ export type CampusReport = typeof campusReports.$inferSelect;
 export type InsertCampusReport = z.infer<typeof insertCampusReportSchema>;
 
 // === PRIVACY, SAFETY & MODERATION CONTROLS ===
-
-export const userPrivacySettings = pgTable("privacy_settings", {
-  id: serial("id").primaryKey(),
-  userId: uuid("user_id").references(() => users.id).notNull().unique(),
-  profileVisibility: varchar("profile_visibility", { length: 50 }).default("members"),
-  showEmail: boolean("show_email").default(false),
-  showPhone: boolean("show_phone").default(false),
-  showBirthday: boolean("show_birthday").default(true),
-  showSocialLinks: boolean("show_social_links").default(true),
-  allowMessages: boolean("allow_messages").default(true),
-  allowGroupInvites: boolean("allow_group_invites").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Using existing privacySettings table from line 1043
 
 export const reportCategories = pgTable("report_categories", {
   id: serial("id").primaryKey(),

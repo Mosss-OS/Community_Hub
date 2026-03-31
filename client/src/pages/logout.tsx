@@ -14,7 +14,7 @@ export default function LogoutPage() {
 
   useEffect(() => {
     if (!isLoggingOut) {
-      navigate("/");
+      navigate("/login");
     }
   }, [isLoggingOut, navigate]);
 

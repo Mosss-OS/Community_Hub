@@ -89,6 +89,12 @@ app.use(helmet({
       camera: [],
       payment: []
     }
+  },
+  // Only enable HSTS in production
+  hsts: {
+    maxAge: process.env.NODE_ENV === 'production' ? 31536000 : 0,
+    includeSubDomains: process.env.NODE_ENV === 'production',
+    preload: process.env.NODE_ENV === 'production'
   }
 }));
 

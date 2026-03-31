@@ -69,12 +69,12 @@ function Router() {
     );
   }
 
-  // SuperAdmin Exclusivity logic
-  if (user?.isSuperAdmin) {
-    if (location !== "/super-admin" && location !== "/logout") {
-      return <Redirect to="/super-admin" />;
-    }
-  }
+   // SuperAdmin Exclusivity logic
+   if (user?.isSuperAdmin) {
+     if (location !== "/super-admin" && location !== "/logout" && location !== "/login") {
+       return <Redirect to="/super-admin" />;
+     }
+   }
 
   return (
     <AnimatePresence mode="wait">
