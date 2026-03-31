@@ -150,6 +150,7 @@ const updateUserSchema = z.object({
   instagramHandle: z.string().optional(),
   facebookHandle: z.string().optional(),
   linkedinHandle: z.string().optional(),
+  password: z.string().min(6).optional(),
 });
 
 // Create campus schema
@@ -801,7 +802,8 @@ app.post("/api/auth/login", async (req, res) => {
       isVerified: user.isVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      isAdmin: user.email === 'admin@wccrm.com'
+      isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true,
+      isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true
     });
   });
 
@@ -845,7 +847,7 @@ app.post("/api/auth/login", async (req, res) => {
         return res.status(404).json({ message: "User not found" });
       }
       
-      await storage.updateUser(userId, {
+      const updates: any = {
         firstName: updateData.firstName ?? user.firstName,
         lastName: updateData.lastName ?? user.lastName,
         phone: updateData.phone ?? user.phone,
@@ -858,7 +860,13 @@ app.post("/api/auth/login", async (req, res) => {
         instagramHandle: updateData.instagramHandle ?? user.instagramHandle,
         facebookHandle: updateData.facebookHandle ?? user.facebookHandle,
         linkedinHandle: updateData.linkedinHandle ?? user.linkedinHandle,
-      });
+      };
+      
+      if (updateData.password) {
+        updates.passwordHash = await bcrypt.hash(updateData.password, 12);
+      }
+      
+      await storage.updateUser(userId, updates);
       
       const updatedUser = await storage.getUserById(userId);
       res.json(updatedUser);
