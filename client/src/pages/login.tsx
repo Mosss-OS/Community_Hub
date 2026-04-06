@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Eye, EyeOff, Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,27 +56,24 @@ export default function AuthPage() {
             lastName: formData.name?.split(' ').slice(1).join(' ') || ''
           };
 
-       const response = await fetch(buildApiUrl(endpoint), {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(requestData),
-         credentials: "include",
-       });
+      const response = await fetch(buildApiUrl(endpoint), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestData),
+        credentials: "include",
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || t("authError"));
+        throw new Error(data.message || "Authentication failed");
       }
 
       toast({
-        title: mode === "login" ? t("welcomeBackTitle") : t("accountCreated"),
-        description: mode === "login"
-          ? t("signInSuccess")
-          : t("accountCreatedSuccess"),
+        title: mode === "login" ? "Welcome back!" : "Account created!",
+        description: mode === "login" ? "You've signed in successfully." : "Your account has been created.",
       });
 
-      // Store token for cross-origin auth
       if (data.token) {
         setAuthToken(data.token);
       }
@@ -84,10 +81,10 @@ export default function AuthPage() {
       queryClient.setQueryData(["auth", "user"], data);
       navigate("/");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("authError");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
       toast({
-        title: t("error"),
+        title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
@@ -99,12 +96,12 @@ export default function AuthPage() {
   return (
     <>
       <Helmet>
-        <title>{mode === "login" ? t("signIn") : t("createAccount")} | CHub</title>
+        <title>{mode === "login" ? "Sign in" : "Sign up"} | CHub</title>
       </Helmet>
-      <div className="flex min-h-screen">
-        {/* Left panel - decorative gradient */}
+      <div className="flex min-h-screen w-full">
+        {/* Left panel - Locus Style */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center bg-primary">
-          <div className="absolute inset-0 bg-primary" />
+          <div className="absolute inset-0 bg-[#4101f6]" />
           <div className="absolute inset-0">
             <img
               src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1200&auto=format&fit=crop&q=80"
@@ -115,60 +112,60 @@ export default function AuthPage() {
 
           <div className="relative z-10 max-w-md text-center px-8">
             <div className="flex justify-center mb-8">
-              <img src="/church_logo.jpeg" alt="CHub" className="h-20 w-auto rounded-3xl ring-4 ring-white/20 shadow-2xl" />
+              <img src="/church_logo.jpeg" alt="CHub" className="h-20 w-auto" />
             </div>
-            <h2 className="text-4xl font-bold text-white tracking-tight mb-4">
-              {t("welcome").split("CHub")[0]}<span className="text-white">CHub</span>
+            <h2 className="text-4xl font-normal text-white tracking-[-0.02em] mb-4">
+              CHub
             </h2>
             <p className="text-white/80 text-base leading-relaxed">
-              {t("joinCommunityDesc")}
+              Join our church community. Connect, grow, and serve together.
             </p>
 
             <div className="mt-12 grid grid-cols-3 gap-4">
               {[
-                { value: "5000+", label: t("membersCount") },
-                { value: "15+", label: t("yearsActive") },
-                { value: "50+", label: t("ministries") },
+                { value: "5000+", label: "Members" },
+                { value: "15+", label: "Years" },
+                { value: "50+", label: "Ministries" },
               ].map(({ value, label }) => (
-                <div key={label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl font-bold text-white">{value}</div>
-                  <div className="text-xs text-white/70 font-medium mt-1">{label}</div>
+                <div key={label} className="bg-white/10 p-4">
+                  <div className="text-2xl font-normal text-white">{value}</div>
+                  <div className="text-xs text-white/70 mt-1">{label}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right panel - form */}
-        <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 py-10 relative overflow-hidden">
+        {/* Right panel - form - Locus Style */}
+        <div className="flex-1 flex flex-col items-center justify-center bg-white px-6 py-10">
 
-          <div className="w-full max-w-md relative z-10">
+          <div className="w-full max-w-sm">
             {/* Mobile logo */}
             <div className="lg:hidden flex justify-center mb-8">
-              <img src="/church_logo.jpeg" alt="CHub" className="h-14 w-auto rounded-2xl ring-2 ring-primary/10 shadow-lg" />
+              <img src="/church_logo.jpeg" alt="CHub" className="h-14 w-auto" />
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground font-[--font-display]">
-                {mode === "login" ? t("welcomeBack") : t("createYourAccount")}
+              <h2 className="text-2xl md:text-3xl font-normal tracking-tight text-[#1b1b1c]">
+                {mode === "login" ? "Welcome back" : "Create account"}
               </h2>
-              <p className="mt-2 text-muted-foreground">
-                {mode === "login"
-                  ? t("signInToAccount")
-                  : t("joinOurCommunity")}
+              <p className="mt-2 text-sm text-[#505153]">
+                {mode === "login" 
+                  ? "Enter your details to sign in" 
+                  : "Enter your details to get started"}
               </p>
             </div>
 
             {error && (
-              <div className="rounded-2xl bg-destructive/10 border border-destructive/20 p-4 mb-6">
-                <p className="text-sm font-medium text-destructive">{error}</p>
+              <div className="bg-red-50 border border-red-200 p-4 mb-6">
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               {mode === "signup" && (
                 <div>
-                  <Label htmlFor="name" className="text-sm font-semibold text-foreground/70">{t("fullName")}</Label>
+                  <Label htmlFor="name" className="text-sm text-[#505153]">Full name</Label>
                   <Input
                     id="name"
                     name="name"
@@ -176,14 +173,14 @@ export default function AuthPage() {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1.5 h-12 rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="mt-1.5 h-10 border border-[#e5e5e5] focus:border-primary focus:ring-0"
                     placeholder="John Doe"
                   />
                 </div>
               )}
 
               <div>
-                <Label htmlFor="email" className="text-sm font-semibold text-foreground/70">{t("emailAddress")}</Label>
+                <Label htmlFor="email" className="text-sm text-[#505153]">Email</Label>
                 <Input
                   id="email"
                   name="email"
@@ -192,17 +189,17 @@ export default function AuthPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="mt-1.5 h-12 rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="mt-1.5 h-10 border border-[#e5e5e5] focus:border-primary focus:ring-0"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm font-semibold text-foreground/70">{t("password")}</Label>
+                  <Label htmlFor="password" className="text-sm text-[#505153]">Password</Label>
                   {mode === "login" && (
-                    <a href="#" className="text-sm font-semibold text-primary hover:text-primary/80">
-                      {t("forgotPassword")}
+                    <a href="#" className="text-xs text-primary hover:underline">
+                      Forgot password?
                     </a>
                   )}
                 </div>
@@ -216,63 +213,63 @@ export default function AuthPage() {
                     minLength={6}
                     value={formData.password}
                     onChange={handleChange}
-                    className="h-12 rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm pr-10 focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="h-10 border border-[#e5e5e5] focus:border-primary focus:ring-0 pr-10"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#a0a0a0]"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {mode === "signup" && (
-                  <p className="mt-1.5 text-xs text-muted-foreground">{t("passwordMinLength")}</p>
+                  <p className="mt-1.5 text-xs text-[#a0a0a0]">Minimum 6 characters</p>
                 )}
               </div>
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 rounded-2xl gradient-accent text-primary-foreground font-bold text-base shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5"
+                className="w-full h-10 bg-primary text-white text-sm hover:bg-[#3400c8] transition-colors"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {mode === "login" ? t("signingIn") : t("creatingAccount")}
+                    {mode === "login" ? "Signing in..." : "Creating account..."}
                   </>
                 ) : (
                   <>
-                    {mode === "login" ? t("signIn") : t("createAccount")}
+                    {mode === "login" ? "Sign in" : "Create account"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
               </Button>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                {mode === "login" ? t("dontHaveAccount") : t("alreadyHaveAccount")}{" "}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-[#505153]">
+                {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
                 <button
                   type="button"
                   onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); }}
-                  className="font-bold text-primary hover:text-primary/80"
+                  className="text-primary hover:underline"
                 >
-                  {mode === "login" ? t("signUp") : t("signIn")}
+                  {mode === "login" ? "Sign up" : "Sign in"}
                 </button>
               </p>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-border">
-              <p className="text-sm text-center text-muted-foreground mb-3">
+            <div className="mt-6 pt-6 border-t border-[#e5e5e5]">
+              <p className="text-sm text-center text-[#a0a0a0] mb-3">
                 Is your church not on our platform yet?
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="w-full rounded-2xl font-bold"
+                className="w-full border border-primary text-primary hover:bg-[#f8f6ff]"
                 onClick={() => navigate("/register-church")}
               >
                 Register Your Church

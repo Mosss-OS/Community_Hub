@@ -24,20 +24,19 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-gold: hsl(var(--gold));
   --color-gold-foreground: hsl(var(--gold-foreground));
-  --color-teal-dark: hsl(var(--teal-dark));
+  --color-brand: hsl(var(--brand));
+  --color-brand-light: hsl(var(--brand-light));
+  --color-brand-tint: hsl(var(--brand-tint));
 
-  --font-sans: "Inter", sans-serif;
-  --font-display: "Inter", sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-  --radius-card: 0.5rem;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-glow: glow 3s ease-in-out infinite;
 }
 
 @keyframes accordion-down {
@@ -48,43 +47,47 @@
   from { height: var(--radix-accordion-content-height); }
   to { height: 0; }
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-12px) rotate(1deg); }
-  66% { transform: translateY(6px) rotate(-1deg); }
-}
-@keyframes glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
 
+/* Locus Design System */
 :root {
+  /* Brand Colors */
+  --brand: 252 100% 64%;
+  --brand-dark: 252 100% 45%;
+  --brand-light: 252 80% 85%;
+  --brand-tint: 252 100% 97%;
+  
+  /* Text Colors */
+  --foreground: 0 0% 11%;
+  --text-secondary: 0 0% 31%;
+  --text-tertiary: 0 0% 63%;
+  
+  /* Backgrounds */
   --background: 0 0% 100%;
-  --foreground: 0 0% 9%;
+  --muted: 0 0% 98%;
+  --card: 0 0% 100%;
+  --popover: 0 0% 100%;
+  
+  /* Borders */
+  --border: 0 0% 90%;
+  
+  /* Other */
+  --input: 0 0% 90%;
+  --ring: 252 100% 64%;
   --primary: 252 100% 64%;
   --primary-foreground: 0 0% 100%;
   --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 9%;
-  --accent: 38 92% 55%;
-  --accent-foreground: 30 50% 12%;
-  --muted: 0 0% 96%;
+  --secondary-foreground: 0 0% 11%;
   --muted-foreground: 0 0% 45%;
-  --border: 0 0% 86%;
-  --input: 0 0% 86%;
-  --ring: 252 100% 64%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
+  --accent: 0 0% 0%;
+  --accent-foreground: 0 0% 100%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --gold: 38 92% 55%;
   --gold-foreground: 30 50% 15%;
-  --teal-dark: 220 30% 8%;
-  --radius: 0.5rem;
+  
+  /* No border radius - sharp corners like Locus */
+  --radius: 0;
 }
-
-/* Dark mode removed - light mode only */
 
 * {
   border-color: hsl(var(--border));
@@ -99,7 +102,7 @@ body {
   color: hsl(var(--foreground));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;
@@ -110,36 +113,31 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Inter", sans-serif;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
 }
 
-h1 { font-size: 1.5rem; }
-h2 { font-size: 1.2rem; }
-h3 { font-size: 1rem; }
-h4 { font-size: 0.875rem; }
-h5 { font-size: 0.8125rem; }
-h6 { font-size: 0.75rem; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1rem; }
 
-p, span, a, li { font-size: 0.8125rem; }
-button, input, textarea, select { font-size: 0.8125rem; }
+p, span, a, li { font-size: 0.875rem; }
+button, input, textarea, select { font-size: 0.875rem; }
 
 @media (min-width: 640px) {
   body { font-size: 15px; }
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-  h4 { font-size: 1rem; }
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 1.75rem; }
   p, span, a, li { font-size: 0.9375rem; }
 }
 
 @media (min-width: 1024px) {
   body { font-size: 16px; }
   h1 { font-size: 3rem; }
-  h2 { font-size: 2.25rem; }
-  h3 { font-size: 1.5rem; }
-  h4 { font-size: 1.25rem; }
+  h2 { font-size: 2rem; }
   p, span, a, li { font-size: 1rem; }
 }
 
@@ -150,84 +148,102 @@ button, input, textarea, select { font-size: 0.8125rem; }
   flex-direction: column;
 }
 
-/* ===== GLASSMORPHISM UTILITIES ===== */
-
-/* Glass card - frosted glass effect */
-.glass-card {
-  background: hsl(var(--card) / 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(var(--border) / 0.3);
-  box-shadow: 0 8px 32px hsl(220 30% 20% / 0.08);
+/* Button styles - Locus style */
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 400;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.glass-card-strong {
-  background: hsl(var(--card) / 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid hsl(var(--border) / 0.4);
-  box-shadow: 0 8px 32px hsl(220 30% 20% / 0.1);
+.btn-primary:hover {
+  background-color: hsl(var(--brand-dark));
 }
 
-/* Glass on light backgrounds */
-.glass-dark {
-  background: hsl(0 0% 100% / 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(0 0% 90% / 0.5);
+.btn-secondary {
+  background-color: transparent;
+  color: hsl(var(--primary));
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid hsl(var(--primary));
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-/* Solid backgrounds */
-.gradient-hero {
-  background: hsl(220 25% 10%);
+.btn-secondary:hover {
+  background-color: hsl(var(--brand-tint));
 }
 
-.gradient-section {
-  background: hsl(var(--muted));
+.btn-ghost {
+  background-color: transparent;
+  color: hsl(var(--text-secondary));
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid hsl(var(--border));
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.gradient-accent {
-  background: hsl(var(--primary));
+.btn-ghost:hover {
+  background-color: hsl(var(--muted));
 }
 
-/* Floating orbs for decoration */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  pointer-events: none;
-  opacity: 0.3;
+/* Card styles - Locus style */
+.card-locus {
+  border: 1px solid hsl(var(--border));
+  padding: 24px 32px;
+  transition: border-color 0.2s;
 }
 
-.orb-blue {
-  background: hsl(210 100% 55%);
+.card-locus:hover {
+  border-color: hsl(var(--brand-light));
 }
 
-.orb-purple {
-  background: hsl(260 60% 55%);
+/* Section padding - Locus style */
+.section-py {
+  padding-top: 64px;
+  padding-bottom: 64px;
 }
 
-.orb-gold {
-  background: hsl(38 92% 55%);
+@media (min-width: 768px) {
+  .section-py {
+    padding-top: 96px;
+    padding-bottom: 96px;
+  }
 }
 
-/* Accent text */
-.text-gradient-gold {
-  color: hsl(var(--accent));
+/* Container max-widths - Locus style */
+.container-locus {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-/* Primary text */
-.text-gradient-primary {
+@media (min-width: 768px) {
+  .container-locus {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* Utility classes */
+.text-brand {
   color: hsl(var(--primary));
 }
 
-/* Subtle border effect */
-.shimmer-border {
-  position: relative;
-  border: 1px solid hsl(var(--border) / 0.5);
+.bg-brand-tint {
+  background-color: hsl(var(--brand-tint));
 }
 
-/* Consistent card styling */
-.card {
-  border-radius: var(--radius-card);
+.border-brand-light {
+  border-color: hsl(var(--brand-light));
 }

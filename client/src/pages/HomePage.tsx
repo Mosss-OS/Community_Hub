@@ -1,400 +1,262 @@
 import { Link } from "wouter";
-import { ArrowRight, Play, Calendar, Clock, MapPin, Users, BookOpen, Heart, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, Play, Calendar, Users, BookOpen, Heart } from "lucide-react";
 import { useSermons } from "@/hooks/use-sermons";
 import { useEvents } from "@/hooks/use-events";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PageSEO } from "@/components/PageSEO";
 import { format } from "date-fns";
-import { LocationMap } from "@/components/LocationMap";
-import { motion } from "framer-motion";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] },
-  }),
-};
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.12 } },
-};
 
 export default function HomePage() {
-  const { data: sermons, isLoading: loadingSermons } = useSermons();
-  const { data: events, isLoading: loadingEvents } = useEvents();
+  const { data: sermons } = useSermons();
+  const { data: events } = useEvents();
   const { user } = useAuth();
-
   const { t } = useLanguage();
 
   const upcomingEvents = events
     ?.filter(e => new Date(e.date) >= new Date())
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3) || [];
+
+  const recentSermons = sermons?.slice(0, 3) || [];
 
   return (
     <>
       <PageSEO 
-        title="Home" 
+        title="CHub - Church Community Platform" 
         description="Welcome to CHub - your church community platform. Access sermons, events, devotionals, and connect with your church family."
       />
-      <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative min-h-[85vh] sm:min-h-[100vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-muted to-background">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1920&auto=format&fit=crop&q=80"
-            alt="Worship Background"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-white/70" />
-        </div>
-
-        <motion.div className="container relative z-10 px-4 sm:px-6 md:px-10" initial="hidden" animate="visible" variants={stagger}>
-          <div className="max-w-5xl mx-auto text-center">
-            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold mb-5 sm:mb-8 border border-primary/20">
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-              {t("welcomeToCHub")}
-            </motion.div>
-
-            <motion.h1 variants={fadeUp} custom={1} className="font-bold text-2xl sm:text-4xl md:text-5xl lg:text-[5rem] text-foreground mb-4 sm:mb-8 leading-[1.1] tracking-tight">
-              {t("experienceThe")}<br />
-              <span className="text-primary">{t("powerOfFaith")}</span>
-            </motion.h1>
-
-            <motion.p variants={fadeUp} custom={2} className="text-sm sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-12 leading-relaxed px-2">
-              {t("heroDescription")}
-            </motion.p>
-
-            <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center px-4 sm:px-0">
-              <Button
-                asChild
-                className="rounded-xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 bg-primary hover:bg-primary/90 text-white font-semibold transition-all text-sm sm:text-base"
-              >
-                <Link href="/events">
-                  {t("planAVisit")} <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="rounded-xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 border-border text-foreground hover:bg-muted font-semibold transition-all text-sm sm:text-base"
-              >
-                <Link href="/sermons">
-                  <Play className="mr-2 w-4 h-4" /> {t("watchOnline")}
-                </Link>
-              </Button>
-              {user && (
-                <Button
-                  asChild
-                  className="rounded-xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 bg-accent text-accent-foreground font-semibold transition-all text-sm sm:text-base"
-                >
-                  <Link href="/attendance/checkin">{t("checkIn")}</Link>
-                </Button>
-              )}
-            </motion.div>
+      
+      {/* Hero Section - Locus Style */}
+      <section className="w-full pt-36 pb-24 md:pt-48 md:pb-36 px-4 sm:px-8 md:px-24">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-normal leading-[1.1] tracking-[-0.02em] text-[#1b1b1c] mb-6 md:mb-8">
+            Your Church Community,<br />
+            <span className="text-primary">All in One Place</span>
+          </h1>
+          
+          <p className="text-lg sm:text-xl md:text-[18px] text-[#505153] max-w-2xl mx-auto mb-8 md:mb-12 leading-relaxed">
+            Connect with your church family, watch sermons, join events, give, 
+            and grow in your faith journey - all in one beautiful platform.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href="/login"
+              className="px-6 py-3 bg-primary text-white text-sm hover:bg-[#3400c8] transition-colors"
+            >
+              Get Started
+            </Link>
+            <Link 
+              href="/sermons"
+              className="px-6 py-3 border border-primary text-primary text-sm hover:bg-[#f8f6ff] transition-colors"
+            >
+              Watch Sermons
+            </Link>
           </div>
+        </div>
+      </section>
 
-          {/* Stats */}
-          <motion.div variants={fadeUp} custom={4} className="grid grid-cols-3 gap-3 sm:gap-8 max-w-2xl mx-auto mt-10 sm:mt-20 px-2 sm:px-0">
-            {[
-              { value: "5000+", label: t("membersCount") },
-              { value: "15+", label: t("yearsActive") },
-              { value: "50+", label: t("ministries") },
-            ].map(({ value, label }) => (
-              <div key={label} className="text-center bg-card border border-border rounded-xl sm:rounded-2xl p-3 sm:p-6">
-                <div className="text-lg sm:text-3xl md:text-4xl font-bold text-primary mb-1 sm:mb-2">{value}</div>
-                <div className="text-[10px] sm:text-sm text-muted-foreground font-medium">{label}</div>
+      {/* Social Proof - Logos */}
+      <section className="w-full py-16 md:py-24 border-y border-[#e5e5e5]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8">
+          <p className="text-center text-sm text-[#a0a0a0] mb-8">Trusted by churches worldwide</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
+            <span className="text-xl font-semibold text-[#a0a0a0]">Grace Chapel</span>
+            <span className="text-xl font-semibold text-[#a0a0a0]">Faith Center</span>
+            <span className="text-xl font-semibold text-[#a0a0a0]">Hope Church</span>
+            <span className="text-xl font-semibold text-[#a0a0a0]">Victory Temple</span>
+            <span className="text-xl font-semibold text-[#a0a0a0]">Living Faith</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section - Locus Style */}
+      <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c] mb-4">
+              Everything Your Church Needs
+            </h2>
+            <p className="text-[#505153] max-w-xl mx-auto">
+              A complete platform designed to help churches grow, engage, and connect with their community.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Feature 1 */}
+            <div className="p-6 md:p-8 border border-[#e5e5e5] hover:border-[#c2bbff] transition-all duration-200">
+              <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
+                <Play className="w-5 h-5" />
               </div>
-            ))}
-          </motion.div>
-        </motion.div>
+              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Sermons & Teaching</h3>
+              <p className="text-[#505153] text-sm leading-relaxed">
+                Access sermons anytime, anywhere. Watch live or catch up on recorded messages.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="p-6 md:p-8 border border-[#e5e5e5] hover:border-[#c2bbff] transition-all duration-200">
+              <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Events & Activities</h3>
+              <p className="text-[#505153] text-sm leading-relaxed">
+                Never miss a church event. RSVP, get reminders, and stay connected.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="p-6 md:p-8 border border-[#e5e5e5] hover:border-[#c2bbff] transition-all duration-200">
+              <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
+                <Heart className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Give & Support</h3>
+              <p className="text-[#505153] text-sm leading-relaxed">
+                Simple and secure online giving. Support the mission and ministry of your church.
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="p-6 md:p-8 border border-[#e5e5e5] hover:border-[#c2bbff] transition-all duration-200">
+              <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Member Directory</h3>
+              <p className="text-[#505153] text-sm leading-relaxed">
+                Connect with other members. Find groups, connect with leaders, grow together.
+              </p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="p-6 md:p-8 border border-[#e5e5e5] hover:border-[#c2bbff] transition-all duration-200">
+              <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Daily Devotionals</h3>
+              <p className="text-[#505153] text-sm leading-relaxed">
+                Start your day with inspiring devotionals. Grow in faith every day.
+              </p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="p-6 md:p-8 border border-[#e5e5e5] hover:border-[#c2bbff] transition-all duration-200">
+              <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
+                <ArrowRight className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Prayer Requests</h3>
+              <p className="text-[#505153] text-sm leading-relaxed">
+                Submit prayer requests and pray for others. Experience the power of community prayer.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Upcoming Events */}
-      <motion.section
-        className="py-10 sm:py-20 md:py-28 bg-background relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={stagger}
-      >
-        <div className="container px-4 sm:px-6 md:px-8 relative z-10">
-          <motion.div variants={fadeUp} custom={0} className="text-center mb-6 sm:mb-12">
-            <span className="text-primary font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block">{t("whatsHappening")}</span>
-            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight font-[--font-display]">
-              {t("upcomingEvents")}
-            </h2>
-            <Button variant="ghost" asChild className="gap-2 mt-4 text-muted-foreground hover:text-primary font-semibold text-xs sm:text-sm">
-              <Link href="/events">{t("viewAllSmall")} <ChevronRight size={14} /></Link>
-            </Button>
-          </motion.div>
-
-          <motion.div variants={fadeUp} custom={1}>
-            {loadingEvents ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-                {Array(3).fill(0).map((_, i) => (
-                  <Skeleton key={i} className="h-[240px] sm:h-[300px] rounded-2xl sm:rounded-3xl" />
-                ))}
-              </div>
-            ) : upcomingEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-                {upcomingEvents.slice(0, 3).map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 sm:py-20 glass-card rounded-2xl sm:rounded-3xl">
-                <Calendar className="h-10 w-10 sm:h-14 sm:w-14 mx-auto text-muted-foreground/20 mb-3" />
-                <p className="text-muted-foreground text-sm sm:text-base mb-4">{t("noEvents")}</p>
-                <Button variant="ghost" asChild className="font-semibold text-sm">
-                  <Link href="/events">{t("viewPastEvents")}</Link>
-                </Button>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </motion.section>
+      {upcomingEvents.length > 0 && (
+        <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24 bg-[#f8f8f8]">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c]">Upcoming Events</h2>
+              <Link href="/events" className="text-primary text-sm hover:underline">
+                View all events
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {upcomingEvents.map((event) => (
+                <Link key={event.id} href={`/events/${event.id}`} className="block">
+                  <div className="p-6 border border-[#e5e5e5] bg-white hover:border-[#c2bbff] transition-all duration-200">
+                    <p className="text-xs uppercase tracking-wider text-[#a0a0a0] mb-2">
+                      {format(new Date(event.date), "MMM d, yyyy")}
+                    </p>
+                    <h3 className="text-lg font-medium text-[#1b1b1c] mb-2">{event.title}</h3>
+                    <p className="text-sm text-[#505153]">{event.location}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Latest Sermons */}
-      <motion.section
-        className="py-10 sm:py-20 md:py-28 gradient-section relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={stagger}
-      >
-        <div className="container px-4 sm:px-6 md:px-8 relative z-10 max-w-6xl mx-auto">
-          <motion.div variants={fadeUp} custom={0} className="text-center mb-6 sm:mb-12 mx-auto max-w-3xl">
-            <span className="text-secondary font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block">{t("listenAndLearn")}</span>
-            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight font-[--font-display]">
-              {t("latestSermons")}
-            </h2>
-            <Button variant="ghost" asChild className="gap-2 mt-4 text-muted-foreground hover:text-primary font-semibold text-xs sm:text-sm">
-              <Link href="/sermons">{t("viewAllSermons")} <ChevronRight size={14} /></Link>
-            </Button>
-          </motion.div>
+      {recentSermons.length > 0 && (
+        <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c]">Latest Sermons</h2>
+              <Link href="/sermons" className="text-primary text-sm hover:underline">
+                View all sermons
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {recentSermons.map((sermon) => (
+                <Link key={sermon.id} href={`/sermons/${sermon.id}`} className="block">
+                  <div className="border border-[#e5e5e5] bg-white hover:border-[#c2bbff] transition-all duration-200">
+                    <div className="aspect-video bg-[#f0eeff] flex items-center justify-center">
+                      <Play className="w-12 h-12 text-primary" />
+                    </div>
+                    <div className="p-6">
+                      <p className="text-xs uppercase tracking-wider text-[#a0a0a0] mb-2">
+                        {sermon.series || "Sunday Service"} · {format(new Date(sermon.date), "MMM d, yyyy")}
+                      </p>
+                      <h3 className="text-lg font-medium text-[#1b1b1c] mb-2">{sermon.title}</h3>
+                      <p className="text-sm text-[#505153]">{sermon.speaker}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-          <motion.div variants={fadeUp} custom={1} className="max-w-6xl mx-auto">
-            {loadingSermons ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-                {Array(3).fill(0).map((_, i) => (
-                  <Skeleton key={i} className="h-[200px] sm:h-[260px] rounded-2xl sm:rounded-3xl" />
-                ))}
-              </div>
-            ) : sermons && sermons.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-                {sermons.slice(0, 3).map((sermon) => (
-                  <SermonCard key={sermon.id} sermon={sermon} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 sm:py-20 glass-card rounded-2xl sm:rounded-3xl">
-                <Play className="h-10 w-10 sm:h-14 sm:w-14 mx-auto text-muted-foreground/20 mb-3" />
-                <p className="text-muted-foreground text-sm">{t("noSermons")}</p>
-              </div>
-            )}
-          </motion.div>
+      {/* CTA Section */}
+      <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24 bg-primary text-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-normal mb-4">
+            Ready to Join Our Community?
+          </h2>
+          <p className="text-white/80 mb-8 leading-relaxed">
+            Sign up today and experience the power of a connected church community.
+          </p>
+          <Link 
+            href="/login"
+            className="inline-block px-6 py-3 bg-white text-primary text-sm hover:bg-white/90 transition-colors"
+          >
+            Get Started Free
+          </Link>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Ministries */}
-      <motion.section
-        className="py-10 sm:py-20 md:py-28 bg-background relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={stagger}
-      >
-        <div className="container px-4 sm:px-6 md:px-8 relative z-10">
-          <motion.div variants={fadeUp} custom={0} className="text-center max-w-2xl mx-auto mb-8 sm:mb-16">
-            <span className="text-accent font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block">{t("getInvolved")}</span>
-            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight font-[--font-display] mb-2 sm:mb-4">
-              {t("ourMinistries")}
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
-              {t("ministriesDescription")}
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUp} custom={1} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
-            <MinistryCard
-              icon={<Users className="w-5 h-5 sm:w-7 sm:h-7" />}
-              title={t("communityGroups")}
-              description={t("communityGroupsDesc")}
-              href="/groups"
-              color="primary"
-            />
-            <MinistryCard
-              icon={<BookOpen className="w-5 h-5 sm:w-7 sm:h-7" />}
-              title={t("bibleStudy")}
-              description={t("bibleStudyDesc")}
-              href="/bible"
-              color="secondary"
-            />
-            <MinistryCard
-              icon={<Heart className="w-5 h-5 sm:w-7 sm:h-7" />}
-              title={t("prayerMinistry")}
-              description={t("prayerMinistryDesc")}
-              href="/prayer"
-              color="accent"
-            />
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Visit Us */}
-      <motion.section
-        className="py-10 sm:py-20 md:py-28 gradient-section relative overflow-hidden"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={fadeUp}
-      >
-        <div className="container px-4 sm:px-6 md:px-8 relative z-10">
-          <div className="glass-card-strong rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
-            <div className="grid md:grid-cols-2">
-              <div className="relative min-h-[200px] sm:min-h-[320px] md:min-h-full">
-                <img
-                  src="/church_building.avif"
-                  alt="CHub Church Building"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-[hsl(220,30%,8%)/20]" />
-              </div>
-              <div className="p-5 sm:p-10 md:p-14 flex flex-col justify-center">
-                <span className="text-accent font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-4 block">{t("visitUs")}</span>
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight font-[--font-display] mb-3 sm:mb-5">
-                  {t("visitUsThisSunday")}
-                </h2>
-                <p className="text-muted-foreground mb-5 sm:mb-10 leading-relaxed text-sm sm:text-base">
-                  {t("visitUsDescription")}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4">
-                  <Button
-                    asChild
-                    className="rounded-2xl px-5 sm:px-7 py-2.5 sm:py-3.5 gradient-accent text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-all text-sm sm:text-base"
-                  >
-                    <Link href="/events">{t("serviceTimes")} <ArrowRight className="ml-2 w-4 h-4" /></Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-2xl px-5 sm:px-7 py-2.5 sm:py-3.5 border-border/50 text-foreground hover:bg-muted/50 font-bold text-sm sm:text-base"
-                  >
-                    <Link href="/contact">{t("getDirections")}</Link>
-                  </Button>
-                </div>
-              </div>
+      {/* FAQ Section */}
+      <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c] text-center mb-12">
+            Frequently Asked Questions
+          </h2>
+          
+          <div className="space-y-4">
+            <div className="border border-[#e5e5e5] p-5 hover:border-[#c2bbff] transition-all duration-200 cursor-pointer">
+              <h3 className="text-sm text-[#505153]">Is CHub free to use?</h3>
+            </div>
+            <div className="border border-[#e5e5e5] p-5 hover:border-[#c2bbff] transition-all duration-200 cursor-pointer">
+              <h3 className="text-sm text-[#505153]">How do I join my church on CHub?</h3>
+            </div>
+            <div className="border border-[#e5e5e5] p-5 hover:border-[#c2bbff] transition-all duration-200 cursor-pointer">
+              <h3 className="text-sm text-[#505153]">Can I give offering through CHub?</h3>
+            </div>
+            <div className="border border-[#e5e5e5] p-5 hover:border-[#c2bbff] transition-all duration-200 cursor-pointer">
+              <h3 className="text-sm text-[#505153]">Is my data secure?</h3>
             </div>
           </div>
         </div>
-      </motion.section>
-
-      <LocationMap />
-    </div>
+      </section>
     </>
-  );
-}
-
-function EventCard({ event }: { event: any }) {
-  const eventDate = new Date(event.date);
-
-  return (
-    <Link href={`/events/${event.id}`}>
-      <div className="glass-card-strong rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 h-full group cursor-pointer hover:-translate-y-2">
-        <div className="aspect-[16/10] relative bg-muted">
-          {event.imageUrl ? (
-            <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <Calendar className="h-16 w-16 text-muted-foreground/20" />
-            </div>
-          )}
-          <div className="absolute top-4 left-4 glass-card-strong px-4 py-3 rounded-2xl text-center shadow-lg">
-            <div className="text-[10px] font-bold uppercase text-primary tracking-wider">{format(eventDate, "MMM")}</div>
-            <div className="text-2xl font-bold text-foreground leading-none font-[--font-display]">{format(eventDate, "dd")}</div>
-          </div>
-        </div>
-        <div className="p-6">
-          <h3 className="font-bold text-foreground mb-4 line-clamp-1 text-lg font-[--font-display]">{event.title}</h3>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 text-primary/50" />
-              <span>{format(eventDate, "EEEE, h:mm a")}</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <MapPin className="w-4 h-4 text-primary/50" />
-              <span className="line-clamp-1">{event.location}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function SermonCard({ sermon }: { sermon: any }) {
-  const sermonDate = new Date(sermon.date);
-
-  return (
-    <Link href={`/sermons/${sermon.id}`}>
-      <div className="glass-card-strong rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 h-full group cursor-pointer hover:-translate-y-2">
-        <div className="aspect-[16/9] relative bg-muted">
-          {sermon.thumbnailUrl ? (
-            <img src={sermon.thumbnailUrl} alt={sermon.title} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <Play className="h-16 w-16 text-muted-foreground/20" />
-            </div>
-          )}
-          {sermon.videoUrl && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-[hsl(220,30%,8%)/50]">
-              <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-xl">
-                <Play className="h-7 w-7 text-primary-foreground ml-1" />
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="p-6">
-          {sermon.series && (
-            <p className="text-xs font-bold text-secondary mb-3 uppercase tracking-wider">{sermon.series}</p>
-          )}
-          <h3 className="font-bold text-foreground mb-4 line-clamp-2 text-lg font-[--font-display]">{sermon.title}</h3>
-          <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-            <span className="font-medium">{sermon.speaker}</span>
-            <span className="text-border">·</span>
-            <span>{format(sermonDate, "MMM d")}</span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function MinistryCard({ icon, title, description, href, color }: { icon: React.ReactNode; title: string; description: string; href: string; color: string }) {
-  const colorMap: Record<string, string> = {
-    primary: "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-primary/25",
-    secondary: "bg-secondary/10 text-secondary group-hover:bg-secondary group-hover:text-secondary-foreground group-hover:shadow-secondary/25",
-    accent: "bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground group-hover:shadow-accent/25",
-  };
-
-  return (
-    <Link href={href}>
-      <div className="glass-card-strong rounded-2xl sm:rounded-3xl h-full group cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 shimmer-border">
-        <div className="p-5 sm:p-10 text-center">
-          <div className={`w-11 h-11 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-6 transition-all duration-300 group-hover:shadow-lg ${colorMap[color]}`}>
-            {icon}
-          </div>
-          <h3 className="font-bold text-foreground mb-2 sm:mb-3 text-base sm:text-xl font-[--font-display]">{title}</h3>
-          <p className="text-muted-foreground text-xs sm:text-base leading-relaxed">{description}</p>
-        </div>
-      </div>
-    </Link>
   );
 }
