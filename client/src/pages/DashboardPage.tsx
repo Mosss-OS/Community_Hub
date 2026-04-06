@@ -121,7 +121,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background py-4 sm:py-6">
       <Helmet><title>Dashboard | CHub</title></Helmet>
 
-      <div className="container px-3 sm:px-4 md:px-8 max-w-5xl mx-auto">
+      <div className="container px-3 sm:px-4 md:px-8 max-w-[70%] mx-auto">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
             <h1 className="text-lg sm:text-xl md:text-3xl font-[--font-display] font-bold text-foreground mb-0.5 sm:mb-1 md:mb-2">My Dashboard</h1>
