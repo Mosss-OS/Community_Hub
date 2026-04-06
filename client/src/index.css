@@ -26,13 +26,13 @@
   --color-gold-foreground: hsl(var(--gold-foreground));
   --color-teal-dark: hsl(var(--teal-dark));
 
-  --font-sans: "Nunito", sans-serif;
-  --font-display: "Sora", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Inter", sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-  --radius-card: 0.75rem;
+  --radius-card: 0.5rem;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -59,53 +59,32 @@
 }
 
 :root {
-  --background: 220 20% 97%;
-  --foreground: 220 25% 12%;
-  --primary: 210 100% 52%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --primary: 252 100% 64%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 260 60% 58%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
   --accent: 38 92% 55%;
   --accent-foreground: 30 50% 12%;
-  --muted: 220 14% 92%;
-  --muted-foreground: 220 10% 45%;
-  --border: 220 15% 88%;
-  --input: 220 15% 88%;
-  --ring: 210 100% 52%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --border: 0 0% 86%;
+  --input: 0 0% 86%;
+  --ring: 252 100% 64%;
   --card: 0 0% 100%;
-  --card-foreground: 220 25% 12%;
+  --card-foreground: 0 0% 9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 220 25% 12%;
+  --popover-foreground: 0 0% 9%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --gold: 38 92% 55%;
   --gold-foreground: 30 50% 15%;
   --teal-dark: 220 30% 8%;
-  --radius: 1rem;
+  --radius: 0.5rem;
 }
 
-.dark {
-  --background: 225 30% 6%;
-  --foreground: 220 15% 95%;
-  --primary: 210 100% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 260 60% 65%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 225 20% 12%;
-  --muted-foreground: 220 10% 60%;
-  --border: 225 20% 16%;
-  --input: 225 20% 16%;
-  --ring: 210 100% 60%;
-  --card: 225 25% 10%;
-  --card-foreground: 220 15% 95%;
-  --popover: 225 25% 10%;
-  --popover-foreground: 220 15% 95%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --gold: 38 92% 60%;
-  --gold-foreground: 30 50% 10%;
-  --teal-dark: 225 30% 4%;
-}
+/* Dark mode removed - light mode only */
 
 * {
   border-color: hsl(var(--border));
@@ -120,7 +99,7 @@ body {
   color: hsl(var(--foreground));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: "Nunito", sans-serif;
+  font-family: "Inter", sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;
@@ -131,7 +110,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Sora", sans-serif;
+  font-family: "Inter", sans-serif;
   letter-spacing: -0.03em;
   font-weight: 700;
 }
@@ -190,12 +169,12 @@ button, input, textarea, select { font-size: 0.8125rem; }
   box-shadow: 0 8px 32px hsl(220 30% 20% / 0.1);
 }
 
-/* Glass on dark backgrounds */
+/* Glass on light backgrounds */
 .glass-dark {
-  background: hsl(220 30% 8% / 0.4);
+  background: hsl(0 0% 100% / 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(0 0% 100% / 0.08);
+  border: 1px solid hsl(0 0% 90% / 0.5);
 }
 
 /* Solid backgrounds */

@@ -103,24 +103,24 @@ export default function AuthPage() {
       </Helmet>
       <div className="flex min-h-screen">
         {/* Left panel - decorative gradient */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">
-          <div className="absolute inset-0 gradient-hero" />
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center bg-primary">
+          <div className="absolute inset-0 bg-primary" />
           <div className="absolute inset-0">
             <img
               src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1200&auto=format&fit=crop&q=80"
               alt="Worship"
-              className="w-full h-full object-cover opacity-15"
+              className="w-full h-full object-cover opacity-20"
             />
           </div>
 
           <div className="relative z-10 max-w-md text-center px-8">
             <div className="flex justify-center mb-8">
-              <img src="/church_logo.jpeg" alt="CHub" className="h-20 w-auto rounded-3xl ring-4 ring-white/10 shadow-2xl" />
+              <img src="/church_logo.jpeg" alt="CHub" className="h-20 w-auto rounded-3xl ring-4 ring-white/20 shadow-2xl" />
             </div>
-            <h2 className="text-4xl font-bold text-white font-[--font-display] tracking-tight mb-4">
-              {t("welcome").split("CHub")[0]}<span className="text-gradient-gold">CHub</span>
+            <h2 className="text-4xl font-bold text-white tracking-tight mb-4">
+              {t("welcome").split("CHub")[0]}<span className="text-white">CHub</span>
             </h2>
-            <p className="text-white/40 text-base leading-relaxed">
+            <p className="text-white/80 text-base leading-relaxed">
               {t("joinCommunityDesc")}
             </p>
 
@@ -130,9 +130,9 @@ export default function AuthPage() {
                 { value: "15+", label: t("yearsActive") },
                 { value: "50+", label: t("ministries") },
               ].map(({ value, label }) => (
-                <div key={label} className="glass-dark rounded-2xl p-4">
-                  <div className="text-2xl font-bold text-accent font-[--font-display]">{value}</div>
-                  <div className="text-xs text-white/30 font-medium mt-1">{label}</div>
+                <div key={label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                  <div className="text-2xl font-bold text-white">{value}</div>
+                  <div className="text-xs text-white/70 font-medium mt-1">{label}</div>
                 </div>
               ))}
             </div>

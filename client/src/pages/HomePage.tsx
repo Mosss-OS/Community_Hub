@@ -44,7 +44,7 @@ export default function HomePage() {
       />
       <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] sm:min-h-[100vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-[100vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-muted to-background">
         {/* Background image */}
         <div className="absolute inset-0">
           <img
@@ -52,29 +52,29 @@ export default function HomePage() {
             alt="Worship Background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/80" />
+          <div className="absolute inset-0 bg-white/70" />
         </div>
 
         <motion.div className="container relative z-10 px-4 sm:px-6 md:px-10" initial="hidden" animate="visible" variants={stagger}>
           <div className="max-w-5xl mx-auto text-center">
-            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full glass-dark text-white/80 text-xs sm:text-sm font-semibold mb-5 sm:mb-8 shimmer-border">
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-accent" />
+            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold mb-5 sm:mb-8 border border-primary/20">
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
               {t("welcomeToCHub")}
             </motion.div>
 
-            <motion.h1 variants={fadeUp} custom={1} className="font-bold text-2xl sm:text-4xl md:text-5xl lg:text-[5rem] text-white mb-4 sm:mb-8 leading-[1.1] tracking-tight font-[--font-display]">
+            <motion.h1 variants={fadeUp} custom={1} className="font-bold text-2xl sm:text-4xl md:text-5xl lg:text-[5rem] text-foreground mb-4 sm:mb-8 leading-[1.1] tracking-tight">
               {t("experienceThe")}<br />
-              <span className="text-gradient-gold">{t("powerOfFaith")}</span>
+              <span className="text-primary">{t("powerOfFaith")}</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} custom={2} className="text-sm sm:text-lg md:text-xl lg:text-2xl text-white/50 max-w-2xl mx-auto mb-6 sm:mb-12 leading-relaxed px-2">
+            <motion.p variants={fadeUp} custom={2} className="text-sm sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-12 leading-relaxed px-2">
               {t("heroDescription")}
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center px-4 sm:px-0">
               <Button
                 asChild
-                className="rounded-2xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 bg-accent hover:bg-accent/90 text-accent-foreground font-bold transition-all text-sm sm:text-base shadow-xl shadow-accent/30 hover:shadow-2xl hover:shadow-accent/40 hover:-translate-y-1"
+                className="rounded-xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 bg-primary hover:bg-primary/90 text-white font-semibold transition-all text-sm sm:text-base"
               >
                 <Link href="/events">
                   {t("planAVisit")} <ArrowRight className="ml-2 w-4 h-4" />
@@ -83,7 +83,7 @@ export default function HomePage() {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-2xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 border-white/15 text-white glass-dark hover:bg-white/10 font-bold transition-all text-sm sm:text-base hover:-translate-y-1"
+                className="rounded-xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 border-border text-foreground hover:bg-muted font-semibold transition-all text-sm sm:text-base"
               >
                 <Link href="/sermons">
                   <Play className="mr-2 w-4 h-4" /> {t("watchOnline")}
@@ -92,7 +92,7 @@ export default function HomePage() {
               {user && (
                 <Button
                   asChild
-                  className="rounded-2xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 gradient-accent text-primary-foreground font-bold transition-all text-sm sm:text-base shadow-lg shadow-primary/25 hover:-translate-y-1"
+                  className="rounded-xl px-5 sm:px-8 py-2.5 sm:py-4 h-10 sm:h-14 bg-accent text-accent-foreground font-semibold transition-all text-sm sm:text-base"
                 >
                   <Link href="/attendance/checkin">{t("checkIn")}</Link>
                 </Button>
@@ -107,9 +107,9 @@ export default function HomePage() {
               { value: "15+", label: t("yearsActive") },
               { value: "50+", label: t("ministries") },
             ].map(({ value, label }) => (
-              <div key={label} className="text-center glass-dark rounded-xl sm:rounded-2xl p-3 sm:p-6">
-                <div className="text-lg sm:text-3xl md:text-4xl font-bold text-accent mb-1 sm:mb-2 font-[--font-display]">{value}</div>
-                <div className="text-[10px] sm:text-sm text-white/40 font-medium">{label}</div>
+              <div key={label} className="text-center bg-card border border-border rounded-xl sm:rounded-2xl p-3 sm:p-6">
+                <div className="text-lg sm:text-3xl md:text-4xl font-bold text-primary mb-1 sm:mb-2">{value}</div>
+                <div className="text-[10px] sm:text-sm text-muted-foreground font-medium">{label}</div>
               </div>
             ))}
           </motion.div>
