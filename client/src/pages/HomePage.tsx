@@ -169,7 +169,7 @@ export default function HomePage() {
         viewport={{ once: true, amount: 0.2 }}
         variants={stagger}
       >
-        <div className="container px-4 sm:px-6 md:px-8 relative z-10">
+        <div className="container px-4 sm:px-6 md:px-8 relative z-10 max-w-6xl mx-auto">
           <motion.div variants={fadeUp} custom={0} className="text-center mb-6 sm:mb-12 mx-auto max-w-3xl">
             <span className="text-secondary font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block">{t("listenAndLearn")}</span>
             <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight font-[--font-display]">
@@ -180,7 +180,7 @@ export default function HomePage() {
             </Button>
           </motion.div>
 
-          <motion.div variants={fadeUp} custom={1}>
+          <motion.div variants={fadeUp} custom={1} className="max-w-6xl mx-auto">
             {loadingSermons ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
                 {Array(3).fill(0).map((_, i) => (
