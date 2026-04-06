@@ -112,7 +112,6 @@ interface AuthenticatedRequest extends Request {
     firstName?: string;
     lastName?: string;
     isAdmin?: boolean;
-    isSuperAdmin?: boolean;
     role?: string;
     organizationId?: string | null;
   };
@@ -199,7 +198,6 @@ const isAuthenticated = async (req: AuthenticatedRequest, res: any, next: any) =
       firstName: user.firstName || undefined,
       lastName: user.lastName || undefined,
       isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true, // Simple admin check
-      isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true,
       role: user.role || undefined,
       organizationId: user.organizationId
     };
@@ -223,14 +221,6 @@ const isAdmin = async (req: AuthenticatedRequest, res: any, next: any) => {
 const isPastor = async (req: AuthenticatedRequest, res: any, next: any) => {
   if (!req.user?.isAdmin && req.user?.role !== 'PASTOR' && req.user?.role !== 'PASTORS_WIFE') {
     return res.status(403).json({ message: "Pastor access required" });
-  }
-  next();
-};
-
-// Super Admin middleware
-const isSuperAdmin = async (req: AuthenticatedRequest, res: any, next: any) => {
-  if (!req.user?.isSuperAdmin) {
-    return res.status(403).json({ message: "Super admin access required" });
   }
   next();
 };
@@ -327,9 +317,9 @@ const getOrganizationId = (req: AuthenticatedRequest): string | undefined => {
   return undefined;
 };
 
-// Helper to check if user can access all organizations (super admin)
+// Helper to check if user can access all organizations
 const canAccessAllOrganizations = (req: AuthenticatedRequest): boolean => {
-  return req.user?.isSuperAdmin === true;
+  return false;
 };
 
 // Roles that can view absent members

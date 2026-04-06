@@ -170,7 +170,7 @@ export default function HomePage() {
         variants={stagger}
       >
         <div className="container px-4 sm:px-6 md:px-8 relative z-10">
-          <motion.div variants={fadeUp} custom={0} className="text-center mb-6 sm:mb-12">
+          <motion.div variants={fadeUp} custom={0} className="text-center mb-6 sm:mb-12 mx-auto max-w-3xl">
             <span className="text-secondary font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block">{t("listenAndLearn")}</span>
             <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight font-[--font-display]">
               {t("latestSermons")}

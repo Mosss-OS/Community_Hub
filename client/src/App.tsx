@@ -41,7 +41,6 @@ import MusicPage from "@/pages/MusicPage";
 import GroupsPage from "@/pages/GroupsPage";
 import BiblePage from "@/pages/BiblePage";
 import DiscipleshipPage from "@/pages/DiscipleshipPage";
-import SuperAdminPage from "@/pages/SuperAdminPage";
 import SermonClipGeneratorPage from "@/pages/SermonClipGeneratorPage";
 import SocialFeedPage from "@/pages/SocialFeedPage";
 import CelebrationsPage from "@/pages/CelebrationsPage";
@@ -69,13 +68,6 @@ function Router() {
     );
   }
 
-   // SuperAdmin Exclusivity logic
-   if (user?.isSuperAdmin) {
-     if (location !== "/super-admin" && location !== "/logout" && location !== "/login") {
-       return <Redirect to="/super-admin" />;
-     }
-   }
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -86,22 +78,22 @@ function Router() {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         <Switch>
-          <Route path="/super-admin" component={SuperAdminPage} />
+          {/* Always-accessible routes (no auth restriction) */}
+          <Route path="/login" component={AuthPage} />
           <Route path="/logout" component={LogoutPage} />
-          {user?.isSuperAdmin ? (
-            <Route component={() => <Redirect to="/super-admin" />} />
-          ) : (
-            <>
-              <Route path="/" component={HomePage} />
+          <Route path="/register-church" component={RegisterChurchPage} />
+          <Route path="/auth/callback" component={AuthCallbackPage} />
+          <Route path="/privacy" component={PrivacyPage} />
+
+          {/* Regular app routes */}
+          <>
+            <Route path="/" component={HomePage} />
               <Route path="/sermons" component={SermonsPage} />
               <Route path="/sermons/:id" component={SermonDetailPage} />
               <Route path="/events" component={EventsPage} />
               <Route path="/events/:id" component={EventDetailPage} />
               <Route path="/prayer" component={PrayerPage} />
               <Route path="/give" component={GivePage} />
-              <Route path="/login" component={AuthPage} />
-              <Route path="/register-church" component={RegisterChurchPage} />
-              <Route path="/auth/callback" component={AuthCallbackPage} />
               <Route path="/dashboard" component={DashboardPage} />
               <Route path="/admin" component={AdminDashboardPage} />
               <Route path="/attendance" component={AttendanceHistoryPage} />
@@ -124,12 +116,10 @@ function Router() {
               <Route path="/admin/sermon-clips" component={SermonClipGeneratorPage} />
               <Route path="/feed" component={SocialFeedPage} />
               <Route path="/celebrations" component={CelebrationsPage} />
-              <Route path="/privacy" component={PrivacyPage} />
               <Route path="/messages" component={MessagesPage} />
               <Route path="/settings/language" component={LanguageSettingsPage} />
               <Route component={NotFound} />
             </>
-          )}
         </Switch>
       </motion.div>
     </AnimatePresence>

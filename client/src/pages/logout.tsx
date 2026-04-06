@@ -7,16 +7,8 @@ export default function LogoutPage() {
   const { logout, isLoggingOut } = useAuth();
 
   useEffect(() => {
-    if (!isLoggingOut) {
-      logout();
-    }
-  }, [logout, isLoggingOut]);
-
-  useEffect(() => {
-    if (!isLoggingOut) {
-      navigate("/login");
-    }
-  }, [isLoggingOut, navigate]);
+    logout();
+  }, [logout]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
