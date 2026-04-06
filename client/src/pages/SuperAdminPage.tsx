@@ -103,7 +103,7 @@ async function updateOrgBranding(orgId: string, data: Partial<Branding>) {
 }
 
 async function logoutUser() {
-  const res = await fetch(buildApiUrl("/api/logout"), { method: "GET", credentials: "include" });
+  const res = await fetch(buildApiUrl("/api/auth/logout"), { method: "POST", credentials: "include" });
   if (!res.ok) throw new Error("Logout failed");
   window.location.href = "/login";
 }
