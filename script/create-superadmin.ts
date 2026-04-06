@@ -5,12 +5,17 @@ import bcrypt from 'bcrypt';
 async function main() {
   const client = await pool.connect();
   try {
-    // Step 1: Remove all existing super admins
-    const deleted = await client.query(
-      `DELETE FROM users WHERE is_super_admin = true RETURNING email`
-    );
-    console.log(`✅ Deleted ${deleted.rowCount} existing super admin(s):`,
-      deleted.rows.map((r: any) => r.email));
+    // Step 1: Delete records that reference users with is_super_admin=true
+    // First, get the super admin ID
+    const existing = await client.query(`SELECT id FROM users WHERE is_super_admin = true`);
+    if (existing.rows.length > 0) {
+      const superAdminId = existing.rows[0].id;
+      
+      // Delete dependent records (use CASCADE or delete manually)
+      await client.query(`DELETE FROM daily_devotionals WHERE created_by = $1`, [superAdminId]);
+      await client.query(`DELETE FROM users WHERE id = $1`, [superAdminId]);
+      console.log(`✅ Deleted existing super admin and dependencies`);
+    }
 
     // Step 2: Create fresh super admin
     const password = 'SuperAdmin@2025';
