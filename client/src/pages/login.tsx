@@ -114,7 +114,7 @@ export default function AuthPage() {
             <div className="flex justify-center mb-8">
               <img src="/church_logo.jpeg" alt="CHub" className="h-20 w-auto" />
             </div>
-            <h2 className="text-4xl font-normal text-white tracking-[-0.02em] mb-4">
+            <h2 className="text-4xl font-light text-white tracking-[-0.02em] mb-4">
               CHub
             </h2>
             <p className="text-white/80 text-base leading-relaxed">
@@ -128,7 +128,7 @@ export default function AuthPage() {
                 { value: "50+", label: "Ministries" },
               ].map(({ value, label }) => (
                 <div key={label} className="bg-white/10 p-4">
-                  <div className="text-2xl font-normal text-white">{value}</div>
+                  <div className="text-2xl font-light text-white">{value}</div>
                   <div className="text-xs text-white/70 mt-1">{label}</div>
                 </div>
               ))}
@@ -146,7 +146,7 @@ export default function AuthPage() {
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl md:text-3xl font-normal tracking-tight text-[#1b1b1c]">
+              <h2 className="text-2xl md:text-3xl font-light tracking-tight text-[#1b1b1c]">
                 {mode === "login" ? "Welcome back" : "Create account"}
               </h2>
               <p className="mt-2 text-sm text-[#505153]">
@@ -233,7 +233,7 @@ export default function AuthPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-normal hover:bg-[#3400c8] transition-colors"
+                className="w-full py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-light hover:bg-[#3400c8] transition-colors"
               >
                 {isLoading ? (
                   <>

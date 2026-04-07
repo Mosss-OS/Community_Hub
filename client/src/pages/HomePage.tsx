@@ -32,7 +32,7 @@ export default function HomePage() {
       {/* Hero Section - Locus Style */}
       <section className="w-full pt-36 pb-24 md:pt-48 md:pb-36 px-4 sm:px-8 md:px-24">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-normal leading-[1.1] tracking-[-0.02em] text-[#1b1b1c] mb-6 md:mb-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-light leading-[1.1] tracking-[-0.02em] text-[#1b1b1c] mb-6 md:mb-8">
             Your Church Community,<br />
             <span className="text-primary">All in One Place</span>
           </h1>
@@ -45,13 +45,13 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link 
               href="/login"
-              className="px-5 md:px-6 py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-normal hover:bg-[#3400c8] transition-colors"
+              className="px-5 md:px-6 py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-light hover:bg-[#3400c8] transition-colors"
             >
               Get Started
             </Link>
             <Link 
               href="/sermons"
-              className="px-5 md:px-6 py-2.5 md:py-3 border border-primary text-primary text-[13px] md:text-[14px] font-normal hover:bg-[#f8f6ff] transition-colors"
+              className="px-5 md:px-6 py-2.5 md:py-3 border border-primary text-primary text-[13px] md:text-[14px] font-light hover:bg-[#f8f6ff] transition-colors"
             >
               Watch Sermons
             </Link>
@@ -77,7 +77,7 @@ export default function HomePage() {
       <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c] mb-4">
+            <h2 className="text-2xl md:text-3xl font-light text-[#1b1b1c] mb-4">
               Everything Your Church Needs
             </h2>
             <p className="text-[#505153] max-w-xl mx-auto">
@@ -91,7 +91,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
                 <Play className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Sermons & Teaching</h3>
+              <h3 className="text-lg font-light text-[#1b1b1c] mb-3">Sermons & Teaching</h3>
               <p className="text-[#505153] text-sm leading-relaxed">
                 Access sermons anytime, anywhere. Watch live or catch up on recorded messages.
               </p>
@@ -102,7 +102,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
                 <Calendar className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Events & Activities</h3>
+              <h3 className="text-lg font-light text-[#1b1b1c] mb-3">Events & Activities</h3>
               <p className="text-[#505153] text-sm leading-relaxed">
                 Never miss a church event. RSVP, get reminders, and stay connected.
               </p>
@@ -113,7 +113,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
                 <Heart className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Give & Support</h3>
+              <h3 className="text-lg font-light text-[#1b1b1c] mb-3">Give & Support</h3>
               <p className="text-[#505153] text-sm leading-relaxed">
                 Simple and secure online giving. Support the mission and ministry of your church.
               </p>
@@ -124,7 +124,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
                 <Users className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Member Directory</h3>
+              <h3 className="text-lg font-light text-[#1b1b1c] mb-3">Member Directory</h3>
               <p className="text-[#505153] text-sm leading-relaxed">
                 Connect with other members. Find groups, connect with leaders, grow together.
               </p>
@@ -135,7 +135,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
                 <BookOpen className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Daily Devotionals</h3>
+              <h3 className="text-lg font-light text-[#1b1b1c] mb-3">Daily Devotionals</h3>
               <p className="text-[#505153] text-sm leading-relaxed">
                 Start your day with inspiring devotionals. Grow in faith every day.
               </p>
@@ -146,7 +146,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-[#f0eeff] flex items-center justify-center text-primary mb-6">
                 <ArrowRight className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-medium text-[#1b1b1c] mb-3">Prayer Requests</h3>
+              <h3 className="text-lg font-light text-[#1b1b1c] mb-3">Prayer Requests</h3>
               <p className="text-[#505153] text-sm leading-relaxed">
                 Submit prayer requests and pray for others. Experience the power of community prayer.
               </p>
@@ -160,7 +160,7 @@ export default function HomePage() {
         <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24 bg-[#f8f8f8]">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c]">Upcoming Events</h2>
+              <h2 className="text-2xl md:text-3xl font-light text-[#1b1b1c]">Upcoming Events</h2>
               <Link href="/events" className="text-primary text-sm hover:underline">
                 View all events
               </Link>
@@ -173,7 +173,7 @@ export default function HomePage() {
                     <p className="text-xs uppercase tracking-wider text-[#a0a0a0] mb-2">
                       {format(new Date(event.date), "MMM d, yyyy")}
                     </p>
-                    <h3 className="text-lg font-medium text-[#1b1b1c] mb-2">{event.title}</h3>
+                    <h3 className="text-lg font-light text-[#1b1b1c] mb-2">{event.title}</h3>
                     <p className="text-sm text-[#505153]">{event.location}</p>
                   </div>
                 </Link>
@@ -188,7 +188,7 @@ export default function HomePage() {
         <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c]">Latest Sermons</h2>
+              <h2 className="text-2xl md:text-3xl font-light text-[#1b1b1c]">Latest Sermons</h2>
               <Link href="/sermons" className="text-primary text-sm hover:underline">
                 View all sermons
               </Link>
@@ -205,7 +205,7 @@ export default function HomePage() {
                       <p className="text-xs uppercase tracking-wider text-[#a0a0a0] mb-2">
                         {sermon.series || "Sunday Service"} · {format(new Date(sermon.date), "MMM d, yyyy")}
                       </p>
-                      <h3 className="text-lg font-medium text-[#1b1b1c] mb-2">{sermon.title}</h3>
+                      <h3 className="text-lg font-light text-[#1b1b1c] mb-2">{sermon.title}</h3>
                       <p className="text-sm text-[#505153]">{sermon.speaker}</p>
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24 bg-primary text-white">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-normal mb-4">
+          <h2 className="text-2xl md:text-3xl font-light mb-4">
             Ready to Join Our Community?
           </h2>
           <p className="text-white/80 mb-8 leading-relaxed">
@@ -237,7 +237,7 @@ export default function HomePage() {
       {/* FAQ Section */}
       <section className="w-full py-16 md:py-24 px-4 sm:px-8 md:px-24">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-normal text-[#1b1b1c] text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-light text-[#1b1b1c] text-center mb-12">
             Frequently Asked Questions
           </h2>
           

@@ -36,7 +36,7 @@ export function Footer() {
           <div className="md:col-span-7">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
-                <h4 className="text-sm font-medium text-white mb-4">Platform</h4>
+                <h4 className="text-sm font-light text-white mb-4">Platform</h4>
                 <ul className="space-y-3">
                   <li><Link href="/sermons" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Sermons</Link></li>
                   <li><Link href="/events" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Events</Link></li>
@@ -45,7 +45,7 @@ export function Footer() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-white mb-4">Community</h4>
+                <h4 className="text-sm font-light text-white mb-4">Community</h4>
                 <ul className="space-y-3">
                   <li><Link href="/members" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Members</Link></li>
                   <li><Link href="/groups" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Groups</Link></li>
@@ -54,7 +54,7 @@ export function Footer() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-white mb-4">Company</h4>
+                <h4 className="text-sm font-light text-white mb-4">Company</h4>
                 <ul className="space-y-3">
                   <li><Link href="/about" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">About</Link></li>
                   <li><Link href="/contact" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Contact</Link></li>
@@ -63,7 +63,7 @@ export function Footer() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-white mb-4">Legal</h4>
+                <h4 className="text-sm font-light text-white mb-4">Legal</h4>
                 <ul className="space-y-3">
                   <li><Link href="/privacy" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Privacy</Link></li>
                   <li><Link href="/terms" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Terms</Link></li>
