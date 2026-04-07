@@ -233,7 +233,7 @@ export default function AuthPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-10 bg-primary text-white text-sm hover:bg-[#3400c8] transition-colors"
+                className="w-full py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-normal hover:bg-[#3400c8] transition-colors"
               >
                 {isLoading ? (
                   <>

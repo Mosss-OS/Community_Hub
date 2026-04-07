@@ -42,16 +42,16 @@ export default function HomePage() {
             and grow in your faith journey - all in one beautiful platform.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link 
               href="/login"
-              className="px-6 py-3 bg-primary text-white text-sm hover:bg-[#3400c8] transition-colors"
+              className="px-5 md:px-6 py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-normal hover:bg-[#3400c8] transition-colors"
             >
               Get Started
             </Link>
             <Link 
               href="/sermons"
-              className="px-6 py-3 border border-primary text-primary text-sm hover:bg-[#f8f6ff] transition-colors"
+              className="px-5 md:px-6 py-2.5 md:py-3 border border-primary text-primary text-[13px] md:text-[14px] font-normal hover:bg-[#f8f6ff] transition-colors"
             >
               Watch Sermons
             </Link>

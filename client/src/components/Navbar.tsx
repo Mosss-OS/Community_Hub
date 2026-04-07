@@ -89,7 +89,7 @@ export function Navbar() {
                 </Link>
                 <Link 
                   href="/login" 
-                  className="px-4 md:px-6 py-3 md:py-[14px] border border-primary text-primary text-xs md:text-sm hover:bg-primary hover:text-white transition-colors"
+                  className="px-4 py-2 md:py-2 border border-primary text-primary text-[13px] md:text-[14px] hover:bg-primary hover:text-white transition-colors"
                 >
                   Sign up
                 </Link>
@@ -121,7 +121,7 @@ export function Navbar() {
                       <Link href="/login" className="text-lg text-[#505153] py-2">
                         Log in
                       </Link>
-                      <Link href="/login" className="px-6 py-3 bg-primary text-white text-center">
+                      <Link href="/login" className="px-4 py-2 bg-primary text-white text-center">
                         Sign up
                       </Link>
                     </>
