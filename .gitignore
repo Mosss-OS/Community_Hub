@@ -11,3 +11,4 @@ vite.config.ts.*
 service.key
 service.cert
 ca.pem
+test-kafka.js

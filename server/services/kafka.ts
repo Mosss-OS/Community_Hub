@@ -10,17 +10,17 @@ const sslKeyPath = process.env.KAFKA_SSL_KEY_PATH || path.join(process.cwd(), "s
 const sslCertPath = process.env.KAFKA_SSL_CERT_PATH || path.join(process.cwd(), "service.cert");
 const sslCAPath = process.env.KAFKA_SSL_CA_PATH || path.join(process.cwd(), "ca.pem");
 
-// Read SSL certificates if files exist
-let sslConfig: any = true; // Default SSL
+  // Read SSL certificates if files exist
+  let sslConfig: any = true; // Default SSL
 
-if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath) && fs.existsSync(sslCAPath)) {
-  sslConfig = {
-    rejectUnauthorized: false,
-    ca: [fs.readFileSync(sslCAPath, "utf-8")],
-    cert: fs.readFileSync(sslCertPath, "utf-8"),
-    key: fs.readFileSync(sslKeyPath, "utf-8"),
-  };
-}
+  if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath) && fs.existsSync(sslCAPath)) {
+    sslConfig = {
+      rejectUnauthorized: false,
+      ca: [fs.readFileSync(sslCAPath, "utf8")],
+      cert: fs.readFileSync(sslCertPath, "utf8"),
+      key: fs.readFileSync(sslKeyPath, "utf8"),
+    };
+  }
 
 const kafka = new Kafka({
   clientId: "community-hub",
