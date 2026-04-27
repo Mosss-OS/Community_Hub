@@ -8,7 +8,7 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm install && npm run build && cp -r dist ../public",
     "build:server": "echo 'Server ready'",
-"start": "NODE_ENV=production node --import tsx server/index.ts",
+    "start": "NODE_ENV=production node --import tsx server/index.ts",
     "db:push": "drizzle-kit push",
     "db:migrate": "node --import tsx script/migrate.ts"
   },
@@ -80,6 +80,7 @@
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.2.0",
+    "kafkajs": "^2.2.4",
     "lucide-react": "^0.453.0",
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",

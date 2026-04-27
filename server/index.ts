@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { connectKafka } from "./services/kafka";
 
 // Force production if not explicitly development
 if (!process.env.NODE_ENV) {
@@ -166,6 +167,11 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
+  // Connect to Kafka if configured
+  if (process.env.KAFKA_BROKERS) {
+    await connectKafka();
+  }
+
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
     {
