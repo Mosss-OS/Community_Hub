@@ -1,72 +1,56 @@
-import { Kafka } from "kafkajs";
-import fs from "fs";
-import path from "path";
+// Test Kafka connection using node-rdkafka (Aiven's recommended library)
+import Kafka from "node-rdkafka";
 
-const sslKeyPath = path.join(process.cwd(), "service.key");
-const sslCertPath = path.join(process.cwd(), "service.cert");
-const sslCAPath = path.join(process.cwd(), "ca.pem");
+const broker = "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
 
-console.log("Checking certificate files...");
-console.log("service.key exists:", fs.existsSync(sslKeyPath), "- Size:", fs.statSync(sslKeyPath).size + "bytes");
-console.log("service.cert exists:", fs.existsSync(sslCertPath), "- Size:", fs.statSync(sslCertPath).size + "bytes");
-console.log("ca.pem exists:", fs.existsSync(sslCAPath), "- Size:", fs.statSync(sslCAPath).size + "bytes");
+const kafkaConfig = {
+  "metadata.broker.list": broker,
+  "security.protocol": "ssl",
+  "ssl.key.location": "service.key",
+  "ssl.certificate.location": "service.cert",
+  "ssl.ca.location": "ca.pem",
+  "dr_cb": true,
+};
 
-try {
-  const keyContent = fs.readFileSync(sslKeyPath, "utf8");
-  const certContent = fs.readFileSync(sslCertPath, "utf8");
-  const caContent = fs.readFileSync(sslCAPath, "utf8");
+console.log("Testing Kafka connection with node-rdkafka...");
+console.log("Broker:", broker);
 
-  console.log("\nKey starts with:", keyContent.substring(0, 30));
-  console.log("Cert starts with:", certContent.substring(0, 30));
-  console.log("CA starts with:", caContent.substring(0, 30));
+const producer = new Kafka.Producer(kafkaConfig);
 
-  if (!keyContent.includes("BEGIN PRIVATE KEY") && !keyContent.includes("BEGIN RSA PRIVATE KEY")) {
-    console.error("\n❌ ERROR: service.key does not contain a valid private key!");
-    console.error("File content:", keyContent);
-    console.error("\nPlease re-download it from Aiven Console → Kafka → Quick connect");
+producer.on("ready", () => {
+  console.log("✅ Kafka producer connected successfully!");
+
+  // Try to produce a test message
+  try {
+    producer.produce(
+      "test-topic",
+      null,
+      Buffer.from(JSON.stringify({ test: "hello", time: new Date().toISOString() })),
+      null,
+      Date.now(),
+      (err, offset) => {
+        if (err) {
+          console.error("❌ Error sending message:", err);
+        } else {
+          console.log("✅ Test message sent! Offset:", offset);
+        }
+
+        producer.disconnect();
+        console.log("✅ Kafka disconnected");
+        process.exit(0);
+      }
+    );
+  } catch (err) {
+    console.error("❌ Error producing message:", err);
+    producer.disconnect();
     process.exit(1);
   }
-
-  console.log("\n✅ Certificate files look valid");
-} catch (err) {
-  console.error("Error reading cert files:", err.message);
-  process.exit(1);
-}
-
-const kafka = new Kafka({
-  clientId: "community-hub-test",
-  brokers: ["kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854"],
-  ssl: {
-    rejectUnauthorized: false,
-    ca: [fs.readFileSync(sslCAPath, "utf8")],
-    cert: fs.readFileSync(sslCertPath, "utf8"),
-    key: fs.readFileSync(sslKeyPath, "utf8"),
-  },
-  logLevel: 2,
 });
 
-const producer = kafka.producer();
+producer.on("event.error", (err) => {
+  console.error("❌ Kafka connection error:", err);
+  process.exit(1);
+});
 
-async function testConnection() {
-  try {
-    console.log("\nConnecting to Kafka...");
-    await producer.connect();
-    console.log("✅ Kafka connected successfully!");
-
-    console.log("Sending test message...");
-    await producer.send({
-      topic: "test-topic",
-      messages: [{ value: JSON.stringify({ test: "hello", time: new Date().toISOString() }) }],
-    });
-    console.log("✅ Test message sent!");
-
-    await producer.disconnect();
-    console.log("✅ Kafka disconnected cleanly");
-    process.exit(0);
-  } catch (error) {
-    console.error("❌ Kafka connection failed:", error.message);
-    process.exit(1);
-  }
-}
-
-testConnection();
+console.log("Connecting to Kafka...");
+producer.connect();
