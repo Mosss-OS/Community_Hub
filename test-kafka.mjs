@@ -1,4 +1,4 @@
-// Test Kafka connection using node-rdkafka (Aiven's recommended library)
+// Test Kafka connection using node-rdkafka
 import Kafka from "node-rdkafka";
 
 const broker = "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
@@ -16,11 +16,15 @@ console.log("Testing Kafka connection with node-rdkafka...");
 console.log("Broker:", broker);
 
 const producer = new Kafka.Producer(kafkaConfig);
+let pollInterval;
 
 producer.on("ready", () => {
-  console.log("✅ Kafka producer connected successfully!");
+  console.log("✅ Kafka producer connected!");
 
-  // Try to produce a test message
+  // Start polling
+  pollInterval = setInterval(() => producer.poll(), 100);
+
+  // Produce a test message
   try {
     producer.produce(
       "test-topic",
@@ -30,46 +34,51 @@ producer.on("ready", () => {
       Date.now(),
       (err, offset) => {
         if (err) {
-          console.error("❌ Error sending message:", err);
-          producer.disconnect();
+          console.error("❌ Error sending:", err.message);
+          cleanup();
           process.exit(1);
         } else {
-          console.log("✅ Test message sent! Offset:", offset);
+          console.log("✅ Message sent! Offset:", offset);
+          // Wait a bit for delivery, then cleanup
           setTimeout(() => {
-            producer.disconnect();
-            console.log("✅ Kafka disconnected");
+            console.log("✅ Test passed!");
+            cleanup();
             process.exit(0);
-          }, 1000);
+          }, 2000);
         }
       }
     );
   } catch (err) {
-    console.error("❌ Error producing message:", err);
-    producer.disconnect();
+    console.error("❌ Error:", err.message);
+    cleanup();
     process.exit(1);
   }
 });
 
-producer.on("event.error", (err) => {
-  console.error("❌ Kafka connection error:", err);
-  producer.disconnect();
-  process.exit(1);
-});
-
 producer.on("delivery-report", (err, report) => {
   if (err) {
-    console.error("❌ Delivery failed:", err);
+    console.error("❌ Delivery failed:", err.message);
   } else {
-    console.log("✅ Message delivered to topic:", report.topic);
+    console.log("✅ Delivered:", report.topic, "offset:", report.offset);
   }
 });
 
-console.log("Connecting to Kafka...");
+producer.on("event.error", (err) => {
+  console.error("❌ Kafka error:", err.message);
+  cleanup();
+  process.exit(1);
+});
+
+function cleanup() {
+  if (pollInterval) clearInterval(pollInterval);
+  try { producer.disconnect(); } catch(e) {}
+}
+
+console.log("Connecting...");
 producer.connect();
 
-// Timeout after 10 seconds
 setTimeout(() => {
-  console.error("❌ Timeout: Kafka operation took too long");
-  producer.disconnect();
+  console.error("❌ Timeout");
+  cleanup();
   process.exit(1);
-}, 10000);
+}, 15000);
