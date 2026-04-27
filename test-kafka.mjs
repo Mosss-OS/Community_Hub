@@ -31,13 +31,16 @@ producer.on("ready", () => {
       (err, offset) => {
         if (err) {
           console.error("❌ Error sending message:", err);
+          producer.disconnect();
+          process.exit(1);
         } else {
           console.log("✅ Test message sent! Offset:", offset);
+          setTimeout(() => {
+            producer.disconnect();
+            console.log("✅ Kafka disconnected");
+            process.exit(0);
+          }, 1000);
         }
-
-        producer.disconnect();
-        console.log("✅ Kafka disconnected");
-        process.exit(0);
       }
     );
   } catch (err) {
@@ -49,8 +52,24 @@ producer.on("ready", () => {
 
 producer.on("event.error", (err) => {
   console.error("❌ Kafka connection error:", err);
+  producer.disconnect();
   process.exit(1);
+});
+
+producer.on("delivery-report", (err, report) => {
+  if (err) {
+    console.error("❌ Delivery failed:", err);
+  } else {
+    console.log("✅ Message delivered to topic:", report.topic);
+  }
 });
 
 console.log("Connecting to Kafka...");
 producer.connect();
+
+// Timeout after 10 seconds
+setTimeout(() => {
+  console.error("❌ Timeout: Kafka operation took too long");
+  producer.disconnect();
+  process.exit(1);
+}, 10000);
