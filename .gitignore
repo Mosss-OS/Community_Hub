@@ -8,3 +8,6 @@ vite.config.ts.*
 *.tar.gz
 .env
 .vercel
+service.key
+service.cert
+ca.pem

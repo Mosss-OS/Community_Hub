@@ -1,15 +1,31 @@
 import { Kafka, logLevel } from "kafkajs";
+import fs from "fs";
+import path from "path";
 
-// Aiven Kafka configuration
+// Aiven Kafka configuration with SSL client certificates
+const broker = process.env.KAFKA_BROKERS || "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
+
+// SSL certificate file paths (download from Aiven Console)
+const sslKeyPath = process.env.KAFKA_SSL_KEY_PATH || path.join(process.cwd(), "service.key");
+const sslCertPath = process.env.KAFKA_SSL_CERT_PATH || path.join(process.cwd(), "service.cert");
+const sslCAPath = process.env.KAFKA_SSL_CA_PATH || path.join(process.cwd(), "ca.pem");
+
+// Read SSL certificates if files exist
+let sslConfig: any = true; // Default SSL
+
+if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath) && fs.existsSync(sslCAPath)) {
+  sslConfig = {
+    rejectUnauthorized: false,
+    ca: [fs.readFileSync(sslCAPath, "utf-8")],
+    cert: fs.readFileSync(sslCertPath, "utf-8"),
+    key: fs.readFileSync(sslKeyPath, "utf-8"),
+  };
+}
+
 const kafka = new Kafka({
   clientId: "community-hub",
-  brokers: ["kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854"],
-  ssl: true,
-  sasl: {
-    mechanism: "scram-sha-256", // or "plain" depending on Aiven config
-    username: process.env.KAFKA_USERNAME || "",
-    password: process.env.KAFKA_PASSWORD || "",
-  },
+  brokers: [broker],
+  ssl: sslConfig,
   logLevel: logLevel.INFO,
   retry: {
     initialRetryTime: 100,
