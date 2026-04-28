@@ -1,4 +1,13 @@
-import { Producer, Consumer, Kafka, LibrdKafkaError } from "node-rdkafka";
+// Kafka integration using node-rdkafka with dynamic import for ES modules
+let Producer: any, Consumer: any, Kafka: any, LibrdKafkaError: any;
+let producer: any, consumer: any;
+
+// Dynamically import node-rdkafka (CommonJS)
+const kafkaModule = await import("node-rdkafka");
+const Producer = kafkaModule.default.Producer || kafkaModule.Producer;
+const Consumer = kafkaModule.default.Consumer || kafkaModule.Consumer;
+const KafkaObj = kafkaModule.default.Kafka || kafkaModule.Kafka;
+const LibrdKafkaError = kafkaModule.default.LibrdKafkaError || kafkaModule.LibrdKafkaError;
 
 // Aiven Kafka configuration
 const broker = process.env.KAFKA_BROKERS || "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
@@ -12,8 +21,8 @@ const kafkaConfig = {
   "dr_cb": true,
 };
 
-const producer = new Producer(kafkaConfig);
-const consumer = new Consumer(kafkaConfig, {
+producer = new Producer(kafkaConfig);
+consumer = new Consumer(kafkaConfig, {
   "group.id": "community-hub-group",
   "enable.auto.commit": false,
 });
@@ -48,7 +57,7 @@ export function connectKafka(): Promise<void> {
       resolve();
     });
 
-    producer.on("event.error", (err: LibrdKafkaError) => {
+    producer.on("event.error", (err: typeof LibrdKafkaError) => {
       console.error("Kafka producer error:", err);
       reject(err);
     });
@@ -80,7 +89,7 @@ export function sendMessage(topic: string, message: any): Promise<void> {
         Buffer.from(JSON.stringify(message)),
         null, // key
         Date.now(),
-        (err, offset) => {
+        (err: any, offset: any) => {
           if (err) {
             console.error(`Error sending message to topic ${topic}:`, err);
             reject(err);
