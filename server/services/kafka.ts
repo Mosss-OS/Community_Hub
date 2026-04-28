@@ -1,13 +1,13 @@
 // Kafka integration using node-rdkafka with dynamic import for ES modules
-let Producer: any, Consumer: any, Kafka: any, LibrdKafkaError: any;
-let producer: any, consumer: any;
+let producer: any;
+let consumer: any;
 
 // Dynamically import node-rdkafka (CommonJS)
 const kafkaModule = await import("node-rdkafka");
-const Producer = kafkaModule.default.Producer || kafkaModule.Producer;
-const Consumer = kafkaModule.default.Consumer || kafkaModule.Consumer;
-const KafkaObj = kafkaModule.default.Kafka || kafkaModule.Kafka;
-const LibrdKafkaError = kafkaModule.default.LibrdKafkaError || kafkaModule.LibrdKafkaError;
+const Producer = kafkaModule.default?.Producer || kafkaModule.Producer;
+const Consumer = kafkaModule.default?.Consumer || kafkaModule.Consumer;
+const KafkaClass = kafkaModule.default?.Kafka || kafkaModule.Kafka;
+const LibrdKafkaError = kafkaModule.default?.LibrdKafkaError || kafkaModule.LibrdKafkaError;
 
 // Aiven Kafka configuration
 const broker = process.env.KAFKA_BROKERS || "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
