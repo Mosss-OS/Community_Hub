@@ -15,9 +15,10 @@ const kafkaConfig = {
 };
 
 const producer = new Producer(kafkaConfig);
-const consumer = new Consumer(kafkaConfig, {
+const consumer = new Consumer({
   "group.id": "community-hub-group",
   "enable.auto.commit": false,
+  ...kafkaConfig
 });
 
 // Topic names
