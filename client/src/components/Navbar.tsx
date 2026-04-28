@@ -1,128 +1,205 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import { useUnreadCount } from "@/hooks/use-messages";
-import { useLanguage } from "@/hooks/use-language";
-import { useBranding } from "@/hooks/use-branding";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Menu, ChevronDown, LogOut, LayoutDashboard, CalendarCheck, QrCode, Shield, Bell, Music, Mic, Users, Heart, BookOpen, Video, X, MessageCircle, Compass, Sparkles, PartyPopper } from "lucide-react";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { Menu } from "lucide-react";
 
-export function Navbar() {
+export default function Navbar() {
   const [location] = useLocation();
-  const { user, logout } = useAuth();
-  const { data: unreadCount } = useUnreadCount();
-  const { data: branding } = useBranding();
-  const { t } = useLanguage();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const { user, logoutMutation } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/sermons", label: "Sermons" },
-    { href: "/events", label: "Events" },
-    { href: "/devotionals", label: "Devotionals" },
-    { href: "/give", label: "Give" },
-    { href: "/members", label: "Members" },
-  ];
-
-  const isActive = (path: string) => location === path;
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+  };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white">
-      <div className="w-full px-4 sm:px-8 md:px-24 pt-6 md:pt-8">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center">
-          {/* Logo - Left */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <img
-                src={branding?.logoUrl || "/church_logo.jpeg"}
-                alt="CHub"
-                className="h-8 w-auto"
-              />
-            </Link>
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#EAEAEA]">
+      <div className="container-clean">
+        <div className="flex items-center justify-between h-16 px-6">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-light tracking-tight text-[#111111]">
+              Community<span className="font-normal">Hub</span>
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            <NavigationMenu>
+              <NavigationMenuList className="flex gap-1">
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm font-light text-[#666666] hover:text-[#111111] px-3 py-2">
+                    Sermons
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-6 bg-white border border-[#EAEAEA] rounded-lg">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link href="/sermons" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#F8F8F8]">
+                            <div className="text-sm font-light text-[#111111]">Browse Sermons</div>
+                            <p className="text-xs font-light text-[#666666]">
+                              Watch and listen to teachings
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link href="/sermons/topics" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#F8F8F8]">
+                            <div className="text-sm font-light text-[#111111]">Topics</div>
+                            <p className="text-xs font-light text-[#666666]">
+                              Browse by category
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm font-light text-[#666666] hover:text-[#111111] px-3 py-2">
+                    Events
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-6 bg-white border border-[#EAEAEA] rounded-lg">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link href="/events" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#F8F8F8]">
+                            <div className="text-sm font-light text-[#111111]">All Events</div>
+                            <p className="text-xs font-light text-[#666666]">
+                              Upcoming gatherings
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link href="/calendar" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#F8F8F8]">
+                            <div className="text-sm font-light text-[#111111]">Calendar</div>
+                            <p className="text-xs font-light text-[#666666]">
+                              View full calendar
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link href="/give">
+                    <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-sm font-light text-[#666666] hover:text-[#111111] px-3 py-2")}>
+                      Give
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+
+                {user?.isAdmin && (
+                  <NavigationMenuItem>
+                    <Link href="/admin">
+                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-sm font-light text-[#666666] hover:text-[#111111] px-3 py-2")}>
+                        Admin
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                )}
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
 
-          {/* Nav Links - Center */}
-          <div className="hidden lg:flex items-center justify-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm transition-colors hover:text-primary ${
-                  isActive(link.href) ? "text-primary" : "text-[#505153]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* CTA Buttons - Right */}
-          <div className="flex items-center justify-end gap-3 md:gap-4">
-            <LanguageSelector variant="navbar" />
-            
+          {/* Right side */}
+          <div className="flex items-center gap-4">
             {user ? (
-              <Link href="/dashboard" className="hidden md:block text-sm text-[#505153] hover:text-primary transition-colors">
-                Dashboard
-              </Link>
-            ) : (
               <>
-                <Link href="/login" className="hidden md:block text-sm text-[#505153] hover:text-primary transition-colors">
-                  Log in
+                <Link href="/dashboard">
+                  <Button variant="ghost" className="text-sm font-light text-[#666666] hover:text-[#111111]">
+                    Dashboard
+                  </Button>
                 </Link>
-                <Link 
-                  href="/login" 
-                  className="px-4 py-2 md:py-2 border border-primary text-primary text-[13px] md:text-[14px] hover:bg-primary hover:text-white transition-colors"
+                <Button
+                  variant="ghost"
+                  className="text-sm font-light text-[#666666] hover:text-[#111111]"
+                  onClick={handleLogout}
                 >
-                  Sign up
-                </Link>
+                  Logout
+                </Button>
               </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login">
+                  <Button variant="ghost" className="text-sm font-light text-[#666666] hover:text-[#111111]">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button className="bg-[#111111] text-white hover:bg-[#333333] text-sm font-light px-5 py-2 rounded-md">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
             )}
 
             {/* Mobile menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Menu className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5 text-[#666666]" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full max-w-sm">
-                <div className="flex flex-col gap-4 mt-8">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-lg text-[#505153] hover:text-primary transition-colors py-2"
-                    >
-                      {link.label}
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white border-[#EAEAEA]">
+                <div className="flex flex-col gap-6 mt-8 px-6">
+                  <Link href="/sermons" onClick={() => setIsOpen(false)}>
+                    <span className="text-base font-light text-[#111111]">Sermons</span>
+                  </Link>
+                  <Link href="/events" onClick={() => setIsOpen(false)}>
+                    <span className="text-base font-light text-[#111111]">Events</span>
+                  </Link>
+                  <Link href="/give" onClick={() => setIsOpen(false)}>
+                    <span className="text-base font-light text-[#111111]">Give</span>
+                  </Link>
+                  {user?.isAdmin && (
+                    <Link href="/admin" onClick={() => setIsOpen(false)}>
+                      <span className="text-base font-light text-[#111111]">Admin</span>
                     </Link>
-                  ))}
-                  <div className="border-t border-border my-4" />
-                  {!user && (
+                  )}
+                  {user ? (
                     <>
-                      <Link href="/login" className="text-lg text-[#505153] py-2">
-                        Log in
+                      <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                        <span className="text-base font-light text-[#111111]">Dashboard</span>
                       </Link>
-                      <Link href="/login" className="px-4 py-2 bg-primary text-white text-center">
-                        Sign up
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          handleLogout();
+                          setIsOpen(false);
+                        }}
+                        className="justify-start p-0 text-base font-light text-[#666666]"
+                      >
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={() => setIsOpen(false)}>
+                        <span className="text-base font-light text-[#111111]">Login</span>
+                      </Link>
+                      <Link href="/register" onClick={() => setIsOpen(false)}>
+                        <Button className="bg-[#111111] text-white hover:bg-[#333333] text-sm font-light px-5 py-2 rounded-md w-full">
+                          Sign Up
+                        </Button>
                       </Link>
                     </>
                   )}

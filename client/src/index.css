@@ -30,6 +30,7 @@
 
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Inter", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -48,35 +49,35 @@
   to { height: 0; }
 }
 
-/* Locus Design System */
+/* Clean Design System - urbe.build inspired */
 :root {
-  /* Brand Colors */
+  /* Brand Colors - Single accent: muted blue/purple */
   --brand: 252 100% 64%;
   --brand-dark: 252 100% 45%;
   --brand-light: 252 80% 85%;
   --brand-tint: 252 100% 97%;
-  
+
   /* Text Colors */
-  --foreground: 0 0% 11%;
-  --text-secondary: 0 0% 31%;
+  --foreground: 0 0% 7%; /* #111111 - near-black */
+  --text-secondary: 0 0% 40%; /* #666666 */
   --text-tertiary: 0 0% 63%;
-  
+
   /* Backgrounds */
-  --background: 0 0% 100%;
+  --background: 0 0% 100%; /* #FFFFFF - pure white */
   --muted: 0 0% 98%;
   --card: 0 0% 100%;
   --popover: 0 0% 100%;
-  
-  /* Borders */
-  --border: 0 0% 90%;
-  
-  /* Other */
+
+  /* Borders - very light */
+  --border: 0 0% 90%; /* #EAEAEA */
   --input: 0 0% 90%;
+
+  /* Other */
   --ring: 252 100% 64%;
   --primary: 252 100% 64%;
   --primary-foreground: 0 0% 100%;
   --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 11%;
+  --secondary-foreground: 0 0% 7%;
   --muted-foreground: 0 0% 45%;
   --accent: 0 0% 0%;
   --accent-foreground: 0 0% 100%;
@@ -84,9 +85,9 @@
   --destructive-foreground: 0 0% 100%;
   --gold: 38 92% 55%;
   --gold-foreground: 30 50% 15%;
-  
-  /* No border radius - sharp corners like Locus */
-  --radius: 0;
+
+  /* Slight border radius - 6-10px */
+  --radius: 0.5rem; /* 8px */
 }
 
 * {
@@ -108,37 +109,85 @@ body {
   width: 100%;
   min-width: 100%;
   box-sizing: border-box;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 300; /* Light weight for body */
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
-  font-weight: 300;
+  font-weight: 300; /* Light weight for headings */
   letter-spacing: -0.02em;
-  line-height: 1.3;
+  line-height: 1.2;
+  color: hsl(var(--foreground));
 }
 
-h1 { font-size: 2rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1rem; }
+/* Typography hierarchy - significantly larger headings */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 200; /* Extra light for hero */
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
 
-p, span, a, li { font-size: 0.875rem; }
-button, input, textarea, select { font-size: 0.875rem; }
+h2 {
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+p, span, a, li {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+button, input, textarea, select {
+  font-size: 0.9375rem;
+}
 
 @media (min-width: 640px) {
-  body { font-size: 15px; }
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 1.75rem; }
-  p, span, a, li { font-size: 0.9375rem; }
+  body {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+  }
+
+  p, span, a, li {
+    font-size: 1.0625rem;
+  }
 }
 
 @media (min-width: 1024px) {
-  body { font-size: 16px; }
-  h1 { font-size: 3rem; }
-  h2 { font-size: 2rem; }
-  p, span, a, li { font-size: 1rem; }
+  body {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 4.5rem; /* Very large headings */
+  }
+
+  h2 {
+    font-size: 3rem;
+  }
+
+  p, span, a, li {
+    font-size: 1.125rem;
+  }
 }
 
 #root {
@@ -148,14 +197,15 @@ button, input, textarea, select { font-size: 0.875rem; }
   flex-direction: column;
 }
 
-/* Button styles - Locus style */
+/* Button styles - Clean, minimal */
 .btn-primary {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: 12px 24px;
+  font-size: 0.9375rem;
   font-weight: 400;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -167,10 +217,11 @@ button, input, textarea, select { font-size: 0.875rem; }
 .btn-secondary {
   background-color: transparent;
   color: hsl(var(--primary));
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: 12px 24px;
+  font-size: 0.9375rem;
   font-weight: 400;
-  border: 1px solid hsl(var(--primary));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -182,10 +233,11 @@ button, input, textarea, select { font-size: 0.875rem; }
 .btn-ghost {
   background-color: transparent;
   color: hsl(var(--text-secondary));
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: 12px 24px;
+  font-size: 0.9375rem;
   font-weight: 400;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -194,45 +246,47 @@ button, input, textarea, select { font-size: 0.875rem; }
   background-color: hsl(var(--muted));
 }
 
-/* Card styles - Locus style */
-.card-locus {
+/* Card styles - Minimal, spacing-based separation */
+.card-clean {
   border: 1px solid hsl(var(--border));
-  padding: 24px 32px;
+  padding: 32px 40px;
+  border-radius: 8px;
+  background: hsl(var(--card));
   transition: border-color 0.2s;
 }
 
-.card-locus:hover {
+.card-clean:hover {
   border-color: hsl(var(--brand-light));
 }
 
-/* Section padding - Locus style */
+/* Section padding - Generous spacing */
 .section-py {
-  padding-top: 64px;
-  padding-bottom: 64px;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 @media (min-width: 768px) {
   .section-py {
-    padding-top: 96px;
-    padding-bottom: 96px;
+    padding-top: 100px;
+    padding-bottom: 100px;
   }
 }
 
-/* Container max-widths - Locus style */
-.container-locus {
+@media (min-width: 1024px) {
+  .section-py {
+    padding-top: 120px;
+    padding-bottom: 120px;
+  }
+}
+
+/* Container - Clean grid */
+.container-clean {
   width: 100%;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-@media (min-width: 768px) {
-  .container-locus {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
 /* Utility classes */
@@ -246,4 +300,26 @@ button, input, textarea, select { font-size: 0.875rem; }
 
 .border-brand-light {
   border-color: hsl(var(--brand-light));
+}
+
+/* Remove heavy shadows */
+.shadow-subtle {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Navigation - Thinner and cleaner */
+.navbar-clean {
+  padding: 16px 24px;
+  font-size: 0.9375rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.navbar-clean a {
+  font-size: 0.9375rem;
+  color: hsl(var(--text-secondary));
+  transition: color 0.2s;
+}
+
+.navbar-clean a:hover {
+  color: hsl(var(--foreground));
 }
