@@ -27,7 +27,7 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#EAEAEA]">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between h-16 px-6">
+        <div className="flex items-center justify-between h-20 min-h-[80px] px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-light tracking-tight text-[#111111]">

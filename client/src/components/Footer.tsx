@@ -17,16 +17,16 @@ export function Footer() {
               CHub is your all-in-one church community platform. Connect, grow, and serve together.
             </p>
             <div className="flex items-center gap-3">
-              <a href="https://facebook.com/CHubApp" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://facebook.com/CHubApp" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="https://instagram.com/chub_app" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://instagram.com/chub_app" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://youtube.com/@CHubApp" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://youtube.com/@CHubApp" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
                 <Youtube className="w-5 h-5" />
               </a>
-              <a href="https://x.com/chub_app" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://x.com/chub_app" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
