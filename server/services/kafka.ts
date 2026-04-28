@@ -1,18 +1,12 @@
-// Kafka integration using node-rdkafka with dynamic import for ES modules
-let producer: any;
-let consumer: any;
-
-// Dynamically import node-rdkafka (CommonJS)
-const kafkaModule = await import("node-rdkafka");
-const Producer = kafkaModule.default?.Producer || kafkaModule.Producer;
-const Consumer = kafkaModule.default?.Consumer || kafkaModule.Consumer;
-const KafkaClass = kafkaModule.default?.Kafka || kafkaModule.Kafka;
-const LibrdKafkaError = kafkaModule.default?.LibrdKafkaError || kafkaModule.LibrdKafkaError;
+// Kafka integration using node-rdkafka (CommonJS) with createRequire for ES modules
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const { Producer, Consumer } = require("node-rdkafka");
 
 // Aiven Kafka configuration
 const broker = process.env.KAFKA_BROKERS || "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
 
-const kafkaConfig: any = {
+const kafkaConfig = {
   "metadata.broker.list": broker,
   "security.protocol": "ssl",
   "ssl.key.location": process.env.KAFKA_SSL_KEY_PATH || "service.key",
@@ -20,11 +14,8 @@ const kafkaConfig: any = {
   "ssl.ca.location": process.env.KAFKA_SSL_CA_PATH || "ca.pem",
 };
 
-// Set dr_cb after creation (node-rdkafka requirement)
-kafkaConfig.set("dr_cb", true);
-
-producer = new Producer(kafkaConfig);
-consumer = new Consumer(kafkaConfig, {
+const producer = new Producer(kafkaConfig);
+const consumer = new Consumer(kafkaConfig, {
   "group.id": "community-hub-group",
   "enable.auto.commit": false,
 });
@@ -59,7 +50,7 @@ export function connectKafka(): Promise<void> {
       resolve();
     });
 
-    producer.on("event.error", (err: typeof LibrdKafkaError) => {
+    producer.on("event.error", (err: any) => {
       console.error("Kafka producer error:", err);
       reject(err);
     });
