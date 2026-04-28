@@ -55,7 +55,7 @@ export function MobileBottomNav() {
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
     >
-      <div className="flex items-center justify-around h-16 px-2">
+      <div className="flex items-center justify-around h-20 px-4">
         {navItems.map((item) => {
           const isActive = location === item.href || 
             (item.href === "/notifications" && location.startsWith("/notifications")) ||
@@ -67,15 +67,15 @@ export function MobileBottomNav() {
               key={item.href}
               variant="ghost"
               size="icon"
-              className={`flex flex-col h-12 w-16 rounded-lg transition-colors ${
+              className={`flex flex-col h-14 min-h-[56px] w-16 rounded-lg transition-colors ${
                 isActive
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => handleNav(getHref(item))}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px] mt-0.5">{item.label}</span>
+              <Icon className="h-6 w-6" />
+              <span className="text-xs mt-0.5">{item.label}</span>
             </Button>
           );
         })}
