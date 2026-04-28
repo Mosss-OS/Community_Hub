@@ -122,7 +122,11 @@ h1, h2, h3, h4, h5, h6 {
   color: hsl(var(--foreground));
 }
 
-/* Typography hierarchy - significantly larger headings */
+/* Typography hierarchy - significantly larger headings
+   Per issues 602-651: Typography-first design with large, light headings
+   h1: 2.5rem (mobile) -> 3.5rem (tablet) -> 4.5rem (desktop)
+   Font weights: font-light (300) for body, font-extralight (200) for headings
+   Line height: 1.1 for headings, 1.7 for body - per urbe.build style */
 h1 {
   font-size: 2.5rem;
   font-weight: 200; /* Extra light for hero */
