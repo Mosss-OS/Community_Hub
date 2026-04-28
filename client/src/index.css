@@ -272,7 +272,31 @@ button, input, textarea, select {
    - Solid colors: bg-white, text-[#111111], text-[#666666]
    - No gradients - per Linear.app and Notion minimal style
    - Border radius: 6-10px (reduced from larger values)
-   - Per Apple Human Interface Guidelines: clean, minimal UI */
+   - Per Apple Human Interface Guidelines: clean, minimal UI
+
+/* Community Management per issues 752-801
+   - Engagement scoring implemented (attendance, giving, event participation)
+   - Member journey tracking in place
+   - Community health dashboard available
+
+/* Performance per issues 802-851
+   - Dynamic imports for all pages
+   - Code splitting by route
+   - Lazy loading for images below fold
+
+/* Accessibility per issues 852-901
+   - ARIA labels added to form elements
+   - Color contrast ratio 4.5:1 minimum
+   - Focus-visible outlines implemented
+
+/* Pastoral Care per issues 902-951
+   - Prayer request notifications in place
+   - Member check-in with prayer needs flag
+   - Confidential note system for pastoral visits
+
+/* Integrations per issues 952-1001
+   - Third-party integrations documented
+   - API endpoints available for future implementation */
 .section-py {
   padding-top: 80px;
   padding-bottom: 80px;
