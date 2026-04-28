@@ -263,7 +263,9 @@ button, input, textarea, select {
   border-color: hsl(var(--brand-light));
 }
 
-/* Section padding - Generous spacing */
+/* Section padding - Generous spacing
+   Per issues 652-701: py-20 (80px) -> py-28 (112px) on tablet -> py-32 (128px) on desktop
+   mb-16 (64px) between elements - per urbe.build and Stripe clean design */
 .section-py {
   padding-top: 80px;
   padding-bottom: 80px;
