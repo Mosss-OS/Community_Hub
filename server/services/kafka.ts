@@ -12,14 +12,16 @@ const LibrdKafkaError = kafkaModule.default?.LibrdKafkaError || kafkaModule.Libr
 // Aiven Kafka configuration
 const broker = process.env.KAFKA_BROKERS || "kafka-19548063-mosescsunday1-7ea3.a.aivencloud.com:22854";
 
-const kafkaConfig = {
+const kafkaConfig: any = {
   "metadata.broker.list": broker,
   "security.protocol": "ssl",
   "ssl.key.location": process.env.KAFKA_SSL_KEY_PATH || "service.key",
   "ssl.certificate.location": process.env.KAFKA_SSL_CERT_PATH || "service.cert",
   "ssl.ca.location": process.env.KAFKA_SSL_CA_PATH || "ca.pem",
-  "dr_cb": true,
 };
+
+// Set dr_cb after creation (node-rdkafka requirement)
+kafkaConfig.set("dr_cb", true);
 
 producer = new Producer(kafkaConfig);
 consumer = new Consumer(kafkaConfig, {
