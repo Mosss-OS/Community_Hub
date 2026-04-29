@@ -19,7 +19,10 @@ import {
   User,
   Download,
   Calendar,
-  Activity
+  Activity,
+  MessageSquare,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { buildApiUrl } from "@/lib/api-config";
 
@@ -91,6 +94,7 @@ export default function MembersPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
+  const [directoryOnly, setDirectoryOnly] = useState(false);
 
   useEffect(() => {
     async function fetchMembers() {
@@ -111,6 +115,7 @@ export default function MembersPage() {
         if (parishFilter) params.append("parish", parishFilter);
         if (dateFrom) params.append("dateFrom", dateFrom);
         if (dateTo) params.append("dateTo", dateTo);
+        if (directoryOnly) params.append("directoryOnly", "true");
 
         const res = await fetch(buildApiUrl(`/api/members?${params}`), {
           credentials: "include",
@@ -199,6 +204,7 @@ export default function MembersPage() {
     setParishFilter("");
     setDateFrom("");
     setDateTo("");
+    setDirectoryOnly(false);
     setPage(1);
   };
 
@@ -309,11 +315,20 @@ export default function MembersPage() {
               placeholder="To date"
             />
 
-            {(roleFilter || houseFellowshipFilter || parishFilter || dateFrom || dateTo || search) && (
+            {(roleFilter || houseFellowshipFilter || parishFilter || dateFrom || dateTo || search || directoryOnly) && (
               <Button variant="outline" onClick={clearFilters}>
                 Clear Filters
               </Button>
             )}
+            <Button 
+              variant={directoryOnly ? "default" : "outline"} 
+              size="sm"
+              onClick={() => { setDirectoryOnly(!directoryOnly); setPage(1); }}
+              title="Show only members in directory"
+            >
+              {directoryOnly ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+              Directory
+            </Button>
           </div>
         </CardContent>
       </Card>
