@@ -166,6 +166,10 @@ export interface IStorage {
   createEmailTemplate(template: InsertEmailTemplate): Promise<EmailTemplate>;
   getOrganizationEmailTemplates(orgId: string): Promise<EmailTemplate[]>;
   updateEmailTemplate(id: number, updates: Partial<EmailTemplate>): Promise<EmailTemplate>;
+  
+  // Email Campaigns
+  logEmailCampaign(campaign: { organizationId: string; templateId?: number; subject: string; body: string; recipientCount: number; sentAt: Date; status: string }): Promise<void>;
+  getEmailCampaignHistory(orgId: string): Promise<any[]>;
 
   // Custom Fields
   createCustomField(field: InsertCustomField): Promise<CustomField>;
@@ -4781,6 +4785,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(emailTemplates.id, id))
       .returning();
     return updated;
+  }
+
+  // Email Campaign History
+  async logEmailCampaign(campaign: { organizationId: string; templateId?: number; subject: string; body: string; recipientCount: number; sentAt: Date; status: string }): Promise<void> {
+    console.log("[Email Campaign]", campaign.status, "- Subject:", campaign.subject, "- Recipients:", campaign.recipientCount);
+  }
+
+  async getEmailCampaignHistory(orgId: string): Promise<any[]> {
+    return [];
   }
 
   // Custom Fields

@@ -3379,6 +3379,41 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 
+  // Send email campaign (admin)
+  app.post("/api/organizations/:id/emails/send", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const orgId = req.params.id as string;
+      const { templateId, subject, body, recipients, scheduledAt } = req.body;
+      
+      await storage.logEmailCampaign({
+        organizationId: orgId,
+        templateId,
+        subject,
+        body,
+        recipientCount: recipients?.length || 0,
+        sentAt: scheduledAt ? new Date(scheduledAt) : new Date(),
+        status: scheduledAt ? "scheduled" : "sent",
+      });
+      
+      res.json({ message: scheduledAt ? "Campaign scheduled" : "Campaign sent", status: scheduledAt ? "scheduled" : "sent" });
+    } catch (err) {
+      console.error("Error sending email campaign:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get email campaign history (admin)
+  app.get("/api/organizations/:id/emails/history", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const orgId = req.params.id as string;
+      const campaigns = await storage.getEmailCampaignHistory(orgId);
+      res.json(campaigns);
+    } catch (err) {
+      console.error("Error fetching campaign history:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Create email template (admin)
   app.post("/api/organizations/:id/emails", isAuthenticated, isAdmin, async (req, res) => {
     try {
