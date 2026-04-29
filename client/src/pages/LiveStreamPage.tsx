@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Play, Eye, Users, ArrowLeft, StopCircle, Youtube, CheckCircle } from "lucide-react";
+import { Play, Eye, Users, ArrowLeft, StopCircle, Youtube, CheckCircle, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,7 +52,7 @@ export default function LiveStreamPage() {
         return null;
       }
     },
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   const { data: streams, isLoading: loadingStreams } = useQuery<LiveStream[]>({
@@ -188,11 +188,18 @@ export default function LiveStreamPage() {
                 {currentStream.description && <p className="text-muted-foreground text-sm mb-2">{currentStream.description}</p>}
                 {currentStream.startedAt && <p className="text-muted-foreground/50 text-xs mt-1">Started {format(new Date(currentStream.startedAt), "MMM d, yyyy 'at' h:mm a")}</p>}
               </div>
-              {isAdmin && (
-                <Button variant="destructive" size="sm" className="rounded-2xl font-bold" onClick={() => endStreamMutation.mutate(currentStream.id)} disabled={endStreamMutation.isPending}>
-                  <StopCircle className="mr-1 h-4 w-4" /> {endStreamMutation.isPending ? "Ending..." : "End"}
-                </Button>
-              )}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Wifi className="h-4 w-4 text-green-500" />
+                  <span className="font-medium">{currentStream.viewerCount || 0}</span>
+                  <span className="text-xs">watching</span>
+                </div>
+                {isAdmin && (
+                  <Button variant="destructive" size="sm" className="rounded-2xl font-bold" onClick={() => endStreamMutation.mutate(currentStream.id)} disabled={endStreamMutation.isPending}>
+                    <StopCircle className="mr-1 h-4 w-4" /> {endStreamMutation.isPending ? "Ending..." : "End"}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
