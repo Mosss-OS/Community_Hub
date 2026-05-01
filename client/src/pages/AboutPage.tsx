@@ -165,7 +165,7 @@ export default function AboutPage() {
             Come experience the love and warmth of our church family.
           </p>
           <div className="flex justify-center gap-4">
-            <Link href="/login">
+            <Link href="/contact">
               <Button className="bg-white text-[#8B0000] hover:bg-white/90 px-8 py-3 rounded-full">
                 Get Started
               </Button>
