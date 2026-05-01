@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import { HelmetProvider } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppInstallBanner } from "@/components/AppInstallBanner";
+import { ThemeProvider } from "@/hooks/use-theme";
 
 // Pages
 import HomePage from "@/pages/HomePage";
@@ -133,18 +134,17 @@ function Router() {
 }
 
 function AppContent() {
-  // WebSocket disabled for now - can be enabled when backend WebSocket is properly configured
-  // useWebSocket();
-
   return (
-    <LanguageProvider>
-      <TooltipProvider>
-        <Layout>
-          <Router />
-        </Layout>
-        <Toaster />
-      </TooltipProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Layout>
+            <Router />
+          </Layout>
+          <Toaster />
+        </TooltipProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

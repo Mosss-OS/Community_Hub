@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { HiOutlineMenu } from "react-icons/hi";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -59,6 +60,7 @@ export function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-3">
+                <ThemeToggle />
                 <Link href="/contact">
                   <Button className="bg-[#8B0000] hover:bg-[#6B0000] text-white px-5 py-2 rounded-md">
                     Contact Now
