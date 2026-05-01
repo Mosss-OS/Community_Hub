@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonList";
+import { EmptyState } from "@/components/EmptyState";
+import { Users } from "lucide-react";
 import { 
   Search, 
   Loader2, 
@@ -386,12 +388,12 @@ export default function MembersPage() {
       {!loading && !error && data && (
         <>
           {data.members.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No members found</p>
-              </CardContent>
-            </Card>
+            <EmptyState 
+              title="No members found"
+              description="No members match your search filters. Try adjusting your search criteria."
+              actionLabel="Clear filters"
+              actionHref="/members"
+            />
           ) : (
             <>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
