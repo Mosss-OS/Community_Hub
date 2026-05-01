@@ -88,7 +88,7 @@ export default function RegisterChurchPage() {
   return (
     <>
       <Helmet>
-        <title>Register Your Church | Watchman Lagos</title>
+        <title>Register Your Church | Watchman Lekki</title>
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">

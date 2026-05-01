@@ -31,7 +31,7 @@ export default function AuthPage() {
 
   return (
     <>
-      <PageSEO title={isLogin ? "Login | Watchman Lagos" : "Join Us | Watchman Lagos"} />
+      <PageSEO title={isLogin ? "Login | Watchman Lekki" : "Join Us | Watchman Lekki"} />
 
       <div className="min-h-screen flex">
         {/* Left Panel - Form */}

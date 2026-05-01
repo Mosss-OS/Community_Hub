@@ -199,7 +199,7 @@ export default function GivePage() {
             {[
               { 
                 title: "Bank Transfer", 
-                desc: "Account: 1234567890\nWatchman Lagos\nFirst Bank of Nigeria",
+                desc: "Account: 1234567890\nWatchman Lekki\nFirst Bank of Nigeria",
                 icon: Banknote 
               },
               { 

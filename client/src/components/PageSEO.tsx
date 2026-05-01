@@ -21,10 +21,10 @@ export function PageSEO({
   publishedTime,
   author,
 }: PageSEOProps) {
-  const siteName = "Watchman Lagos";
+  const siteName = "Watchman Lekki";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
   
-  const defaultDescription = "Welcome to Watchman Lagos - your church family. Join us for worship, fellowship, and spiritual growth.";
+  const defaultDescription = "Welcome to Watchman Lekki - your church family. Join us for worship, fellowship, and spiritual growth.";
 
   return (
     <Helmet>

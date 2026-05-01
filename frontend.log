@@ -467,3 +467,10 @@
 16:10:53 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
 16:12:53 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
 16:13:54 [vite] (client) hmr update /src/pages/AboutPage.tsx, /src/index.css
+16:15:47 [vite] (client) hmr update /src/index.css, /src/components/PageSEO.tsx
+16:16:12 [vite] (client) hmr update /src/index.css, /src/components/PageSEO.tsx
+16:17:15 [vite] (client) hmr update /src/pages/MessagesPage.tsx, /src/index.css
+16:17:15 [vite] (client) hmr update /src/pages/login.tsx, /src/index.css
+16:17:15 [vite] (client) hmr update /src/pages/RegisterChurchPage.tsx, /src/index.css
+16:17:15 [vite] (client) hmr update /src/pages/AdminDashboardPage.tsx, /src/index.css
+16:17:15 [vite] (client) hmr update /src/pages/GivePage.tsx, /src/index.css
