@@ -17,6 +17,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
 import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, AlertCircle, Play, Trash2, QrCode, Download } from "lucide-react";
 import { Link } from "wouter";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -119,7 +120,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background py-4 sm:py-6">
-      <Helmet><title>Dashboard | Watchman Lagos</title></Helmet>
+      <Helmet><title>Dashboard | Watchman Lekki</title></Helmet>
 
       <div className="container px-3 sm:px-4 md:px-8 max-w-[70%] mx-auto">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -232,6 +233,8 @@ export default function DashboardPage() {
             </DialogContent>
           </Dialog>
         </div>
+
+        <DashboardWidgets />
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           {/* Profile Completeness */}
