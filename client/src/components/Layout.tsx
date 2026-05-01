@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <MobileBottomNav />
       <FloatingActionButton />
+      <OnboardingTour />
     </div>
   );
 }

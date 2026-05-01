@@ -1,53 +1,64 @@
-"use client";
-
-import { useState, useEffect, useCallback } from "react";
-import { useLocation } from "wouter";
-import { X, ChevronRight, ChevronLeft, SkipForward } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
+import { HiX, HiChevronRight, HiChevronLeft } from "react-icons/hi";
 
 interface TourStep {
   target: string;
   title: string;
   content: string;
-  placement?: "top" | "bottom" | "left" | "right";
 }
 
-interface OnboardingTourProps {
-  steps: TourStep[];
-  isOpen: boolean;
-  onClose: () => void;
-}
+const tourSteps: TourStep[] = [
+  {
+    target: "nav",
+    title: "Welcome to Watchman Lekki",
+    content: "This is your navigation menu. Access all pages from here."
+  },
+  {
+    target: "dashboard",
+    title: "Your Dashboard",
+    content: "View your activity, attendance, and giving summary."
+  },
+  {
+    target: "sermons",
+    title: "Sermons & Teaching",
+    content: "Watch and listen to weekly sermons and teaching series."
+  },
+  {
+    target: "events",
+    title: "Events",
+    content: "Stay updated with upcoming church events and activities."
+  },
+  {
+    target: "groups",
+    title: "Small Groups",
+    content: "Connect with a community that cares. Join a small group."
+  }
+];
 
-export function OnboardingTour({ steps, isOpen, onClose }: OnboardingTourProps) {
+export function OnboardingTour() {
+  const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [highlightedElement, setHighlightedElement] = useState<DOMRect | null>(null);
-
-  const updateHighlight = useCallback(() => {
-    if (!isOpen || !steps[currentStep]) return;
-    
-    const element = document.querySelector(steps[currentStep].target);
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      setHighlightedElement(rect);
-    }
-  }, [isOpen, currentStep, steps]);
+  const [hasSeenTour, setHasSeenTour] = useState(true);
 
   useEffect(() => {
-    updateHighlight();
-    window.addEventListener("resize", updateHighlight);
-    window.addEventListener("scroll", updateHighlight, true);
-    return () => {
-      window.removeEventListener("resize", updateHighlight);
-      window.removeEventListener("scroll", updateHighlight, true);
-    };
-  }, [updateHighlight]);
+    const seen = localStorage.getItem("onboarding_seen");
+    if (!seen) {
+      setIsOpen(true);
+      setHasSeenTour(false);
+    }
+  }, []);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    localStorage.setItem("onboarding_seen", "true");
+  };
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
+    if (currentStep < tourSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      onClose();
+      handleClose();
     }
   };
 
@@ -57,106 +68,60 @@ export function OnboardingTour({ steps, isOpen, onClose }: OnboardingTourProps) 
     }
   };
 
-  const handleSkip = () => {
-    onClose();
+  const handleRestart = () => {
+    localStorage.removeItem("onboarding_seen");
+    setCurrentStep(0);
+    setIsOpen(true);
   };
 
-  if (!isOpen) return null;
-
-  const step = steps[currentStep];
-  const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === steps.length - 1;
+  if (!isOpen) {
+    return (
+      <button 
+        onClick={handleRestart}
+        className="fixed bottom-24 left-6 z-40 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg text-sm md:hidden"
+      >
+        Tour
+      </button>
+    );
+  }
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black/50 z-40 pointer-events-none" />
-      {highlightedElement && (
-        <div
-          className="fixed border-2 border-primary rounded-lg z-50 pointer-events-none transition-all duration-300"
-          style={{
-            top: highlightedElement.top - 8,
-            left: highlightedElement.left - 8,
-            width: highlightedElement.width + 16,
-            height: highlightedElement.height + 16,
-            boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.5)",
-          }}
-        />
-      )}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-background border rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-bold">{step.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{step.content}</p>
-          </div>
-          <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8">
-            <X className="h-4 w-4" />
-          </Button>
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center md:items-center p-4">
+      <div className="bg-background rounded-xl shadow-2xl border border-border max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-sm text-muted-foreground">
+            Step {currentStep + 1} of {tourSteps.length}
+          </span>
+          <button onClick={handleClose} className="text-muted-foreground hover:text-foreground">
+            <HiX className="w-5 h-5" />
+          </button>
         </div>
-        
+
+        <h3 className="text-lg font-semibold mb-2">
+          {tourSteps[currentStep].title}
+        </h3>
+        <p className="text-muted-foreground mb-6">
+          {tourSteps[currentStep].content}
+        </p>
+
         <div className="flex items-center justify-between">
-          <div className="flex gap-1">
-            {steps.map((_, index) => (
-              <div
-                key={index}
-                className={`h-2 rounded-full transition-all ${
-                  index === currentStep ? "w-8 bg-primary" : "w-2 bg-muted"
-                }`}
-              />
-            ))}
-          </div>
-          <div className="flex gap-2">
-            {!isFirstStep && (
-              <Button variant="outline" size="sm" onClick={handlePrev}>
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Back
-              </Button>
-            )}
-            <Button size="sm" onClick={handleNext}>
-              {isLastStep ? (
-                <>Done</>
-              ) : (
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </>
-              )}
-            </Button>
-          </div>
+          <button
+            onClick={handlePrev}
+            disabled={currentStep === 0}
+            className="flex items-center gap-1 text-sm text-muted-foreground disabled:opacity-50"
+          >
+            <HiChevronLeft className="w-4 h-4" />
+            Back
+          </button>
+          <button
+            onClick={handleNext}
+            className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm"
+          >
+            {currentStep === tourSteps.length - 1 ? "Done" : "Next"}
+            <HiChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
-}
-
-export function useOnboardingTour() {
-  const { user } = useAuth();
-  const [hasSeenTour, setHasSeenTour] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
-
-  useEffect(() => {
-    if (user && !hasSeenTour) {
-      const stored = localStorage.getItem(`onboarding_tour_${user.id}`);
-      if (!stored) {
-        setTimeout(() => setTourOpen(true), 1000);
-      }
-    }
-  }, [user, hasSeenTour]);
-
-  const completeTour = () => {
-    setTourOpen(false);
-    if (user) {
-      localStorage.setItem(`onboarding_tour_${user.id}`, "true");
-    }
-    setHasSeenTour(true);
-  };
-
-  const resetTour = () => {
-    if (user) {
-      localStorage.removeItem(`onboarding_tour_${user.id}`);
-    }
-    setHasSeenTour(false);
-    setTourOpen(true);
-  };
-
-  return { tourOpen, setTourOpen, completeTour, resetTour };
 }
