@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { HiDotsVertical, HiTrash, HiEye, HiCalendar, HiHeart, HiCreditCard } from "react-icons/hi";
 import { useAuth } from "@/hooks/use-auth";
+import { AnniversaryCountdown } from "@/components/AnniversaryCountdown";
 
 interface DashboardWidget {
   id: string;
   title: string;
-  type: "upcoming_events" | "recent_sermons" | "prayer_requests" | "giving_summary" | "my_groups";
+  type: "upcoming_events" | "recent_sermons" | "prayer_requests" | "giving_summary" | "my_groups" | "anniversary_countdown";
   visible: boolean;
   order: number;
 }
@@ -17,6 +18,7 @@ const defaultWidgets: DashboardWidget[] = [
   { id: "3", title: "Prayer Requests", type: "prayer_requests", visible: true, order: 2 },
   { id: "4", title: "Giving Summary", type: "giving_summary", visible: true, order: 3 },
   { id: "5", title: "My Groups", type: "my_groups", visible: true, order: 4 },
+  { id: "6", title: "Anniversary Countdown", type: "anniversary_countdown", visible: true, order: 5 },
 ];
 
 export function DashboardWidgets() {
@@ -127,6 +129,9 @@ export function DashboardWidgets() {
             )}
             {widget.type === "my_groups" && (
               <p className="text-sm text-muted-foreground">No active groups</p>
+            )}
+            {widget.type === "anniversary_countdown" && (
+              <AnniversaryCountdown />
             )}
           </div>
         ))}
