@@ -119,7 +119,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.1;
-  color: hsl(var(--foreground));
 }
 
 /* Typography hierarchy - significantly larger headings

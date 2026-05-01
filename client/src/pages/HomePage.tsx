@@ -62,50 +62,30 @@ export default function HomePage() {
   return (
     <>
       <PageSEO
-        title="Watchman Chapel Lagos | Welcome Home"
-        description="Welcome to Watchman Chapel Lagos - your church family. Join us for worship, fellowship, and growth in faith."
+        title="Watchman Lekki Lagos | Welcome Home"
+        description="Welcome to Watchman Lekki Lagos - your church family. Join us for worship, fellowship, and growth in faith."
       />
 
       {/* Navbar - Transparent to solid on scroll */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-[45] transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isScrolled ? "bg-[#8B0000]" : "bg-white/20"}`}>
-                <span className={`text-xl font-serif font-bold ${isScrolled ? "text-white" : "text-white"}`}>W</span>
-              </div>
+              <img 
+                src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1777633359/watchman_logo_uc5f1m.webp" 
+                alt="Watchman Lekki" 
+                className="w-10 h-10 rounded-full object-cover"
+              />
               <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>
-                Watchman Chapel
+                Watchman Lekki
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/about" className={`text-sm font-medium hover:text-[#8B0000] transition-colors ${isScrolled ? "text-gray-700" : "text-white/90"}`}>
-                About
-              </Link>
-              <Link href="/sermons" className={`text-sm font-medium hover:text-[#8B0000] transition-colors ${isScrolled ? "text-gray-700" : "text-white/90"}`}>
-                Sermons
-              </Link>
-              <Link href="/events" className={`text-sm font-medium hover:text-[#8B0000] transition-colors ${isScrolled ? "text-gray-700" : "text-white/90"}`}>
-                Events
-              </Link>
-              <Link href="/Groups" className={`text-sm font-medium hover:text-[#8B0000] transition-colors ${isScrolled ? "text-gray-700" : "text-white/90"}`}>
-                Groups
-              </Link>
-              <Link href="/live" className={`text-sm font-medium hover:text-[#8B0000] transition-colors ${isScrolled ? "text-gray-700" : "text-white/90"}`}>
-                Live
-              </Link>
-              <Link href="/give" className={`text-sm font-medium hover:text-[#8B0000] transition-colors ${isScrolled ? "text-gray-700" : "text-white/90"}`}>
-                Give
-              </Link>
-            </div>
-
             {/* CTA Button */}
             <div className="hidden md:block">
-              <Link href="/login">
-                <Button className="bg-[#8B0000] hover:bg-[#6B0000] text-white px-6 py-2 rounded-full">
+              <Link href="/contact">
+                <Button className={`px-6 py-2 rounded-full ${isScrolled ? "bg-[#8B0000] hover:bg-[#6B0000] text-white" : "bg-[#8B0000] hover:bg-[#6B0000] text-white"}`}>
                   Contact Now
                 </Button>
               </Link>
@@ -149,7 +129,7 @@ export default function HomePage() {
       <section className="relative min-h-[90vh] flex items-center">
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url("/church_building.avif")' }}
+          style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1920&h=1080&fit=crop&q=80")' }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
         </div>
@@ -236,7 +216,7 @@ export default function HomePage() {
             </h2>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            At Watchman Chapel Lagos, we believe in the transformative power of God's love. 
+            At Watchman Lekki Lagos, we believe in the transformative power of God's love. 
             Our mission is to create an environment where everyone can experience 
             authentic worship, meaningful community, and spiritual growth.
           </p>
@@ -452,75 +432,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-[#1A1A1A] text-white py-16">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            {/* About */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">About</h3>
-              <ul className="space-y-2">
-                <li><Link href="/about" className="text-white/60 hover:text-white">Our Story</Link></li>
-                <li><Link href="/leadership" className="text-white/60 hover:text-white">Leadership</Link></li>
-                <li><Link href="/beliefs" className="text-white/60 hover:text-white">Statement of Faith</Link></li>
-                <li><Link href="/careers" className="text-white/60 hover:text-white">Careers</Link></li>
-              </ul>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li><Link href="/sermons" className="text-white/60 hover:text-white">Sermons</Link></li>
-                <li><Link href="/events" className="text-white/60 hover:text-white">Events</Link></li>
-                <li><Link href="/groups" className="text-white/60 hover:text-white">Small Groups</Link></li>
-                <li><Link href="/give" className="text-white/60 hover:text-white">Give</Link></li>
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Contact</h3>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-white/60">
-                  <MapPin className="w-4 h-4" />
-                  <span>Lagos, Nigeria</span>
-                </li>
-                <li className="flex items-center gap-2 text-white/60">
-                  <Phone className="w-4 h-4" />
-                  <span>+234 800 CHURCH</span>
-                </li>
-                <li className="flex items-center gap-2 text-white/60">
-                  <Mail className="w-4 h-4" />
-                  <span>info@winnerschapel.org</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-              <p className="text-white/60 text-sm mb-4">Stay updated with our latest announcements</p>
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email" 
-                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-lg text-white placeholder:text-white/40 focus:outline-none focus:border-white/40"
-                />
-                <Button className="bg-[#8B0000] hover:bg-[#6B0000] rounded-l-none">
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Copyright */}
-          <div className="pt-8 border-t border-white/10 text-center text-white/40 text-sm">
-            <p>&copy; {new Date().getFullYear()} Watchman Chapel Lagos. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

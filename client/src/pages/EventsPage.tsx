@@ -89,16 +89,18 @@ export default function EventsPage() {
 
   return (
     <>
-      <PageSEO title="Events | Watchman Lagos" description="Upcoming events at Watchman Lagos." />
+      <PageSEO title="Events | Watchman Lekki" description="Upcoming events at Watchman Lekki." />
 
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-[#1A1A1A]"}`}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#8B0000]">
-                <span className="text-xl font-serif font-bold text-white">W</span>
-              </div>
-              <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>Watchman</span>
+              <img 
+                src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1777633359/watchman_logo_uc5f1m.webp" 
+                alt="Watchman Lekki" 
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>Watchman Lekki</span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
               <Link href="/about" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>About</Link>
@@ -121,7 +123,7 @@ export default function EventsPage() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold mb-6"
+            className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold mb-6 text-white"
           >
             Events
           </motion.h1>
@@ -257,18 +259,6 @@ export default function EventsPage() {
           </Button>
         </div>
       </section>
-
-      <footer className="bg-[#1A1A1A] text-white py-12">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
-              <span className="text-xl font-serif font-bold text-white">W</span>
-            </div>
-            <span className="text-xl font-semibold">Watchman</span>
-          </div>
-          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Watchman Lagos. All rights reserved.</p>
-        </div>
-      </footer>
     </>
   );
 }

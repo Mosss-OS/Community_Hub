@@ -1,93 +1,95 @@
 import { Link } from "wouter";
-import { FaFacebookF, FaInstagram, FaYoutube, FaTwitter, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-[#1b1b1c] px-4 sm:px-8 md:px-24 py-10 md:py-14">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12">
-          {/* Brand Column */}
-          <div className="md:col-span-5">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
-                <span className="text-xl font-serif font-bold text-white">W</span>
-              </div>
-            </Link>
-            <p className="text-sm text-[#a0a0a0] leading-relaxed mb-6 max-w-sm">
-              Watchman Lagos - A community of believers dedicated to spreading the love of God and making a positive impact in our world.
+    <footer className="bg-[#1A1A1A] text-white py-16">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+        <div className="grid md:grid-cols-4 gap-8 mb-12">
+          {/* About */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <img 
+                src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1777633359/watchman_logo_uc5f1m.webp" 
+                alt="Watchman Lekki" 
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <span className="text-xl font-semibold">Watchman Lekki</span>
+            </div>
+            <p className="text-white/60 text-sm mb-4">
+              A community of believers dedicated to spreading the love of God and making a positive impact in our world.
             </p>
             <div className="flex items-center gap-3">
-              <a href="https://facebook.com/WinnersChapelLagos" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://facebook.com/watchmanlekki" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
                 <FaFacebookF className="w-5 h-5" />
               </a>
-              <a href="https://instagram.com/winnerschapellagos" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://instagram.com/watchmanlekki" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
                 <FaInstagram className="w-5 h-5" />
               </a>
-              <a href="https://youtube.com/@WinnersChapelLagos" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://youtube.com/@watchmanlekki" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
                 <FaYoutube className="w-5 h-5" />
               </a>
-              <a href="https://x.com/winnerschapellagos" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
+              <a href="https://x.com/watchmanlekki" target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
                 <FaTwitter className="w-5 h-5" />
               </a>
             </div>
           </div>
 
-          {/* Links Columns */}
-          <div className="md:col-span-7">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div>
-                <h4 className="text-sm font-light text-white mb-4">Platform</h4>
-                <ul className="space-y-3">
-                  <li><Link href="/sermons" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Sermons</Link></li>
-                  <li><Link href="/events" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Events</Link></li>
-                  <li><Link href="/devotionals" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Devotionals</Link></li>
-                  <li><Link href="/give" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Give</Link></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-light text-white mb-4">Community</h4>
-                <ul className="space-y-3">
-                  <li><Link href="/members" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Members</Link></li>
-                  <li><Link href="/groups" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Groups</Link></li>
-                  <li><Link href="/prayer" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Prayer</Link></li>
-                  <li><Link href="/feed" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Feed</Link></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-light text-white mb-4">Company</h4>
-                <ul className="space-y-3">
-                  <li><Link href="/about" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">About</Link></li>
-                  <li><Link href="/contact" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Contact</Link></li>
-                  <li><Link href="/careers" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Careers</Link></li>
-                  <li><Link href="/blog" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Blog</Link></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-light text-white mb-4">Legal</h4>
-                <ul className="space-y-3">
-                  <li><Link href="/privacy" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Privacy</Link></li>
-                  <li><Link href="/terms" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Terms</Link></li>
-                  <li><Link href="/cookies" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">Cookies</Link></li>
-                </ul>
-              </div>
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-white/60 hover:text-white">About</Link></li>
+              <li><Link href="/sermons" className="text-white/60 hover:text-white">Sermons</Link></li>
+              <li><Link href="/events" className="text-white/60 hover:text-white">Events</Link></li>
+              <li><Link href="/groups" className="text-white/60 hover:text-white">Small Groups</Link></li>
+              <li><Link href="/live" className="text-white/60 hover:text-white">Live</Link></li>
+              <li><Link href="/give" className="text-white/60 hover:text-white">Give</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <ul className="space-y-3">
+              <li className="flex items-center gap-2 text-white/60">
+                <MapPin className="w-4 h-4" />
+                <span>Victoria Island, Lagos, Nigeria</span>
+              </li>
+              <li className="flex items-center gap-2 text-white/60">
+                <Phone className="w-4 h-4" />
+                <span>+234 800 CHURCH</span>
+              </li>
+              <li className="flex items-center gap-2 text-white/60">
+                <Mail className="w-4 h-4" />
+                <span>info@watchmanlekki.org</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
+            <p className="text-white/60 text-sm mb-4">Stay updated with our latest announcements</p>
+            <div className="flex">
+              <input 
+                type="email" 
+                placeholder="Your email" 
+                className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-lg text-white placeholder:text-white/40 focus:outline-none focus:border-white/40"
+              />
+              <button className="bg-[#8B0000] hover:bg-[#6B0000] rounded-r-lg px-3">
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="w-full border-t border-white/10 mt-12 pt-8">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-[#a0a0a0]">
-            © {currentYear} Watchman Lagos. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            <a href="mailto:info@winnerschapel.org" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">
-              info@winnerschapel.org
-            </a>
-          </div>
+        {/* Copyright */}
+        <div className="pt-8 border-t border-white/10 text-center text-white/40 text-sm">
+          <p>&copy; {currentYear} Watchman Lekki. All rights reserved.</p>
         </div>
       </div>
     </footer>
