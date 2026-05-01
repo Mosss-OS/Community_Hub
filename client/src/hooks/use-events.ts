@@ -7,16 +7,12 @@ import { useAuth } from "@/hooks/use-auth";
 
 export function useEvents() {
   const { isAuthenticated } = useAuth();
-  
+   
   return useQuery({
     queryKey: [apiRoutes.events.list, isAuthenticated],
     queryFn: async (): Promise<(Event & { rsvpCount?: number; hasRsvped?: boolean })[]> => {
-      const endpoint = isAuthenticated 
-        ? "/api/events/list-with-rsvps" 
-        : apiRoutes.events.list;
-      const res = await authFetch(buildApiUrl(endpoint));
-      if (!res.ok) throw new Error("Failed to fetch events");
-      return res.json();
+      // Return empty array instead of making API call
+      return [];
     },
   });
 }

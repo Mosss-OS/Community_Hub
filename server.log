@@ -1,0 +1,17 @@
+
+> community-hub@1.0.0 dev
+> NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=development node --import tsx server/index.ts
+
+DB URL: postgres://chubuser:chubpass123@localhost:5432/com...
+needsSSL: false
+SSL disabled for database connection
+(node:100131) DeprecationWarning: Use KafkaConsumer instead. This may be changed in a later version
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Routes registered successfully
+WebSocket server setting up...
+WebSocket server initialized
+20:48:43 [vite] (client) Re-optimizing dependencies because vite config has changed
+8:48:43 PM [express] serving on port 5000
+8:49:32 PM [express] GET /api/health 404 in 35ms
+8:49:54 PM [express] POST /api/auth/login 401 in 104ms
+8:50:04 PM [express] GET /api/health 404 in 11ms

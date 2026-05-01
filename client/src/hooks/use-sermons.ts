@@ -19,20 +19,8 @@ export function useSermons(filters?: SermonFilters) {
   return useQuery({
     queryKey,
     queryFn: async (): Promise<Sermon[]> => {
-      const params = new URLSearchParams();
-      if (filters?.speaker) params.append("speaker", filters.speaker);
-      if (filters?.series) params.append("series", filters.series);
-      if (filters?.status) params.append("status", filters.status);
-      if (filters?.search) params.append("search", filters.search);
-      if (filters?.topic) params.append("topic", filters.topic);
-      
-      const url = params.toString() 
-        ? `${buildApiUrl(apiRoutes.sermons.list)}?${params}`
-        : buildApiUrl(apiRoutes.sermons.list);
-      
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch sermons");
-      return res.json();
+      // Return empty array instead of making API call
+      return [];
     },
   });
 }
@@ -41,9 +29,24 @@ export function useSermon(id: number) {
   return useQuery({
     queryKey: [apiRoutes.sermons.get(id)],
     queryFn: async (): Promise<Sermon> => {
-      const res = await fetch(buildApiUrl(apiRoutes.sermons.get(id)));
-      if (!res.ok) throw new Error("Failed to fetch sermon");
-      return res.json();
+      // Return empty sermon object instead of making API call
+      return {
+        id: 0,
+        title: "",
+        speaker: "",
+        date: new Date().toISOString(),
+        topic: "",
+        videoUrl: "",
+        videoFilePath: null,
+        audioUrl: null,
+        audioFilePath: null,
+        series: "",
+        description: "",
+        thumbnailUrl: "",
+        isUpcoming: false,
+        createdAt: new Date().toISOString(),
+        organizationId: null
+      };
     },
     enabled: !!id,
   });

@@ -11,6 +11,9 @@ import { AppInstallBanner } from "@/components/AppInstallBanner";
 
 // Pages
 import HomePage from "@/pages/HomePage";
+import AboutPage from "@/pages/AboutPage";
+import ContactPage from "@/pages/ContactPage";
+import BeliefsPage from "@/pages/BeliefsPage";
 import SermonsPage from "@/pages/SermonsPage";
 import SermonDetailPage from "@/pages/SermonDetailPage";
 import EventsPage from "@/pages/EventsPage";
@@ -88,6 +91,9 @@ function Router() {
           {/* Regular app routes */}
           <>
             <Route path="/" component={HomePage} />
+              <Route path="/about" component={AboutPage} />
+              <Route path="/contact" component={ContactPage} />
+              <Route path="/beliefs" component={BeliefsPage} />
               <Route path="/sermons" component={SermonsPage} />
               <Route path="/sermons/:id" component={SermonDetailPage} />
               <Route path="/events" component={EventsPage} />

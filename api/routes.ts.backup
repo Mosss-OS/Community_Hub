@@ -1,29 +1,10 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage, type ISermonFilter } from "./storage";
 import { db } from "./db";
 import { supportedLanguages, groupJoinRequests, groupActivityLogs, volunteerSkills, volunteerBadges, volunteerOpportunities, userReports, pushSubscriptions, notificationPreferences } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { api } from "@shared/routes";
-import rateLimit from 'express-rate-limit';
-
-// Rate limiters for auth endpoints
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs
-  message: { message: 'Too many login attempts, please try again after 15 minutes' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-const signupLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 2, // limit each IP to 2 requests per windowMs
-  message: { message: 'Too many signups from this IP, please try again after 15 minutes' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -35,71 +16,15 @@ import { sendNewMessageNotification } from "./websocket";
 import { processVideoClip } from "./video-processing";
 import { publicVapidKey } from "./services/push-notifications";
 
-// File upload configurations with security improvements
-const imageStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), "uploads", "images"));
-  },
-  filename: (req, file, cb) => {
-    const extension = path.extname(file.originalname).toLowerCase();
-    // Generate a random filename to prevent overwriting and path traversal
-    const randomName = crypto.randomBytes(16).toString("hex");
-    cb(null, `${randomName}${extension}`);
-  }
-});
-
-const uploadStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), "uploads", "videos"));
-  },
-  filename: (req, file, cb) => {
-    const extension = path.extname(file.originalname).toLowerCase();
-    // Generate a random filename to prevent overwriting and path traversal
-    const randomName = crypto.randomBytes(16).toString("hex");
-    cb(null, `${randomName}${extension}`);
-  }
-});
-
+const upload = multer({ dest: path.join(process.cwd(), "uploads", "videos") });
 const imageUpload = multer({ 
-  storage: imageStorage,
+  dest: path.join(process.cwd(), "uploads", "images"),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
-    // Allowed image extensions
-    const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
-    const extension = path.extname(file.originalname).toLowerCase();
-    
-    // Check file extension
-    if (!allowedExtensions.includes(extension)) {
-      return cb(new Error("Invalid image file type. Allowed formats: JPG, JPEG, PNG, GIF, WEBP, SVG"));
-    }
-    
-    // Check MIME type
-    if (file.mimetype.startsWith("image/")) {
+    if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error("Invalid image file type"));
-    }
-  }
-});
-
-const upload = multer({ 
-  storage: uploadStorage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for videos
-  fileFilter: (req, file, cb) => {
-    // Allowed video extensions
-    const allowedExtensions = [".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv"];
-    const extension = path.extname(file.originalname).toLowerCase();
-    
-    // Check file extension
-    if (!allowedExtensions.includes(extension)) {
-      return cb(new Error("Invalid video file type. Allowed formats: MP4, AVI, MOV, WMV, FLV, WEBM, MKV"));
-    }
-    
-    // Check MIME type
-    if (file.mimetype.startsWith("video/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Invalid video file type"));
+      cb(new Error('Only images are allowed'));
     }
   }
 });
@@ -112,16 +37,13 @@ interface AuthenticatedRequest extends Request {
     firstName?: string;
     lastName?: string;
     isAdmin?: boolean;
+    isSuperAdmin?: boolean;
     role?: string;
-    organizationId?: string | null;
   };
 }
 
-// JWT secret - must be set via environment variable
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
-}
+// JWT secret (in production, use a secure environment variable)
+const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
 
 // Authentication schemas
 const loginSchema = z.object({
@@ -133,47 +55,14 @@ const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   firstName: z.string().min(1),
-  lastName: z.string().min(1),
-});
-
-const updateUserSchema = z.object({
-  firstName: z.string().optional(),
   lastName: z.string().optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  houseFellowship: z.string().optional(),
-  career: z.string().optional(),
-  stateOfOrigin: z.string().optional(),
-  birthday: z.string().optional(),
-  twitterHandle: z.string().optional(),
-  instagramHandle: z.string().optional(),
-  facebookHandle: z.string().optional(),
-  linkedinHandle: z.string().optional(),
-  password: z.string().min(6).optional(),
-});
-
-// Create campus schema
-const createCampusSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1).max(20),
-  address: z.string().min(1),
-  city: z.string().min(1),
-  state: z.string().min(1),
-  country: z.string().min(1),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
-  pastorId: z.string().uuid().optional(),
-  isHeadquarters: z.boolean().optional(),
-  timezone: z.string().optional(),
-  logoUrl: z.string().url().optional(),
 });
 
 // Authentication middleware
 const isAuthenticated = async (req: AuthenticatedRequest, res: any, next: any) => {
   console.log('=== AUTH CHECK ===');
-  console.log('Cookies: [REDACTED]');
-  console.log('Auth header: [REDACTED]');
+  console.log('Cookies:', req.cookies);
+  console.log('Auth header:', req.headers.authorization);
   try {
     const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
     
@@ -198,13 +87,13 @@ const isAuthenticated = async (req: AuthenticatedRequest, res: any, next: any) =
       firstName: user.firstName || undefined,
       lastName: user.lastName || undefined,
       isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true, // Simple admin check
-      role: user.role || undefined,
-      organizationId: user.organizationId
+      isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true,
+      role: user.role || undefined
     };
     
     next();
   } catch (error) {
-    console.log('Auth error: [REDACTED]');
+    console.log('Auth error:', error);
     return res.status(401).json({ message: "Invalid token" });
   }
 };
@@ -223,103 +112,6 @@ const isPastor = async (req: AuthenticatedRequest, res: any, next: any) => {
     return res.status(403).json({ message: "Pastor access required" });
   }
   next();
-};
-
-// CSRF protection middleware
-const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
-  // Only check CSRF for state-changing methods
-  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
-    return next();
-  }
-
-  // Get token from header or body (common places to send CSRF token)
-  const token = req.headers['x-csrf-token'] || 
-                req.body?.['_csrf'] ||
-                req.query?.['_csrf'];
-
-  // Get cookie
-  const cookieToken = req.cookies?.['csrf_token'];
-
-  if (!token || !cookieToken || token !== cookieToken) {
-    return res.status(403).json({ message: 'CSRF token mismatch' });
-  }
-
-  next();
-};
-
-// Subdomain detection middleware - extracts organization from subdomain
-const detectSubdomain = async (req: AuthenticatedRequest, res: any, next: any) => {
-  try {
-    const host = req.headers.host || '';
-    const isProduction = process.env.NODE_ENV === 'production';
-    
-    // For local development, check X-Forwarded-Host or custom header
-    const forwardedHost = req.headers['x-forwarded-host'] as string;
-    const effectiveHost = forwardedHost || host;
-    
-    // Split host to get subdomain
-    const hostParts = effectiveHost.split(':')[0].split('.');
-    
-    // Default base domain (change for production)
-    const baseDomain = isProduction ? 'chub.app' : 'chub.local';
-    
-    let subdomain = null;
-    
-    // Check if this is a subdomain request
-    if (hostParts.length > 2 && hostParts[hostParts.length - 2] === 'chub') {
-      // This is a subdomain like grace-chapel.chub.local or grace-chapel.chub.app
-      subdomain = hostParts[0];
-    } else if (hostParts.length > 2 && !isProduction && hostParts[hostParts.length - 2] === 'local') {
-      // Local development: grace-chapel.localhost
-      subdomain = hostParts[0];
-    }
-    
-    // If subdomain detected, look up the organization
-    if (subdomain) {
-      const orgs = await storage.getOrganizations();
-      const org = orgs.find(o => o.slug === subdomain && o.isActive);
-      
-      if (org) {
-        (req as any).organizationId = org.id;
-        (req as any).organization = org;
-        console.log('Subdomain detected for organization');
-      } else {
-        console.log(`Subdomain not found: ${subdomain}`);
-      }
-    }
-    
-    next();
-  } catch (error) {
-    console.error('Subdomain detection error:', error);
-    next();
-  }
-};
-
-// Helper to get organization ID from request context
-// Priority: 1. Subdomain 2. User's org (if not super admin) 3. Query param (explicit)
-const getOrganizationId = (req: AuthenticatedRequest): string | undefined => {
-  // Priority 1: Subdomain detection (already set on req)
-  if ((req as any).organizationId) {
-    return (req as any).organizationId;
-  }
-  
-  // Priority 2: User's organization (if authenticated and not super admin)
-  if (req.user?.organizationId && !req.user?.isSuperAdmin) {
-    return req.user.organizationId || undefined;
-  }
-  
-  // Priority 3: Explicit query parameter (for super admins)
-  const queryOrgId = req.query.orgId as string | undefined;
-  if (queryOrgId) {
-    return queryOrgId;
-  }
-  
-  return undefined;
-};
-
-// Helper to check if user can access all organizations
-const canAccessAllOrganizations = (req: AuthenticatedRequest): boolean => {
-  return false;
 };
 
 // Roles that can view absent members
@@ -355,7 +147,7 @@ const canSendMessages = async (req: AuthenticatedRequest, res: any, next: any) =
   // Check user's role from database
   try {
     const user = await storage.getUserById(req.user.id);
-    console.log('User role checked from DB');
+    console.log('User role from DB:', user?.role);
     if (user && CAN_SEND_MESSAGE_ROLES.includes(user.role)) {
       return next();
     }
@@ -371,21 +163,6 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express,
 ): Promise<Server> {
-  // Endpoint to get CSRF token (no auth required)
-  app.get("/api/csrf-token", (req, res) => {
-    const csrfToken = crypto.randomBytes(32).toString('hex');
-    res.cookie('csrf_token', csrfToken, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-    res.json({ csrfToken });
-  });
-
-  // Apply subdomain detection middleware to all API routes
-  app.use('/api', detectSubdomain);
-
   // === AUTHENTICATION ROUTES ===
 
   // Get current user
@@ -411,11 +188,10 @@ export async function registerRoutes(
       instagramHandle: user.instagramHandle,
       facebookHandle: user.facebookHandle,
       linkedinHandle: user.linkedinHandle,
-        role: user.role,
-        isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true,
-        isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true,
-        organizationId: user.organizationId,
-      });
+      role: user.role,
+      isAdmin: user.email === 'admin@wccrm.com',
+      createdAt: user.createdAt,
+    });
   });
 
   // === GDPR ROUTES ===
@@ -508,27 +284,8 @@ export async function registerRoutes(
     }
   });
 
-  // Get CSRF token
-  app.get("/api/csrf-token", async (req, res) => {
-    try {
-      const csrfToken = crypto.randomBytes(32).toString('hex');
-      const isProduction = process.env.NODE_ENV === 'production';
-      res.cookie('csrf_token', csrfToken, {
-        httpOnly: false,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-      res.json({ csrfToken });
-    } catch (err) {
-      console.error("Error generating CSRF token:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   // Get privacy settings
-  app.get("/api/gdpr/privacy", isAuthenticated, csrfProtection, async (req, res) => {
+  app.get("/api/gdpr/privacy", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user!.id;
       const user = await storage.getUserById(userId);
@@ -537,47 +294,41 @@ export async function registerRoutes(
         return res.status(404).json({ message: "User not found" });
       }
 
-       // Get privacy settings from existing privacySettings table
-       const privacySetting = await db.select().from(privacySettings)
-         .where(eq(privacySettings.userId, user.id))
-         .limit(1);
-       
-       res.json({
-         dataRetentionEnabled: true,
-         marketingConsent: false,
-         attendanceVisibility: "private",
-         profileVisibility: privacySetting.length > 0 ? (privacySetting[0].showInDirectory ? "everyone" : "members") : "members",
-       });
+      res.json({
+        dataRetentionEnabled: true,
+        marketingConsent: false,
+        attendanceVisibility: "private",
+        profileVisibility: "members",
+      });
     } catch (err) {
       console.error("Error fetching privacy settings:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
 
-   // Update privacy settings
-   app.put("/api/gdpr/privacy", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-     try {
-       const userId = req.user!.id;
-       const { marketingConsent, attendanceVisibility, profileVisibility } = req.body;
+  // Update privacy settings
+  app.put("/api/gdpr/privacy", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { marketingConsent, attendanceVisibility, profileVisibility } = req.body;
 
-       // In a real implementation, store these preferences in the privacySettings table
-       // For now, we'll just return success
-       res.json({ 
-         message: "Privacy settings updated successfully",
-         settings: {
-           marketingConsent,
-           attendanceVisibility,
-           profileVisibility,
-         }
-       });
-     } catch (err) {
-       console.error("Error updating privacy settings:", err);
-       res.status(500).json({ message: "Internal server error" });
-     }
-   });
+      // In a real implementation, store these preferences
+      res.json({ 
+        message: "Privacy settings updated successfully",
+        settings: {
+          marketingConsent,
+          attendanceVisibility,
+          profileVisibility,
+        }
+      });
+    } catch (err) {
+      console.error("Error updating privacy settings:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
-// Login with rate limiting (CSRF protection disabled for now)
-app.post("/api/auth/login", async (req, res) => {
+  // Login
+  app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = loginSchema.parse(req.body);
       
@@ -591,63 +342,36 @@ app.post("/api/auth/login", async (req, res) => {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      const token = jwt.sign({ 
-        userId: user.id,
-        organizationId: user.organizationId 
-      }, JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
       
-       const isProduction = process.env.NODE_ENV === 'production';
-       res.cookie('token', token, {
-         httpOnly: true,
-         secure: isProduction,
-         sameSite: isProduction ? 'none' : 'lax',
-         path: '/',
-         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-       });
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
 
-      // Get organization details if user has one
-      let organization = null;
-      if (user.organizationId) {
-        const org = await storage.getOrganization(user.organizationId);
-        if (org) {
-          organization = {
-            id: org.id,
-            name: org.name,
-            slug: org.slug,
-            description: org.description,
-            logoUrl: org.logoUrl,
-            churchName: org.churchName,
-            churchEmail: org.churchEmail,
-          };
-        }
-      }
-
-       res.json({
-         token, // Return token for cross-origin auth
-         id: user.id,
-         email: user.email,
-         firstName: user.firstName,
-         lastName: user.lastName,
-         phone: user.phone,
-         address: user.address,
-         houseFellowship: user.houseFellowship,
-         houseCellLocation: user.houseCellLocation,
-         parish: user.parish,
-         career: user.career,
-         stateOfOrigin: user.stateOfOrigin,
-         birthday: user.birthday,
-         twitterHandle: user.twitterHandle,
-         instagramHandle: user.instagramHandle,
-         facebookHandle: user.facebookHandle,
-         linkedinHandle: user.linkedinHandle,
-         role: user.role,
-         isAdmin: user.isAdmin,
-         isSuperAdmin: user.isSuperAdmin,
-         organizationId: user.organizationId,
-         organization,
-       });
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        address: user.address,
+        houseFellowship: user.houseFellowship,
+        houseCellLocation: user.houseCellLocation,
+        parish: user.parish,
+        career: user.career,
+        stateOfOrigin: user.stateOfOrigin,
+        birthday: user.birthday,
+        twitterHandle: user.twitterHandle,
+        instagramHandle: user.instagramHandle,
+        facebookHandle: user.facebookHandle,
+        linkedinHandle: user.linkedinHandle,
+        isAdmin: user.email === 'admin@wccrm.com'
+      });
     } catch (err) {
-      console.error("Login error:", err);
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
       }
@@ -655,50 +379,37 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 
-  // Signup with rate limiting and CSRF protection
-  app.post("/api/auth/signup", signupLimiter, csrfProtection, async (req, res) => {
+  // Signup
+  app.post("/api/auth/signup", async (req, res) => {
     try {
-      const { email, password, firstName, lastName, isAdmin, isSuperAdmin } = signupSchema.parse(req.body);
+      const { email, password, firstName, lastName } = signupSchema.parse(req.body);
       
-       // Check if user already exists
-       const existingUser = await storage.getUserByEmail(email);
-       if (existingUser) {
-         return res.status(400).json({ message: "User already exists" });
-       }
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
 
-       // Hash password with increased rounds for better security
-       const passwordHash = await bcrypt.hash(password, 12);
-       
-       // Create user
-       const user = await storage.createUser({
-         email,
-         passwordHash,
-         firstName,
-         lastName: lastName || '',
-         isAdmin: !!isAdmin,
-         isSuperAdmin: !!isSuperAdmin,
-       });
-       
-       const token = jwt.sign({ 
-         userId: user.id,
-         organizationId: user.organizationId 
-       }, JWT_SECRET, { expiresIn: '7d' });
-       
-       const isProduction = process.env.NODE_ENV === 'production';
-       const csrfToken = crypto.randomBytes(32).toString('hex');
-       res.cookie('token', token, {
-         httpOnly: true,
-         secure: isProduction,
-         sameSite: isProduction ? 'none' : 'lax',
-         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-       });
-       // Set CSRF token cookie (non-httpOnly so client can read it)
-       res.cookie('csrf_token', csrfToken, {
-         httpOnly: false, // Must be false so client-side JavaScript can read it
-         secure: isProduction,
-         sameSite: isProduction ? 'none' : 'lax',
-         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-       });
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 10);
+      
+      // Create user
+      const user = await storage.createUser({
+        email,
+        passwordHash,
+        firstName,
+        lastName: lastName || '',
+      });
+
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+      
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
 
       res.status(201).json({
         id: user.id,
@@ -710,9 +421,7 @@ app.post("/api/auth/login", async (req, res) => {
         houseFellowship: user.houseFellowship,
         houseCellLocation: user.houseCellLocation,
         parish: user.parish,
-        role: user.role,
-        isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true,
-        isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true,
+        isAdmin: user.email === 'admin@wccrm.com'
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -724,13 +433,15 @@ app.post("/api/auth/login", async (req, res) => {
 
   // Logout
   app.post("/api/auth/logout", (req, res) => {
-       const isProduction = process.env.NODE_ENV === 'production';
-       // Clear auth token
-       res.clearCookie('token');
-       // Clear CSRF token
-       res.clearCookie('csrf_token');
-       res.json({ message: "Logged out successfully" });
-   });
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+    res.json({ message: "Logged out successfully" });
+  });
 
   // Legacy login redirect (for compatibility)
   app.get("/api/login", (req, res) => {
@@ -792,8 +503,7 @@ app.post("/api/auth/login", async (req, res) => {
       isVerified: user.isVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      isAdmin: user.email === 'admin@wccrm.com' || user.isAdmin === true,
-      isSuperAdmin: user.email === 'superadmin@wccrm.com' || user.isSuperAdmin === true
+      isAdmin: user.email === 'admin@wccrm.com'
     });
   });
 
@@ -826,47 +536,33 @@ app.post("/api/auth/login", async (req, res) => {
     res.json({ message: "Role updated successfully" });
   });
 
-// Update user profile (admin only)
+  // Update user profile (admin only)
   app.put("/api/admin/users/:id", isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const userId = req.params.id as string;
-      const updateData = updateUserSchema.parse(req.body);
-      
-      const user = await storage.getUserById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      const updates: any = {
-        firstName: updateData.firstName ?? user.firstName,
-        lastName: updateData.lastName ?? user.lastName,
-        phone: updateData.phone ?? user.phone,
-        address: updateData.address ?? user.address,
-        houseFellowship: updateData.houseFellowship ?? user.houseFellowship,
-        career: updateData.career ?? user.career,
-        stateOfOrigin: updateData.stateOfOrigin ?? user.stateOfOrigin,
-        birthday: updateData.birthday ? new Date(updateData.birthday) : user.birthday,
-        twitterHandle: updateData.twitterHandle ?? user.twitterHandle,
-        instagramHandle: updateData.instagramHandle ?? user.instagramHandle,
-        facebookHandle: updateData.facebookHandle ?? user.facebookHandle,
-        linkedinHandle: updateData.linkedinHandle ?? user.linkedinHandle,
-      };
-      
-      if (updateData.password) {
-        updates.passwordHash = await bcrypt.hash(updateData.password, 12);
-      }
-      
-      await storage.updateUser(userId, updates);
-      
-      const updatedUser = await storage.getUserById(userId);
-      res.json(updatedUser);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ message: err.errors[0].message });
-      }
-      console.error("Error updating user profile:", err);
-      res.status(500).json({ message: "Internal server error" });
+    const userId = req.params.id as string;
+    const { firstName, lastName, phone, address, houseFellowship, career, stateOfOrigin, birthday, twitterHandle, instagramHandle, facebookHandle, linkedinHandle } = req.body;
+    
+    const user = await storage.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    await storage.updateUser(userId, {
+      firstName: firstName ?? user.firstName,
+      lastName: lastName ?? user.lastName,
+      phone: phone ?? user.phone,
+      address: address ?? user.address,
+      houseFellowship: houseFellowship ?? user.houseFellowship,
+      career: career ?? user.career,
+      stateOfOrigin: stateOfOrigin ?? user.stateOfOrigin,
+      birthday: birthday ? new Date(birthday) : user.birthday,
+      twitterHandle: twitterHandle ?? user.twitterHandle,
+      instagramHandle: instagramHandle ?? user.instagramHandle,
+      facebookHandle: facebookHandle ?? user.facebookHandle,
+      linkedinHandle: linkedinHandle ?? user.linkedinHandle,
+    });
+
+    const updatedUser = await storage.getUserById(userId);
+    res.json(updatedUser);
   });
 
   // === MEMBER ROUTES ===
@@ -887,13 +583,6 @@ app.post("/api/auth/login", async (req, res) => {
       houseFellowship: user.houseFellowship,
       houseCellLocation: user.houseCellLocation,
       parish: user.parish,
-      career: user.career,
-      stateOfOrigin: user.stateOfOrigin,
-      birthday: user.birthday,
-      twitterHandle: user.twitterHandle,
-      instagramHandle: user.instagramHandle,
-      facebookHandle: user.facebookHandle,
-      linkedinHandle: user.linkedinHandle,
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -980,8 +669,8 @@ app.post("/api/auth/login", async (req, res) => {
     })));
   });
 
-  // Get all members with pagination (authenticated users)
-  app.get("/api/members", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+  // Get all members with pagination (admin only)
+  app.get("/api/members", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
@@ -1035,22 +724,20 @@ app.post("/api/auth/login", async (req, res) => {
       const end = start + limit;
       const paginatedUsers = filteredUsers.slice(start, end);
 
-      const requesterIsAdmin = req.user!.isAdmin || req.user!.email === 'admin@wccrm.com';
-
       res.json({
         members: paginatedUsers.map(user => ({
           id: user.id,
-          email: requesterIsAdmin ? user.email : user.email?.replace(/(.{2})(.*)(?=@)/, '$1***'), // simple masking for non-admins
+          email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          phone: requesterIsAdmin ? user.phone : null, // hide phone for non-admins
-          address: requesterIsAdmin ? user.address : null, // hide address for non-admins
+          phone: user.phone,
+          address: user.address,
           houseFellowship: user.houseFellowship,
           houseCellLocation: user.houseCellLocation,
           parish: user.parish,
           career: user.career,
           stateOfOrigin: user.stateOfOrigin,
-          birthday: requesterIsAdmin ? user.birthday : null,
+          birthday: user.birthday,
           twitterHandle: user.twitterHandle,
           instagramHandle: user.instagramHandle,
           facebookHandle: user.facebookHandle,
@@ -1101,57 +788,6 @@ app.post("/api/auth/login", async (req, res) => {
       lastName: updatedUser.lastName,
       houseCellLocation: updatedUser.houseCellLocation,
     });
-  });
-
-  // Get member's own activity logs
-  app.get("/api/members/activity", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    const userId = req.user!.id;
-    const limit = parseInt(req.query.limit as string) || 50;
-    
-    try {
-      const activities = await storage.getMemberActivityLogs(userId, limit);
-      res.json(activities);
-    } catch (err) {
-      console.error("Error fetching activity:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Log a new activity
-  app.post("/api/members/activity", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user) return res.status(401).json({ message: "Unauthorized" });
-      const { type, description, metadata } = req.body;
-      
-      if (!type || !description) {
-        return res.status(400).json({ message: "Type and description are required" });
-      }
-      
-      const activity = await storage.createMemberActivityLog({
-        userId: req.user.id,
-        type,
-        description,
-        metadata: metadata || {},
-      });
-      
-      res.json(activity);
-    } catch (err) {
-      console.error("Error logging activity:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get today's engagement metrics for current user
-  app.get("/api/analytics/my-engagement", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user) return res.status(401).json({ message: "Unauthorized" });
-      
-      const metrics = await storage.getMyEngagementMetrics(req.user.id);
-      res.json(metrics);
-    } catch (err) {
-      console.error("Error fetching engagement:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
   });
 
   // Verify user (admin only)
@@ -1218,9 +854,8 @@ app.post("/api/auth/login", async (req, res) => {
   });
 
   // Events
-  app.get(api.events.list.path, async (req: AuthenticatedRequest, res) => {
-    const orgId = getOrganizationId(req);
-    const events = await storage.getEvents(orgId);
+  app.get(api.events.list.path, async (req, res) => {
+    const events = await storage.getEvents();
     const eventsWithRsvpCount = await Promise.all(
       events.map(async (event) => {
         const rsvps = await storage.getEventRsvps(event.id);
@@ -1232,8 +867,7 @@ app.post("/api/auth/login", async (req, res) => {
 
   app.get("/api/events/list-with-rsvps", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     const userId = req.user!.id;
-    const orgId = getOrganizationId(req);
-    const events = await storage.getEvents(orgId);
+    const events = await storage.getEvents();
     const userRsvps = await storage.getUserRsvps(userId);
     const userRsvpEventIds = new Set(userRsvps.map(r => r.eventId));
     
@@ -1275,29 +909,20 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 
-  app.get(api.events.get.path, async (req: AuthenticatedRequest, res) => {
+  app.get(api.events.get.path, async (req, res) => {
     const event = await storage.getEvent(Number(req.params.id));
     if (!event) return res.status(404).json({ message: "Event not found" });
-    
-    // Check organization access
-    const orgId = getOrganizationId(req);
-    if (orgId && event.organizationId !== orgId) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-    
     res.json(event);
   });
 
-  app.post(api.events.create.path, isAuthenticated, async (req: AuthenticatedRequest, res) => {
+  app.post(api.events.create.path, isAuthenticated, async (req, res) => {
     try {
       const input = api.events.create.input.parse(req.body);
       // Convert date string to Date object
-      const orgId = getOrganizationId(req);
       const eventData = {
         ...input,
         date: new Date(input.date),
         creatorId: req.user!.id,
-        organizationId: orgId,
       };
       const event = await storage.createEvent(eventData);
       res.status(201).json(event);
@@ -1319,25 +944,7 @@ app.post("/api/auth/login", async (req, res) => {
         return res.status(404).json({ message: "Event not found" });
       }
 
-      // Check if event has capacity limit
-      if (event.capacity && event.capacity > 0) {
-        const rsvps = await storage.getEventRsvps(eventId);
-        const confirmedCount = rsvps.filter(r => r.rsvpStatus !== 'waitlist').length;
-        
-        if (confirmedCount >= event.capacity) {
-          // Add to waitlist
-          const rsvp = await storage.rsvpToEvent(eventId, userId, 'waitlist');
-          const waitlistPosition = rsvps.filter(r => r.rsvpStatus === 'waitlist').length + 1;
-          return res.json({ 
-            message: "Added to waitlist", 
-            rsvp,
-            waitlist: true,
-            waitlistPosition
-          });
-        }
-      }
-
-      const rsvp = await storage.rsvpToEvent(eventId, userId, 'going');
+      const rsvp = await storage.rsvpToEvent(eventId, userId);
       res.json({ message: "RSVP successful", rsvp });
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });
@@ -1350,32 +957,7 @@ app.post("/api/auth/login", async (req, res) => {
       const eventId = Number(req.params.id);
       const userId = req.user!.id;
       
-      const rsvp = await storage.getEventRsvps(eventId);
-      const userRsvp = rsvp.find(r => r.userId === userId);
-      
       await storage.removeRsvp(eventId, userId);
-      
-      // If user was confirmed (not on waitlist) and there's capacity, promote from waitlist
-      if (userRsvp && userRsvp.rsvpStatus !== 'waitlist') {
-        const event = await storage.getEvent(eventId);
-        if (event && event.capacity && event.capacity > 0) {
-          const promoted = await storage.promoteFromWaitlist(eventId);
-          if (promoted) {
-            const promotedUser = await storage.getUserById(promoted.userId);
-            if (promotedUser) {
-              await storage.createMessage({
-                userId: promoted.userId,
-                type: "EVENT_WAITLIST",
-                title: "Event Spot Available!",
-                content: `Great news! A spot has opened up for an event you were on the waitlist for. You've been automatically confirmed.`,
-                priority: "normal",
-                createdBy: userId,
-              });
-            }
-          }
-        }
-      }
-      
       res.json({ message: "RSVP removed" });
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });
@@ -1414,7 +996,7 @@ app.post("/api/auth/login", async (req, res) => {
       const canViewRsvps = isCreator || isAdmin;
       
       // If can view RSVPs, get user details
-      let rsvpsWithUsers: any[] | undefined = undefined;
+      let rsvpsWithUsers = undefined;
       if (canViewRsvps) {
         rsvpsWithUsers = await Promise.all(
           rsvps.map(async (rsvp) => {
@@ -1650,9 +1232,8 @@ app.post("/api/auth/login", async (req, res) => {
   });
 
   // Sermons
-  app.get(api.sermons.list.path, async (req: AuthenticatedRequest, res) => {
+  app.get(api.sermons.list.path, async (req, res) => {
     const { speaker, series, status, search } = req.query;
-    const orgId = getOrganizationId(req);
     const filter: ISermonFilter = {};
     
     if (speaker) filter.speaker = speaker as string;
@@ -1660,48 +1241,9 @@ app.post("/api/auth/login", async (req, res) => {
     if (search) filter.search = search as string;
     if (status === 'upcoming') filter.isUpcoming = true;
     if (status === 'past') filter.isUpcoming = false;
-    if (orgId) filter.organizationId = orgId;
     
     const sermons = await storage.getSermons(filter);
     res.json(sermons);
-  });
-
-  // Get sermon topics for filtering - must be BEFORE :id route
-  app.get("/api/sermons/topics", async (req, res) => {
-    try {
-      const sermons = await storage.getSermons({});
-      
-      // Extract unique topics
-      const topics = new Set<string>();
-      sermons.forEach(s => {
-        if (s.topic) {
-          s.topic.split(/[,\s]+/).forEach(t => {
-            if (t.trim()) topics.add(t.trim());
-          });
-        }
-      });
-
-      // Extract unique series
-      const series = new Set<string>();
-      sermons.forEach(s => {
-        if (s.series) series.add(s.series);
-      });
-
-      // Extract unique speakers
-      const speakers = new Set<string>();
-      sermons.forEach(s => {
-        if (s.speaker) speakers.add(s.speaker);
-      });
-
-      res.json({
-        topics: Array.from(topics).sort(),
-        series: Array.from(series).sort(),
-        speakers: Array.from(speakers).sort()
-      });
-    } catch (err) {
-      console.error("Error fetching sermon topics:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
   });
 
   app.get(api.sermons.get.path, async (req, res) => {
@@ -1739,8 +1281,8 @@ app.post("/api/auth/login", async (req, res) => {
     if (!sermon) return res.status(404).json({ message: "Sermon not found" });
     
     const { type } = req.query;
-    let downloadUrl: string | null = null;
-    let filename: string = '';
+    let downloadUrl = null;
+    let filename = '';
     
     if (type === 'video' && sermon.videoUrl) {
       downloadUrl = sermon.videoUrl;
@@ -1812,102 +1354,6 @@ app.post("/api/auth/login", async (req, res) => {
       await storage.deleteSermon(id);
       res.json({ message: "Sermon deleted successfully" });
     } catch (err) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // === SERMON SERIES MANAGEMENT (Admin only) ===
-
-  // Get all sermon series with sermon counts
-  app.get("/api/sermons/series", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const sermons = await storage.getSermons({});
-      const seriesMap = new Map<string, { name: string; count: number; thumbnailUrl?: string }>();
-      
-      sermons.forEach(sermon => {
-        if (sermon.series) {
-          const existing = seriesMap.get(sermon.series);
-          if (existing) {
-            existing.count++;
-          } else {
-            seriesMap.set(sermon.series, { 
-              name: sermon.series, 
-              count: 1,
-              thumbnailUrl: sermon.thumbnailUrl 
-            });
-          }
-        }
-      });
-
-      const series = Array.from(seriesMap.entries())
-        .map(([name, data]) => ({ name, ...data }))
-        .sort((a, b) => b.count - a.count);
-
-      res.json(series);
-    } catch (err) {
-      console.error("Error fetching sermon series:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get sermons by series
-  app.get("/api/sermons/series/:name", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const seriesName = decodeURIComponent(req.params.name);
-      const sermons = await storage.getSermons({ series: seriesName });
-      res.json(sermons);
-    } catch (err) {
-      console.error("Error fetching sermons by series:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Update sermon series name (renames series for all sermons)
-  app.put("/api/sermons/series/:oldName", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const oldName = decodeURIComponent(req.params.oldName);
-      const { newName } = req.body;
-
-      if (!newName || typeof newName !== "string") {
-        return res.status(400).json({ message: "New series name is required" });
-      }
-
-      if (newName === oldName) {
-        return res.json({ message: "Series name unchanged" });
-      }
-
-      const sermons = await storage.getSermons({});
-      const sermonsToUpdate = sermons.filter(s => s.series === oldName);
-      
-      let updatedCount = 0;
-      for (const sermon of sermonsToUpdate) {
-        await storage.updateSermon(sermon.id, { series: newName });
-        updatedCount++;
-      }
-
-      res.json({ message: `Updated ${updatedCount} sermons from "${oldName}" to "${newName}"` });
-    } catch (err) {
-      console.error("Error updating sermon series:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Delete sermon series (removes series from all sermons)
-  app.delete("/api/sermons/series/:name", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const seriesName = decodeURIComponent(req.params.name);
-      const sermons = await storage.getSermons({});
-      const sermonsToUpdate = sermons.filter(s => s.series === seriesName);
-      
-      let updatedCount = 0;
-      for (const sermon of sermonsToUpdate) {
-        await storage.updateSermon(sermon.id, { series: undefined });
-        updatedCount++;
-      }
-
-      res.json({ message: `Removed series "${seriesName}" from ${updatedCount} sermons` });
-    } catch (err) {
-      console.error("Error deleting sermon series:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -2096,6 +1542,44 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 
+  // Get sermon topics for filtering
+  app.get("/api/sermons/topics", async (req, res) => {
+    try {
+      const sermons = await storage.getSermons({});
+      
+      // Extract unique topics
+      const topics = new Set<string>();
+      sermons.forEach(s => {
+        if (s.topic) {
+          s.topic.split(/[,\s]+/).forEach(t => {
+            if (t.trim()) topics.add(t.trim());
+          });
+        }
+      });
+
+      // Extract unique series
+      const series = new Set<string>();
+      sermons.forEach(s => {
+        if (s.series) series.add(s.series);
+      });
+
+      // Extract unique speakers
+      const speakers = new Set<string>();
+      sermons.forEach(s => {
+        if (s.speaker) speakers.add(s.speaker);
+      });
+
+      res.json({
+        topics: Array.from(topics).sort(),
+        series: Array.from(series).sort(),
+        speakers: Array.from(speakers).sort()
+      });
+    } catch (err) {
+      console.error("Error fetching sermon topics:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // === AI SERMON SEARCH & RECOMMENDATIONS ===
 
   // Record sermon view
@@ -2121,53 +1605,6 @@ app.post("/api/auth/login", async (req, res) => {
       res.json(views);
     } catch (err) {
       console.error("Error fetching sermon views:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get user's sermon watch history with sermon details
-  app.get("/api/sermons/watch-history", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      const userId = req.user!.id;
-      const views = await storage.getUserSermonViewsWithDetails(userId);
-      res.json(views);
-    } catch (err) {
-      console.error("Error fetching watch history:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Update watch progress for a sermon
-  app.post("/api/sermons/watch-progress", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      const userId = req.user!.id;
-      const { sermonId, watchProgress, completed } = req.body;
-      
-      if (!sermonId) {
-        return res.status(400).json({ message: "Sermon ID is required" });
-      }
-      
-      const view = await storage.recordSermonView(
-        sermonId, 
-        userId, 
-        Math.round((watchProgress || 0) * 60), 
-        completed || false
-      );
-      res.json(view);
-    } catch (err) {
-      console.error("Error updating watch progress:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Clear user's watch history
-  app.delete("/api/sermons/watch-history", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      const userId = req.user!.id;
-      await storage.clearUserSermonViews(userId);
-      res.json({ message: "Watch history cleared" });
-    } catch (err) {
-      console.error("Error clearing watch history:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -2533,27 +1970,12 @@ app.post("/api/auth/login", async (req, res) => {
   // Create campus (admin)
   app.post("/api/campuses", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const campusData = createCampusSchema.parse(req.body);
+      const { name, code, address, city, state, country, phone, email, website, pastorId, isHeadquarters, timezone, logoUrl } = req.body;
       const campus = await storage.createCampus({
-        name: campusData.name,
-        code: campusData.code,
-        address: campusData.address,
-        city: campusData.city,
-        state: campusData.state,
-        country: campusData.country,
-        phone: campusData.phone,
-        email: campusData.email,
-        website: campusData.website,
-        pastorId: campusData.pastorId,
-        isHeadquarters: campusData.isHeadquarters ?? false,
-        timezone: campusData.timezone,
-        logoUrl: campusData.logoUrl,
+        name, code, address, city, state, country, phone, email, website, pastorId, isHeadquarters: isHeadquarters || false, timezone, logoUrl,
       });
       res.json(campus);
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ message: err.errors[0].message });
-      }
       console.error("Error creating campus:", err);
       res.status(500).json({ message: "Internal server error" });
     }
@@ -2563,13 +1985,9 @@ app.post("/api/auth/login", async (req, res) => {
   app.put("/api/campuses/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
-      const updateData = createCampusSchema.partial().parse(req.body);
-      const campus = await storage.updateCampus(id, updateData);
+      const campus = await storage.updateCampus(id, req.body);
       res.json(campus);
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ message: err.errors[0].message });
-      }
       console.error("Error updating campus:", err);
       res.status(500).json({ message: "Internal server error" });
     }
@@ -2758,7 +2176,7 @@ app.post("/api/auth/login", async (req, res) => {
   });
 
   // Update privacy settings
-  app.put("/api/privacy", isAuthenticated, csrfProtection, async (req, res) => {
+  app.put("/api/privacy", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user!.id;
       const settings = await storage.updatePrivacySettings(userId, req.body);
@@ -3181,8 +2599,8 @@ app.post("/api/auth/login", async (req, res) => {
   app.get("/api/organizations/:id", async (req, res) => {
     try {
       const idOrSlug = req.params.id;
-      const isUuid = /^[0-9a-fH]{8}-[0-9a-fH]{4}-[4][0-9a-fH]{3}-[89abH][0-9a-fH]{3}-[0-9a-fH]{12}$/i.test(idOrSlug) || idOrSlug.length > 20; 
-      let org = isUuid ? await storage.getOrganization(idOrSlug) : await storage.getOrganizationBySlug(idOrSlug);
+      const id = parseInt(idOrSlug);
+      let org = isNaN(id) ? await storage.getOrganizationBySlug(idOrSlug) : await storage.getOrganization(id);
       if (!org) {
         return res.status(404).json({ message: "Organization not found" });
       }
@@ -3198,16 +2616,7 @@ app.post("/api/auth/login", async (req, res) => {
     try {
       const { name, slug, domain, primaryColor, secondaryColor, accentColor, contactEmail, contactPhone, address, city, state, country, timezone, plan } = req.body;
       const org = await storage.createOrganization({
-        name, 
-        slug, 
-        churchEmail: contactEmail,
-        churchPhone: contactPhone,
-        churchAddress: address,
-        churchCity: city,
-        churchState: state,
-        churchCountry: country,
-        colors: JSON.stringify({ primary: primaryColor, secondary: secondaryColor, accent: accentColor }),
-        isActive: true
+        name, slug, domain, primaryColor, secondaryColor, accentColor, contactEmail, contactPhone, address, city, state, country, timezone, plan
       });
       
       // Create default theme and settings
@@ -3224,7 +2633,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Update organization (admin)
   app.put("/api/organizations/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const id = req.params.id as string;
+      const id = Number(req.params.id);
       const org = await storage.updateOrganization(id, req.body);
       res.json(org);
     } catch (err) {
@@ -3236,7 +2645,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Delete organization (admin)
   app.delete("/api/organizations/:id", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const id = req.params.id as string;
+      const id = Number(req.params.id);
       await storage.deleteOrganization(id);
       res.json({ message: "Organization deleted" });
     } catch (err) {
@@ -3248,7 +2657,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get organization themes
   app.get("/api/organizations/:id/themes", async (req, res) => {
     try {
-      const orgId = req.params.id;
+      const orgId = Number(req.params.id);
       const themes = await storage.getOrganizationThemes(orgId);
       res.json(themes);
     } catch (err) {
@@ -3260,7 +2669,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Create theme (admin)
   app.post("/api/organizations/:id/themes", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { name, isDefault, config } = req.body;
       const theme = await storage.createTheme({ organizationId: orgId, name, isDefault: isDefault || false, config });
       res.json(theme);
@@ -3273,7 +2682,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get custom pages
   app.get("/api/organizations/:id/pages", async (req, res) => {
     try {
-      const orgId = req.params.id;
+      const orgId = Number(req.params.id);
       const pages = await storage.getOrganizationPages(orgId);
       res.json(pages);
     } catch (err) {
@@ -3285,7 +2694,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Create custom page (admin)
   app.post("/api/organizations/:id/pages", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { title, slug, content, metaTitle, metaDescription, isPublished, showInNav, orderIndex } = req.body;
       const page = await storage.createCustomPage({ organizationId: orgId, title, slug, content, metaTitle, metaDescription, isPublished: isPublished || false, showInNav: showInNav || false, orderIndex: orderIndex || 0 });
       res.json(page);
@@ -3322,7 +2731,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get menu items
   app.get("/api/organizations/:id/menu", async (req, res) => {
     try {
-      const orgId = req.params.id;
+      const orgId = Number(req.params.id);
       const location = (req.query.location as string) || 'header';
       const items = await storage.getMenuItems(orgId, location);
       res.json(items);
@@ -3335,7 +2744,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Create menu item (admin)
   app.post("/api/organizations/:id/menu", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { menuLocation, label, url, pageId, icon, orderIndex, isVisible } = req.body;
       const item = await storage.createMenuItem({ organizationId: orgId, menuLocation, label, url, pageId, icon, orderIndex: orderIndex || 0, isVisible: isVisible !== false });
       res.json(item);
@@ -3372,7 +2781,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get email templates (admin)
   app.get("/api/organizations/:id/emails", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const templates = await storage.getOrganizationEmailTemplates(orgId);
       res.json(templates);
     } catch (err) {
@@ -3381,45 +2790,10 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 
-  // Send email campaign (admin)
-  app.post("/api/organizations/:id/emails/send", isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const orgId = req.params.id as string;
-      const { templateId, subject, body, recipients, scheduledAt } = req.body;
-      
-      await storage.logEmailCampaign({
-        organizationId: orgId,
-        templateId,
-        subject,
-        body,
-        recipientCount: recipients?.length || 0,
-        sentAt: scheduledAt ? new Date(scheduledAt) : new Date(),
-        status: scheduledAt ? "scheduled" : "sent",
-      });
-      
-      res.json({ message: scheduledAt ? "Campaign scheduled" : "Campaign sent", status: scheduledAt ? "scheduled" : "sent" });
-    } catch (err) {
-      console.error("Error sending email campaign:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get email campaign history (admin)
-  app.get("/api/organizations/:id/emails/history", isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const orgId = req.params.id as string;
-      const campaigns = await storage.getEmailCampaignHistory(orgId);
-      res.json(campaigns);
-    } catch (err) {
-      console.error("Error fetching campaign history:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   // Create email template (admin)
   app.post("/api/organizations/:id/emails", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { name, subject, body, type, isActive } = req.body;
       const template = await storage.createEmailTemplate({ organizationId: orgId, name, subject, body, type, isActive: isActive !== false });
       res.json(template);
@@ -3432,7 +2806,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get custom fields
   app.get("/api/organizations/:id/fields/:entity", async (req, res) => {
     try {
-      const orgId = req.params.id;
+      const orgId = Number(req.params.id);
       const entityType = req.params.entity;
       const fields = await storage.getCustomFields(orgId, entityType);
       res.json(fields);
@@ -3445,7 +2819,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Create custom field (admin)
   app.post("/api/organizations/:id/fields", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { entityType, name, fieldType, label, placeholder, isRequired, options, orderIndex, isActive } = req.body;
       const field = await storage.createCustomField({ organizationId: orgId, entityType, name, fieldType, label, placeholder, isRequired: isRequired || false, options, orderIndex: orderIndex || 0, isActive: isActive !== false });
       res.json(field);
@@ -3470,7 +2844,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get organization settings
   app.get("/api/organizations/:id/settings", async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const settings = await storage.getOrganizationSettings(orgId);
       res.json(settings || { organizationId: orgId, settings: {}, features: {} });
     } catch (err) {
@@ -3482,7 +2856,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Update organization settings (admin)
   app.put("/api/organizations/:id/settings", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const settings = await storage.updateOrganizationSettings(orgId, req.body);
       res.json(settings);
     } catch (err) {
@@ -3494,7 +2868,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Add custom domain (admin)
   app.post("/api/organizations/:id/domains", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { domain } = req.body;
       const verificationCode = Math.random().toString(36).substring(2, 15);
       const customDomain = await storage.addCustomDomain({ organizationId: orgId, domain, verificationCode });
@@ -3527,7 +2901,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Record organization analytics
   app.post("/api/organizations/:id/analytics", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const { metricType, metricValue, metadata } = req.body;
       const analytic = await storage.recordOrganizationMetric({ organizationId: orgId, metricType, metricValue, metadata });
       res.json(analytic);
@@ -3540,7 +2914,7 @@ app.post("/api/auth/login", async (req, res) => {
   // Get organization analytics
   app.get("/api/organizations/:id/analytics", isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const orgId = req.params.id as string;
+      const orgId = Number(req.params.id);
       const metricType = req.query.type as string;
       const analytics = await storage.getOrganizationMetrics(orgId, metricType);
       res.json(analytics);
@@ -3776,28 +3150,12 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 
-  // Cancel recurring donation
-  app.post("/api/donations/:id/cancel", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const donation = await storage.cancelRecurringDonation(id, req.user!.id);
-      if (!donation) {
-        return res.status(404).json({ message: "Donation not found or not authorized" });
-      }
-      res.json({ success: true, message: "Recurring donation cancelled" });
-    } catch (err) {
-      console.error("Error cancelling donation:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   // === DAILY DEVOTIONAL ROUTES ===
 
   // Get today's devotional (public)
-  app.get("/api/devotionals/today", async (req: AuthenticatedRequest, res) => {
+  app.get("/api/devotionals/today", async (req, res) => {
     try {
-      const orgId = getOrganizationId(req);
-      const devotional = await storage.getTodayDevotional(orgId);
+      const devotional = await storage.getTodayDevotional();
       res.json(devotional);
     } catch (err) {
       console.error("Error fetching today's devotional:", err);
@@ -3806,11 +3164,10 @@ app.post("/api/auth/login", async (req, res) => {
   });
 
   // Get all devotionals (public)
-  app.get("/api/devotionals", async (req: AuthenticatedRequest, res) => {
+  app.get("/api/devotionals", async (req, res) => {
     try {
       const publishedOnly = req.query.published === "true";
-      const orgId = getOrganizationId(req);
-      const devotionals = await storage.getDailyDevotionals(publishedOnly, orgId);
+      const devotionals = await storage.getDailyDevotionals(publishedOnly);
       res.json(devotionals);
     } catch (err) {
       console.error("Error fetching devotionals:", err);
@@ -3819,7 +3176,7 @@ app.post("/api/auth/login", async (req, res) => {
   });
 
   // Get single devotional (public)
-  app.get("/api/devotionals/:id", async (req: AuthenticatedRequest, res) => {
+  app.get("/api/devotionals/:id", async (req, res) => {
     try {
       const idParam = req.params.id;
       const id = Array.isArray(idParam) ? parseInt(idParam[0]) : parseInt(idParam);
@@ -3827,13 +3184,6 @@ app.post("/api/auth/login", async (req, res) => {
       if (!devotional) {
         return res.status(404).json({ message: "Devotional not found" });
       }
-      
-      // Check organization access
-      const orgId = getOrganizationId(req);
-      if (orgId && devotional.organizationId !== orgId) {
-        return res.status(404).json({ message: "Devotional not found" });
-      }
-      
       res.json(devotional);
     } catch (err) {
       console.error("Error fetching devotional:", err);
@@ -3844,19 +3194,9 @@ app.post("/api/auth/login", async (req, res) => {
   // Create devotional (admin only)
   app.post("/api/devotionals", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      console.log("Creating devotional");
-      const { title, content, author, bibleVerse, theme, imageUrl, publishDate } = req.body;
-      const orgId = getOrganizationId(req);
       const devotional = await storage.createDailyDevotional({
-        title,
-        content,
-        author,
-        bibleVerse,
-        theme,
-        imageUrl,
-        publishDate: new Date(publishDate),
+        ...req.body,
         createdBy: req.user!.id,
-        organizationId: orgId || undefined,
       });
       res.status(201).json(devotional);
     } catch (err) {
@@ -4117,34 +3457,6 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
-  // Resend check-in notification
-  app.post("/api/attendance/checkin-notification", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      const userId = req.user!.id;
-      const { eventId, eventTitle, eventDate } = req.body;
-      
-      if (!eventId || !eventTitle || !eventDate) {
-        return res.status(400).json({ message: "Missing required fields" });
-      }
-      
-      const checkinMessage = await storage.createMessage({
-        userId,
-        type: "CHECKIN_CONFIRMATION",
-        title: "Check-in Confirmed!",
-        content: `You've successfully checked in for ${eventTitle} on ${new Date(eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. Thank you for attending!`,
-        priority: "normal",
-        createdBy: userId,
-      });
-      
-      sendNewMessageNotification(userId, checkinMessage);
-      
-      res.json({ success: true, message: "Check-in notification sent" });
-    } catch (err) {
-      console.error("Error sending check-in notification:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   // Manual check-in (admin/leader only)
   app.post("/api/attendance/manual", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     try {
@@ -4178,17 +3490,7 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
         createdBy: userId,
       });
 
-      const checkinMessage = await storage.createMessage({
-        userId: targetUserId,
-        type: "CHECKIN_CONFIRMATION",
-        title: "Check-in Recorded!",
-        content: `Your attendance for ${serviceName} on ${new Date(serviceDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} has been recorded.`,
-        priority: "normal",
-        createdBy: userId,
-      });
-      sendNewMessageNotification(targetUserId, checkinMessage);
-
-      res.status(201).json({ ...attendance, messageSent: true });
+      res.status(201).json(attendance);
     } catch (err) {
       console.error("Error manual check-in:", err);
       res.status(500).json({ message: "Internal server error" });
@@ -4349,17 +3651,7 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
         createdBy: link.createdBy,
       });
 
-      const checkinMessage = await storage.createMessage({
-        userId,
-        type: "CHECKIN_CONFIRMATION",
-        title: "Check-in Confirmed!",
-        content: `You've successfully checked in for ${link.serviceName} on ${link.serviceDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. See you there!`,
-        priority: "normal",
-        createdBy: userId,
-      });
-      sendNewMessageNotification(userId, checkinMessage);
-
-      res.status(201).json({ ...attendance, messageSent: true });
+      res.status(201).json(attendance);
     } catch (err) {
       console.error("Error checking in via link:", err);
       res.status(500).json({ message: "Internal server error" });
@@ -4384,68 +3676,6 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
       res.json(stats);
     } catch (err) {
       console.error("Error fetching attendance analytics:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get real-time check-in stats for today (admin only)
-  app.get("/api/attendance/checkin-stats", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const stats = await storage.getCheckinStats(today, tomorrow);
-      const totalMembers = await db.select().from(users).where(eq(users.organizationId, req.user!.organizationId));
-      
-      res.json({
-        ...stats,
-        totalMembers: totalMembers.length,
-        expectedAttendance: Math.round(totalMembers.length * 0.6),
-        checkInRate: totalMembers.length > 0 ? Math.round((stats.total / totalMembers.length) * 100) : 0,
-        lastUpdated: new Date(),
-      });
-    } catch (err) {
-      console.error("Error fetching check-in stats:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Export attendance list (admin only)
-  app.get("/api/attendance/export", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const { startDate, endDate, format } = req.query;
-      
-      if (!startDate || !endDate) {
-        return res.status(400).json({ message: "Start date and end date are required" });
-      }
-
-      const attendance = await storage.getAttendanceForExport(
-        new Date(startDate as string),
-        new Date(endDate as string)
-      );
-
-      if (format === 'csv') {
-        const headers = ['Name', 'Email', 'Service Type', 'Service Name', 'Check-in Time', 'Attendance Type'];
-        const rows = attendance.map(a => [
-          `${a.user?.firstName || ''} ${a.user?.lastName || ''}`,
-          a.user?.email || '',
-          a.serviceType,
-          a.serviceName || '',
-          a.checkInTime ? new Date(a.checkInTime).toISOString() : '',
-          a.attendanceType,
-        ]);
-        
-        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=attendance.csv');
-        return res.send(csv);
-      }
-
-      res.json(attendance);
-    } catch (err) {
-      console.error("Error exporting attendance:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -4814,7 +4044,8 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
 
   // Send message to member (NO AUTH for testing)
   app.post("/api/messages/send", async (req: AuthenticatedRequest, res) => {
-    console.log('Message send request received');
+    console.log('=== MESSAGE SEND REQUEST (NO AUTH) ===');
+    console.log('Body:', req.body);
     try {
       const { userId, type, title, content, priority } = req.body;
       
@@ -4940,34 +4171,6 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
   // Seed data function
   try {
     await seedDatabase();
-    
-    // Check if ANY super admin exists
-    const allUsers = await storage.getAllUsers();
-    const anySuperAdmin = allUsers.some(u => u.isSuperAdmin);
-
-    // Only create initial super admin if environment variables are set AND no super admin exists
-    // This is a ONE-TIME setup - remove these env vars after first admin is created
-    const adminEmail = process.env.SUPER_ADMIN_EMAIL;
-    const adminPassword = process.env.SUPER_ADMIN_PASSWORD;
-
-    if (!anySuperAdmin && adminEmail && adminPassword) {
-      const existingUser = await storage.getUserByEmail(adminEmail);
-      if (!existingUser) {
-        console.log(`Creating initial super admin from environment variables...`);
-        const passwordHash = await bcrypt.hash(adminPassword, 12);
-        await storage.createUser({
-          email: adminEmail,
-          passwordHash,
-          firstName: "Super",
-          lastName: "Admin",
-          isSuperAdmin: true,
-          isAdmin: true,
-        });
-        console.log("Initial super admin created. Remove SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD from environment variables.");
-      }
-    } else if (!anySuperAdmin) {
-      console.warn("WARNING: No super admin exists. Use the invite system or set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD to create one.");
-    }
   } catch (err) {
     console.error("Error seeding database on startup:", err);
   }
@@ -7817,641 +7020,6 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
-  // === Super Admin Routes ===
-  
-  // Get all organizations (super admin only)
-  app.get("/api/super-admin/organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const organizations = await storage.getOrganizations(true);
-      res.json(organizations);
-    } catch (err) {
-      console.error("Error fetching organizations:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Public organization signup (for churches to register themselves)
-  app.post("/api/organizations/register", async (req, res) => {
-    try {
-      const { name, slug, description, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry } = req.body;
-      
-      if (!name || !slug) {
-        return res.status(400).json({ message: "Organization name and slug are required" });
-      }
-
-      // Check if slug already exists
-      const existingOrgs = await storage.getOrganizations();
-      const slugExists = existingOrgs.some(org => org.slug === slug);
-      if (slugExists) {
-        return res.status(400).json({ message: "This URL slug is already taken. Please choose another." });
-      }
-
-      const org = await storage.createOrganization({
-        name,
-        slug,
-        description: description || null,
-        logoUrl: null,
-        churchName: churchName || null,
-        churchEmail: churchEmail || null,
-        churchPhone: churchPhone || null,
-        churchAddress: churchAddress || null,
-        churchCity: churchCity || null,
-        churchState: churchState || null,
-        churchCountry: churchCountry || null,
-        isActive: false, // Requires super admin approval
-      });
-      
-      res.status(201).json({ 
-        message: "Organization submitted for approval. We'll contact you shortly.",
-        organization: org 
-      });
-    } catch (err) {
-      console.error("Error registering organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get organization by slug (public)
-  app.get("/api/organizations/by-slug/:slug", async (req, res) => {
-    try {
-      const { slug } = req.params;
-      const orgs = await storage.getOrganizations();
-      const org = orgs.find(o => o.slug === slug && o.isActive);
-      
-      if (!org) {
-        return res.status(404).json({ message: "Organization not found" });
-      }
-      
-      res.json(org);
-    } catch (err) {
-      console.error("Error fetching organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Create organization (super admin only)
-  app.post("/api/super-admin/organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { name, slug, description, logoUrl, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry, isActive } = req.body;
-      
-      if (!name || !slug) {
-        return res.status(400).json({ message: "Name and slug are required" });
-      }
-
-      const org = await storage.createOrganization({
-        name,
-        slug,
-        description: description || null,
-        logoUrl: logoUrl || null,
-        churchName: churchName || null,
-        churchEmail: churchEmail || null,
-        churchPhone: churchPhone || null,
-        churchAddress: churchAddress || null,
-        churchCity: churchCity || null,
-        churchState: churchState || null,
-        churchCountry: churchCountry || null,
-        isActive: isActive ?? true,
-      });
-      res.status(201).json(org);
-    } catch (err) {
-      console.error("Error creating organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Update organization (super admin only)
-  app.put("/api/super-admin/organizations/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const id = req.params.id as string;
-      const { name, slug, description, logoUrl, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry, isActive } = req.body;
-
-      const org = await storage.updateOrganization(id, {
-        name,
-        slug,
-        description: description || null,
-        logoUrl: logoUrl || null,
-        churchName: churchName || null,
-        churchEmail: churchEmail || null,
-        churchPhone: churchPhone || null,
-        churchAddress: churchAddress || null,
-        churchCity: churchCity || null,
-        churchState: churchState || null,
-        churchCountry: churchCountry || null,
-        isActive,
-      });
-      res.json(org);
-    } catch (err) {
-      console.error("Error updating organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Delete organization (super admin only)
-  app.delete("/api/super-admin/organizations/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const id = req.params.id as string;
-      await storage.deleteOrganization(id);
-      res.json({ message: "Organization deleted" });
-    } catch (err) {
-      console.error("Error deleting organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get organization users (super admin only)
-  app.get("/api/super-admin/organizations/:id/users", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const users = await storage.getOrganizationUsers(req.params.id as string);
-      res.json(users);
-    } catch (err) {
-      console.error("Error fetching organization users:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Update user role within organization (super admin only)
-  app.put("/api/super-admin/organizations/:id/users/:userId/role", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { role } = req.body;
-      const user = await storage.updateUserOrganizationRole(req.params.userId as string, req.params.id as string, role);
-      res.json(user);
-    } catch (err) {
-      console.error("Error updating organization user role:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Remove user from organization (super admin only)
-  app.delete("/api/super-admin/organizations/:id/users/:userId", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      await storage.removeUserFromOrganization(req.params.userId as string, req.params.id as string);
-      res.json({ message: "User removed from organization" });
-    } catch (err) {
-      console.error("Error removing user from organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get organization branding (super admin only)
-  app.get("/api/super-admin/organizations/:id/branding", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const branding = await storage.getOrganizationBranding(req.params.id as string);
-      res.json(branding || {});
-    } catch (err) {
-      console.error("Error fetching organization branding:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Update organization branding (super admin only)
-  app.put("/api/super-admin/organizations/:id/branding", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const branding = await storage.updateOrganizationBranding(req.params.id as string, req.body);
-      res.json(branding);
-    } catch (err) {
-      console.error("Error updating organization branding:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // === ORGANIZATION APPROVAL WORKFLOW ===
-
-  // Get pending organizations for approval (super admin only)
-  app.get("/api/super-admin/organizations/pending", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const organizations = await storage.getPendingOrganizations();
-      res.json(organizations);
-    } catch (err) {
-      console.error("Error fetching pending organizations:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Approve organization (super admin only)
-  app.post("/api/super-admin/organizations/:id/approve", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const id = req.params.id as string;
-      const org = await storage.approveOrganization(id, req.user!.id);
-      
-      // TODO: Send approval email notification
-      // await sendOrganizationApprovalEmail(org);
-      
-      res.json({ message: "Organization approved successfully", organization: org });
-    } catch (err) {
-      console.error("Error approving organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Reject organization (super admin only)
-  app.post("/api/super-admin/organizations/:id/reject", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const id = req.params.id as string;
-      const { reason } = req.body;
-      
-      if (!reason) {
-        return res.status(400).json({ message: "Rejection reason is required" });
-      }
-      
-      const org = await storage.rejectOrganization(id, req.user!.id, reason);
-      
-      // TODO: Send rejection email notification
-      // await sendOrganizationRejectionEmail(org, reason);
-      
-      res.json({ message: "Organization rejected", organization: org });
-    } catch (err) {
-      console.error("Error rejecting organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get organization approval history (super admin only)
-  app.get("/api/super-admin/organizations/:id/approval-history", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const history = await storage.getOrganizationApprovalHistory(req.params.id as string);
-      res.json(history);
-    } catch (err) {
-      console.error("Error fetching approval history:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // === ORGANIZATION MANAGEMENT DASHBOARD ===
-
-  // Get organization details with statistics (super admin only)
-  app.get("/api/super-admin/organizations/:id/details", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const orgId = req.params.id as string;
-      const details = await storage.getOrganizationDetails(orgId);
-      res.json(details);
-    } catch (err) {
-      console.error("Error fetching organization details:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get organization statistics (super admin only)
-  app.get("/api/super-admin/organizations/:id/stats", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const orgId = req.params.id as string;
-      const stats = await storage.getOrganizationStats(orgId);
-      res.json(stats);
-    } catch (err) {
-      console.error("Error fetching organization stats:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Activate organization (super admin only)
-  app.post("/api/super-admin/organizations/:id/activate", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const orgId = req.params.id as string;
-      const org = await storage.activateOrganization(orgId);
-      res.json({ message: "Organization activated", organization: org });
-    } catch (err) {
-      console.error("Error activating organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Deactivate organization (super admin only)
-  app.post("/api/super-admin/organizations/:id/deactivate", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const orgId = req.params.id as string;
-      const org = await storage.deactivateOrganization(orgId);
-      res.json({ message: "Organization deactivated", organization: org });
-    } catch (err) {
-      console.error("Error deactivating organization:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Search organizations with filters (super admin only)
-  app.get("/api/super-admin/organizations/search", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { q, status, sortBy, sortOrder } = req.query;
-      const results = await storage.searchOrganizations({
-        query: q as string,
-        status: status as string,
-        sortBy: sortBy as string,
-        sortOrder: sortOrder as 'asc' | 'desc',
-      });
-      res.json(results);
-    } catch (err) {
-      console.error("Error searching organizations:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // === CROSS-ORGANIZATION MEMBER MANAGEMENT ===
-
-  // Get all members across all organizations (super admin only)
-  app.get("/api/super-admin/members", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { orgId, search, role, page = 1, limit = 50 } = req.query;
-      const results = await storage.getAllMembersAcrossOrganizations({
-        organizationId: orgId as string,
-        search: search as string,
-        role: role as string,
-        page: parseInt(page as string) || 1,
-        limit: parseInt(limit as string) || 50,
-      });
-      res.json(results);
-    } catch (err) {
-      console.error("Error fetching members:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get member details across organizations (super admin only)
-  app.get("/api/super-admin/members/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const memberId = req.params.id as string;
-      const details = await storage.getMemberCrossOrgDetails(memberId);
-      res.json(details);
-    } catch (err) {
-      console.error("Error fetching member details:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Transfer member between organizations (super admin only)
-  app.post("/api/super-admin/members/:id/transfer", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const memberId = req.params.id as string;
-      const { toOrganizationId, reason } = req.body;
-      
-      if (!toOrganizationId) {
-        return res.status(400).json({ message: "Target organization ID is required" });
-      }
-      
-      const result = await storage.transferMemberToOrganization(memberId, toOrganizationId, req.user!.id, reason);
-      res.json({ message: "Member transferred successfully", member: result });
-    } catch (err) {
-      console.error("Error transferring member:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get member activity across organizations (super admin only)
-  app.get("/api/super-admin/members/:id/activity", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const memberId = req.params.id as string;
-      const { limit = 50 } = req.query;
-      const activity = await storage.getMemberActivityAcrossOrgs(memberId, parseInt(limit as string) || 50);
-      res.json(activity);
-    } catch (err) {
-      console.error("Error fetching member activity:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Bulk update members (super admin only)
-  app.post("/api/super-admin/members/bulk-update", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { memberIds, updates, reason } = req.body;
-      
-      if (!memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
-        return res.status(400).json({ message: "Member IDs array is required" });
-      }
-      
-      const results = await storage.bulkUpdateMembers(memberIds, updates, req.user!.id, reason);
-      res.json({ message: `Updated ${results.length} members`, results });
-    } catch (err) {
-      console.error("Error bulk updating members:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Bulk transfer members (super admin only)
-  app.post("/api/super-admin/members/bulk-transfer", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { memberIds, toOrganizationId, reason } = req.body;
-      
-      if (!memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
-        return res.status(400).json({ message: "Member IDs array is required" });
-      }
-      
-      if (!toOrganizationId) {
-        return res.status(400).json({ message: "Target organization ID is required" });
-      }
-      
-      const results = await storage.bulkTransferMembers(memberIds, toOrganizationId, req.user!.id, reason);
-      res.json({ message: `Transferred ${results.length} members`, results });
-    } catch (err) {
-      console.error("Error bulk transferring members:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Invite a new super admin (super admin only)
-  app.post("/api/super-admin/invite", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      
-      const { email, firstName, lastName } = req.body;
-      
-      if (!email || !firstName) {
-        return res.status(400).json({ message: "Email and first name are required" });
-      }
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ message: "User with this email already exists" });
-      }
-      
-      // Generate a secure random password
-      const tempPassword = crypto.randomBytes(16).toString('hex');
-      const passwordHash = await bcrypt.hash(tempPassword, 12);
-      
-      const newUser = await storage.createUser({
-        email,
-        passwordHash,
-        firstName,
-        lastName: lastName || '',
-        isSuperAdmin: true,
-        isAdmin: true,
-      });
-      
-      // TODO: Send invitation email with temp password and setup link
-      
-      res.status(201).json({ 
-        message: "Super admin invited successfully",
-        userId: newUser.id,
-        // In production, don't return the temp password - send via email instead
-        tempPassword 
-      });
-    } catch (err) {
-      console.error("Error inviting super admin:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // === PLATFORM-WIDE ANALYTICS ===
-
-  // Get platform overview statistics (super admin only)
-  app.get("/api/super-admin/analytics/overview", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const overview = await storage.getPlatformOverview();
-      res.json(overview);
-    } catch (err) {
-      console.error("Error fetching platform overview:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get organization growth metrics (super admin only)
-  app.get("/api/super-admin/analytics/growth", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { period = '30d' } = req.query;
-      const growth = await storage.getPlatformGrowthMetrics(period as string);
-      res.json(growth);
-    } catch (err) {
-      console.error("Error fetching growth metrics:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get most popular organizations (super admin only)
-  app.get("/api/super-admin/analytics/popular-organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { limit = 10 } = req.query;
-      const popular = await storage.getPopularOrganizations(parseInt(limit as string) || 10);
-      res.json(popular);
-    } catch (err) {
-      console.error("Error fetching popular organizations:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get activity trends (super admin only)
-  app.get("/api/super-admin/analytics/activity-trends", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { period = '30d', metric } = req.query;
-      const trends = await storage.getActivityTrends(period as string, metric as string);
-      res.json(trends);
-    } catch (err) {
-      console.error("Error fetching activity trends:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get member engagement metrics (super admin only)
-  app.get("/api/super-admin/analytics/engagement", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const engagement = await storage.getMemberEngagementMetrics();
-      res.json(engagement);
-    } catch (err) {
-      console.error("Error fetching engagement metrics:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Get event statistics across platform (super admin only)
-  app.get("/api/super-admin/analytics/events", isAuthenticated, async (req: AuthenticatedRequest, res) => {
-    try {
-      if (!req.user?.isSuperAdmin) {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-      const { period = '30d' } = req.query;
-      const eventStats = await storage.getPlatformEventStats(period as string);
-      res.json(eventStats);
-    } catch (err) {
-      console.error("Error fetching event statistics:", err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   return httpServer;
 }
 
@@ -8504,8 +7072,6 @@ async function seedDatabase() {
       title: "Sunday Service",
       description: "Join us for worship and a message.",
       date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      endDate: undefined,
-      recurrenceEndDate: undefined,
       location: "Main Sanctuary",
       imageUrl:
         "https://images.unsplash.com/photo-1478147427282-58a87a120781?w=800&auto=format&fit=crop&q=60",
@@ -8514,8 +7080,6 @@ async function seedDatabase() {
       title: "Youth Group Night",
       description: "Fun, games, and fellowship for teens.",
       date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-      endDate: undefined,
-      recurrenceEndDate: undefined,
       location: "Youth Hall",
       imageUrl:
         "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&auto=format&fit=crop&q=60",
@@ -8706,4 +7270,98 @@ async function seedDatabase() {
       isActive: true,
     });
   }
+
+  // === Super Admin Routes ===
+  
+  // Get all organizations (super admin only)
+  app.get("/api/super-admin/organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const organizations = await storage.getOrganizations();
+      res.json(organizations);
+    } catch (err) {
+      console.error("Error fetching organizations:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create organization (super admin only)
+  app.post("/api/super-admin/organizations", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const { name, slug, description, logoUrl, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry, isActive } = req.body;
+      
+      if (!name || !slug) {
+        return res.status(400).json({ message: "Name and slug are required" });
+      }
+
+      const org = await storage.createOrganization({
+        name,
+        slug,
+        description: description || null,
+        logoUrl: logoUrl || null,
+        churchName: churchName || null,
+        churchEmail: churchEmail || null,
+        churchPhone: churchPhone || null,
+        churchAddress: churchAddress || null,
+        churchCity: churchCity || null,
+        churchState: churchState || null,
+        churchCountry: churchCountry || null,
+        isActive: isActive ?? true,
+      });
+      res.status(201).json(org);
+    } catch (err) {
+      console.error("Error creating organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update organization (super admin only)
+  app.put("/api/super-admin/organizations/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const id = req.params.id;
+      const { name, slug, description, logoUrl, churchName, churchEmail, churchPhone, churchAddress, churchCity, churchState, churchCountry, isActive } = req.body;
+
+      const org = await storage.updateOrganization(id, {
+        name,
+        slug,
+        description: description || null,
+        logoUrl: logoUrl || null,
+        churchName: churchName || null,
+        churchEmail: churchEmail || null,
+        churchPhone: churchPhone || null,
+        churchAddress: churchAddress || null,
+        churchCity: churchCity || null,
+        churchState: churchState || null,
+        churchCountry: churchCountry || null,
+        isActive,
+      });
+      res.json(org);
+    } catch (err) {
+      console.error("Error updating organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete organization (super admin only)
+  app.delete("/api/super-admin/organizations/:id", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.user?.isSuperAdmin) {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+      const id = req.params.id;
+      await storage.deleteOrganization(id);
+      res.json({ message: "Organization deleted" });
+    } catch (err) {
+      console.error("Error deleting organization:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 }

@@ -25,49 +25,13 @@ export function setAuthToken(token: string | null) {
 }
 
 export function getAuthHeader(): string | null {
-  const token = getStoredToken();
-  return token ? `Bearer ${token}` : null;
+  // Return null to disable auth in frontend-only mode
+  return null;
 }
 
 async function fetchUser(): Promise<User | null> {
-  const token = getStoredToken();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  
-  const url = buildApiUrl(apiRoutes.auth.user);
-  console.log('[Auth] Fetching user from:', url);
-  
-  try {
-    const response = await fetch(url, {
-      credentials: "include",
-      headers,
-    });
-
-    console.log('[Auth] Response status:', response.status);
-
-    if (response.status === 401) {
-      console.log('[Auth] Got 401, returning null');
-      setStoredToken(null);
-      return null;
-    }
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      console.error('[Auth] Error response:', errorText);
-      throw new Error(`${response.status}: ${response.statusText}`);
-    }
-
-    const user = await response.json();
-    console.log('[Auth] Got user:', user);
-    return user;
-  } catch (error) {
-    console.error('[Auth] Fetch error:', error);
-    throw error;
-  }
+  // Return null instead of making API call - frontend only mode
+  return null;
 }
 
 export function useAuth() {
@@ -104,25 +68,18 @@ export function useAuth() {
     };
   }, [isLoading]);
 
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      queryClient.setQueryData(["auth", "user"], null);
-      setStoredToken(null);
-      try {
-        await fetch(buildApiUrl(apiRoutes.auth.logout), {
-          method: "POST",
-          credentials: "include",
-        });
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
-      queryClient.clear();
-    },
-    retry: false,
-    onSuccess: () => {
-      window.location.href = "/login";
-    },
-  });
+const logoutMutation = useMutation({
+  mutationFn: async () => {
+    queryClient.setQueryData(["auth", "user"], null);
+    setStoredToken(null);
+    // Skip API logout call in frontend-only mode
+    queryClient.clear();
+  },
+  retry: false,
+  onSuccess: () => {
+    window.location.href = "/login";
+  },
+});
 
   return {
     user,

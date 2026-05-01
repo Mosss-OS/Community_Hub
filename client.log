@@ -1,0 +1,11 @@
+
+> rest-express@1.0.0 dev
+> vite
+
+20:49:14 [vite] (client) Re-optimizing dependencies because vite config has changed
+
+  VITE v7.3.1  ready in 854 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+Killed

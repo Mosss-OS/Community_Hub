@@ -980,8 +980,8 @@ app.post("/api/auth/login", async (req, res) => {
     })));
   });
 
-  // Get all members with pagination (authenticated users)
-  app.get("/api/members", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+  // Get all members with pagination (admin only)
+  app.get("/api/members", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
@@ -1035,22 +1035,20 @@ app.post("/api/auth/login", async (req, res) => {
       const end = start + limit;
       const paginatedUsers = filteredUsers.slice(start, end);
 
-      const requesterIsAdmin = req.user!.isAdmin || req.user!.email === 'admin@wccrm.com';
-
       res.json({
         members: paginatedUsers.map(user => ({
           id: user.id,
-          email: requesterIsAdmin ? user.email : user.email?.replace(/(.{2})(.*)(?=@)/, '$1***'), // simple masking for non-admins
+          email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          phone: requesterIsAdmin ? user.phone : null, // hide phone for non-admins
-          address: requesterIsAdmin ? user.address : null, // hide address for non-admins
+          phone: user.phone,
+          address: user.address,
           houseFellowship: user.houseFellowship,
           houseCellLocation: user.houseCellLocation,
           parish: user.parish,
           career: user.career,
           stateOfOrigin: user.stateOfOrigin,
-          birthday: requesterIsAdmin ? user.birthday : null,
+          birthday: user.birthday,
           twitterHandle: user.twitterHandle,
           instagramHandle: user.instagramHandle,
           facebookHandle: user.facebookHandle,

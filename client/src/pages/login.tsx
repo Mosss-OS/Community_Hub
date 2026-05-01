@@ -1,279 +1,232 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
-import { apiRoutes } from "@/lib/api-routes";
-import { buildApiUrl } from "@/lib/api-config";
-import { Helmet } from "react-helmet";
-import { useLanguage } from "@/hooks/use-language";
-import { setAuthToken } from "@/hooks/use-auth";
-
-type AuthMode = "login" | "signup";
-
-interface AuthFormData {
-  email: string;
-  password: string;
-  name?: string;
-}
+import { PageSEO } from "@/components/PageSEO";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Chrome, Facebook, Apple } from "lucide-react";
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<AuthMode>("login");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<AuthFormData>({
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
-    name: "",
+    firstName: "",
+    lastName: "",
+    phone: ""
   });
-  const { toast } = useToast();
-  const [, navigate] = useLocation();
-  const queryClient = useQueryClient();
-  const { t } = useLanguage();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [isLogin]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const endpoint = mode === "login" ? apiRoutes.auth.login : "/api/auth/signup";
-      const requestData = mode === "login"
-        ? { email: formData.email, password: formData.password }
-        : {
-            email: formData.email,
-            password: formData.password,
-            firstName: formData.name?.split(' ')[0] || '',
-            lastName: formData.name?.split(' ').slice(1).join(' ') || ''
-          };
-
-      const response = await fetch(buildApiUrl(endpoint), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Authentication failed");
-      }
-
-      toast({
-        title: mode === "login" ? "Welcome back!" : "Account created!",
-        description: mode === "login" ? "You've signed in successfully." : "Your account has been created.",
-      });
-
-      if (data.token) {
-        setAuthToken(data.token);
-      }
-      
-      queryClient.setQueryData(["auth", "user"], data);
-      navigate("/");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred";
-      setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    alert(isLogin ? "Login submitted!" : "Registration submitted!");
   };
 
   return (
     <>
-      <Helmet>
-        <title>{mode === "login" ? "Sign in" : "Sign up"} | CHub</title>
-      </Helmet>
-      <div className="flex min-h-screen w-full">
-        {/* Left panel - Locus Style */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center bg-primary">
-          <div className="absolute inset-0 bg-[#4101f6]" />
-          <div className="absolute inset-0">
-            <img
-              src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1200&auto=format&fit=crop&q=80"
-              alt="Worship"
-              className="w-full h-full object-cover opacity-20"
-            />
-          </div>
+      <PageSEO title={isLogin ? "Login | Winners Chapel Lagos" : "Join Us | Winners Chapel Lagos"} />
 
-          <div className="relative z-10 max-w-md text-center px-8">
-            <div className="flex justify-center mb-8">
-              <img src="/church_logo.jpeg" alt="CHub" className="h-20 w-auto" />
-            </div>
-            <h2 className="text-4xl font-light text-white tracking-[-0.02em] mb-4">
-              CHub
-            </h2>
-            <p className="text-white/80 text-base leading-relaxed">
-              Join our church community. Connect, grow, and serve together.
+      <div className="min-h-screen flex">
+        {/* Left Panel - Form */}
+        <div className="flex-1 flex items-center justify-center p-8 bg-white">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-full max-w-md"
+          >
+            <Link href="/" className="flex items-center gap-2 mb-8">
+              <div className="w-12 h-12 rounded-full bg-[#8B0000] flex items-center justify-center">
+                <span className="text-2xl font-serif font-bold text-white">W</span>
+              </div>
+              <span className="text-2xl font-semibold text-gray-900">Winners Chapel</span>
+            </Link>
+
+            <h1 className="text-3xl font-serif font-semibold text-gray-900 mb-2">
+              {isLogin ? "Welcome back" : "Join our family"}
+            </h1>
+            <p className="text-gray-600 mb-8">
+              {isLogin 
+                ? "Enter your details to access your account" 
+                : "Create an account to get started with us"
+              }
             </p>
 
-            <div className="mt-12 grid grid-cols-3 gap-4">
-              {[
-                { value: "5000+", label: "Members" },
-                { value: "15+", label: "Years" },
-                { value: "50+", label: "Ministries" },
-              ].map(({ value, label }) => (
-                <div key={label} className="bg-white/10 p-4">
-                  <div className="text-2xl font-light text-white">{value}</div>
-                  <div className="text-xs text-white/70 mt-1">{label}</div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!isLogin && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B0000]"
+                      placeholder="John"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B0000]"
+                      placeholder="Doe"
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              )}
 
-        {/* Right panel - form - Locus Style */}
-        <div className="flex-1 flex flex-col items-center justify-center bg-white px-6 py-10">
-
-          <div className="w-full max-w-sm">
-            {/* Mobile logo */}
-            <div className="lg:hidden flex justify-center mb-8">
-              <img src="/church_logo.jpeg" alt="CHub" className="h-14 w-auto" />
-            </div>
-
-            <div className="mb-8">
-              <h2 className="text-2xl md:text-3xl font-light tracking-tight text-[#1b1b1c]">
-                {mode === "login" ? "Welcome back" : "Create account"}
-              </h2>
-              <p className="mt-2 text-sm text-[#505153]">
-                {mode === "login" 
-                  ? "Enter your details to sign in" 
-                  : "Enter your details to get started"}
-              </p>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 p-4 mb-6">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              {mode === "signup" && (
-                <div>
-                  <Label htmlFor="name" className="text-sm text-[#505153]">Full name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    className="mt-1.5 h-10 border border-[#e5e5e5] focus:border-primary focus:ring-0"
-                    placeholder="John Doe"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B0000]"
+                    placeholder="john@example.com"
+                  />
+                </div>
+              </div>
+
+              {!isLogin && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B0000]"
+                    placeholder="+234..."
                   />
                 </div>
               )}
 
               <div>
-                <Label htmlFor="email" className="text-sm text-[#505153]">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1.5 h-10 border border-[#e5e5e5] focus:border-primary focus:ring-0"
-                  placeholder="you@example.com"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm text-[#505153]">Password</Label>
-                  {mode === "login" && (
-                    <a href="#" className="text-xs text-primary hover:underline">
-                      Forgot password?
-                    </a>
-                  )}
-                </div>
-                <div className="mt-1.5 relative">
-                  <Input
-                    id="password"
-                    name="password"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
                     type={showPassword ? "text" : "password"}
-                    autoComplete={mode === "login" ? "current-password" : "new-password"}
-                    required
-                    minLength={6}
+                    name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="h-10 border border-[#e5e5e5] focus:border-primary focus:ring-0 pr-10"
+                    className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#8B0000]"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#a0a0a0]"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {mode === "signup" && (
-                  <p className="mt-1.5 text-xs text-[#a0a0a0]">Minimum 6 characters</p>
-                )}
               </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-2.5 md:py-3 bg-primary text-white text-[13px] md:text-[14px] font-light hover:bg-[#3400c8] transition-colors"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {mode === "login" ? "Signing in..." : "Creating account..."}
-                  </>
-                ) : (
-                  <>
-                    {mode === "login" ? "Sign in" : "Create account"}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
+              {isLogin && (
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" className="rounded border-gray-300 text-[#8B0000]" />
+                    <span className="text-gray-600">Remember me</span>
+                  </label>
+                  <Link href="/forgot-password" className="text-[#8B0000] hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
+
+              <Button type="submit" className="w-full bg-[#8B0000] hover:bg-[#6B0000] text-white py-3 rounded-lg flex items-center justify-center gap-2">
+                {isLogin ? "Sign In" : "Create Account"}
+                <ArrowRight className="w-4 h-4" />
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-[#505153]">
-                {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-                <button
-                  type="button"
-                  onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); }}
-                  className="text-primary hover:underline"
-                >
-                  {mode === "login" ? "Sign up" : "Sign in"}
-                </button>
-              </p>
-            </div>
+            {isLogin && (
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">or continue with</span>
+                </div>
+              </div>
+            )}
 
-            <div className="mt-6 pt-6 border-t border-[#e5e5e5]">
-              <p className="text-sm text-center text-[#a0a0a0] mb-3">
-                Is your church not on our platform yet?
+            {isLogin && (
+              <div className="grid grid-cols-2 gap-4">
+                <Button variant="outline" className="py-3 flex items-center justify-center gap-2">
+                  <Chrome className="w-5 h-5" />
+                  Google
+                </Button>
+                <Button variant="outline" className="py-3 flex items-center justify-center gap-2">
+                  <Facebook className="w-5 h-5" />
+                  Facebook
+                </Button>
+              </div>
+            )}
+
+            <p className="mt-8 text-center text-gray-600">
+              {isLogin ? (
+                <>
+                  Don't have an account?{" "}
+                  <button onClick={() => setIsLogin(false)} className="text-[#8B0000] font-medium hover:underline">
+                    Sign up
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <button onClick={() => setIsLogin(true)} className="text-[#8B0000] font-medium hover:underline">
+                    Sign in
+                  </button>
+                </>
+              )}
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Right Panel - Image */}
+        <div className="hidden lg:block flex-1 bg-cover bg-center relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#8B0000]/80 to-[#1A1A1A]/80" />
+          <div className="relative z-10 h-full flex items-center justify-center p-12 text-white text-center">
+            <div>
+              <h2 className="text-4xl font-serif font-semibold mb-4">
+                {isLogin ? "Good to see you again!" : "Welcome to the family!"}
+              </h2>
+              <p className="text-white/80 text-lg mb-8">
+                {isLogin 
+                  ? "Continue your faith journey with us" 
+                  : "Join a community that cares about your spiritual growth"
+                }
               </p>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border border-primary text-primary hover:bg-[#f8f6ff]"
-                onClick={() => navigate("/register-church")}
-              >
-                Register Your Church
-              </Button>
+              <div className="flex justify-center gap-4">
+                <div className="text-center">
+                  <p className="text-3xl font-semibold">500+</p>
+                  <p className="text-white/60 text-sm">Members</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-semibold">50+</p>
+                  <p className="text-white/60 text-sm">Groups</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-semibold">10+</p>
+                  <p className="text-white/60 text-sm">Years</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,241 +1,223 @@
-import React, { useState, useMemo, useEffect } from "react";
-import ReactPlayer from "react-player";
-import { useSermons, type SermonFilters } from "@/hooks/use-sermons";
-import { SermonCard } from "@/components/SermonCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
+import { Link, useLocation } from "wouter";
+import { Play, Clock, Calendar, Search, Filter, ChevronRight, Menu, X, Headphones, BookOpen, Users, ArrowRight, Star } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Sparkles, BookOpen, Users, Lightbulb, Loader2 } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/hooks/use-language";
-
-interface SermonSummary {
-  id: number; title: string; speaker: string; date: string;
-  topic: string | null; series: string | null; summary: string; keyPoints: string[];
-}
+import { PageSEO } from "@/components/PageSEO";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function SermonsPage() {
-  const { user, isAuthenticated } = useAuth();
-  const { t } = useLanguage();
-  const [filters, setFilters] = useState<SermonFilters>({});
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [verseSearch, setVerseSearch] = useState("");
-  const [showAISearch, setShowAISearch] = useState(false);
-  const [sermonTopics, setSermonTopics] = useState<{ topics: string[]; series: string[]; speakers: string[] }>({ topics: [], series: [], speakers: [] });
-  const [relatedSermons, setRelatedSermons] = useState<any[]>([]);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [selectedSermon, setSelectedSermon] = useState<number | null>(null);
-  const [sermonSummary, setSermonSummary] = useState<SermonSummary | null>(null);
-  const [loadingSummary, setLoadingSummary] = useState(false);
-  const [loadingRelated, setLoadingRelated] = useState(false);
-  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
-  const [showRecommendations, setShowRecommendations] = useState(false);
-  const { data: allSermons, isLoading } = useSermons();
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
-    fetch("/api/sermons/topics").then(res => res.json()).then(data => setSermonTopics(data)).catch(err => console.error("Error fetching topics:", err));
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleAdvancedSearch = async () => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.append("q", searchQuery);
-    if (verseSearch) params.append("verse", verseSearch);
-    const res = await fetch(`/api/sermons/search/advanced?${params}`);
-    const data = await res.json();
-  };
+  const series = [
+    { id: 1, title: "Walking in Faith", preacher: "Pastor John Doe", date: "May 2025", image: "/church_building.avif", count: 4 },
+    { id: 2, title: "Peace of Mind", preacher: "Pastor Jane Smith", date: "April 2025", image: "/church_building.avif", count: 3 },
+    { id: 3, title: "Better Together", preacher: "Pastor John Doe", date: "March 2025", image: "/church_building.avif", count: 5 },
+  ];
 
-  const handleFilterChange = (key: keyof SermonFilters, value: string) => {
-    if (value === "all" || !value) { const newFilters = { ...filters }; delete newFilters[key]; setFilters(newFilters); }
-    else { setFilters({ ...filters, [key]: value }); }
-  };
+  const sermons = [
+    { id: 1, title: "The Power of Community", series: "Better Together", preacher: "Pastor John Doe", date: "May 4, 2025", duration: "45 min", thumbnail: "/church_building.avif" },
+    { id: 2, title: "Finding Peace in Chaos", series: "Peace of Mind", preacher: "Pastor Jane Smith", date: "April 27, 2025", duration: "38 min", thumbnail: "/church_building.avif" },
+    { id: 3, title: "Walking by Faith", series: "Walking in Faith", preacher: "Pastor Emmanuel", date: "April 20, 2025", duration: "42 min", thumbnail: "/church_building.avif" },
+    { id: 4, title: "Love in Action", series: "Better Together", preacher: "Pastor John Doe", date: "April 13, 2025", duration: "40 min", thumbnail: "/church_building.avif" },
+    { id: 5, title: "Trusting God's Plan", series: "Walking in Faith", preacher: "Pastor Emmanuel", date: "April 6, 2025", duration: "35 min", thumbnail: "/church_building.avif" },
+    { id: 6, title: "Overcoming Doubts", series: "Peace of Mind", preacher: "Pastor Jane Smith", date: "March 30, 2025", duration: "41 min", thumbnail: "/church_building.avif" },
+  ];
 
-  const handleSearch = (value: string) => {
-    setSearchQuery(value);
-    if (value) { setFilters({ ...filters, search: value }); }
-    else { const newFilters = { ...filters }; delete newFilters.search; setFilters(newFilters); }
-  };
-
-  const { data: filteredSermons } = useSermons(filters);
-
-  const fetchRelatedSermons = async (sermonId: number) => {
-    setLoadingRelated(true);
-    try { const res = await fetch(`/api/sermons/${sermonId}/related`); setRelatedSermons(await res.json()); }
-    catch (err) { console.error("Error fetching related sermons:", err); }
-    finally { setLoadingRelated(false); }
-  };
-
-  const fetchSermonSummary = async (sermonId: number) => {
-    setLoadingSummary(true);
-    try { const res = await fetch(`/api/sermons/${sermonId}/summary`); setSermonSummary(await res.json()); }
-    catch (err) { console.error("Error fetching summary:", err); }
-    finally { setLoadingSummary(false); }
-  };
-
-  const fetchRecommendations = async () => {
-    setLoadingRecommendations(true); setShowRecommendations(true);
-    try { const res = await fetch("/api/sermons/recommendations", { credentials: "include" }); setRecommendations(await res.json()); }
-    catch (err) { console.error("Error fetching recommendations:", err); }
-    finally { setLoadingRecommendations(false); }
-  };
-
-  const uniqueSeries = useMemo(() => {
-    if (!allSermons) return sermonTopics.series;
-    const series = allSermons.map(s => s.series).filter((s): s is string => Boolean(s));
-    return Array.from(new Set([...series, ...sermonTopics.series]));
-  }, [allSermons, sermonTopics.series]);
-
-  const uniqueSpeakers = useMemo(() => {
-    if (!allSermons) return sermonTopics.speakers;
-    const speakers = allSermons.map(s => s.speaker).filter((s): s is string => Boolean(s));
-    return Array.from(new Set([...speakers, ...sermonTopics.speakers]));
-  }, [allSermons, sermonTopics.speakers]);
-
-  const uniqueTopics = useMemo(() => {
-    if (!allSermons) return sermonTopics.topics;
-    const topics = allSermons.map(s => s.topic).filter((t): t is string => Boolean(t));
-    return Array.from(new Set([...topics, ...sermonTopics.topics]));
-  }, [allSermons, sermonTopics.topics]);
+  const filters = ["all", "pastor-john", "pastor-jane", "pastor-emmanuel"];
 
   return (
-    <div className="min-h-screen bg-background pb-10 sm:pb-16 md:pb-24">
-      {/* Hero */}
-      <div className="relative py-10 sm:py-16 md:py-24 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero" />
-        <div className="orb orb-blue w-48 sm:w-72 h-48 sm:h-72 top-0 right-0 animate-float" />
-        <div className="orb orb-purple w-32 sm:w-48 h-32 sm:h-48 bottom-0 left-20" style={{ animationDelay: '3s' }} />
-        <div className="container px-4 sm:px-6 md:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-5">
-            <div>
-              <span className="text-accent font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block">{t("listenAndLearn")}</span>
-              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white font-[--font-display] tracking-tight mb-2 sm:mb-3">{t("sermonLibrary")}</h1>
-              <p className="text-xs sm:text-lg md:text-xl text-white/40 max-w-2xl">
-                {t("sermonsDescription")}
-              </p>
+    <>
+      <PageSEO title="Sermons | Winners Chapel Lagos" description="Watch and listen to sermons from Winners Chapel Lagos." />
+
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-[#1A1A1A]"}`}>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isScrolled ? "bg-[#8B0000]" : "bg-[#8B0000]"}`}>
+                <span className="text-xl font-serif font-bold text-white">W</span>
+              </div>
+              <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>Winners Chapel</span>
+            </Link>
+            <div className="hidden md:flex items-center gap-8">
+              <Link href="/about" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>About</Link>
+              <Link href="/sermons" className={`text-sm font-medium text-[#8B0000]`}>Sermons</Link>
+              <Link href="/events" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>Events</Link>
+              <Link href="/groups" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>Groups</Link>
+              <Link href="/live" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>Live</Link>
+              <Link href="/give" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>Give</Link>
             </div>
-            <div className="flex gap-2 sm:gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAISearch(!showAISearch)}
-                className={`rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm border-white/10 ${showAISearch ? "gradient-accent text-primary-foreground border-transparent shadow-lg" : "text-white/60 glass-dark hover:text-white hover:bg-white/10"}`}
-              >
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" /> {t("aiSearch")}
-              </Button>
-              {isAuthenticated && (
-                <Button variant="outline" size="sm" onClick={fetchRecommendations} className="rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm border-white/10 text-white/60 glass-dark hover:text-white hover:bg-white/10">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" /> {t("forYou")}
-                </Button>
-              )}
+            <Link href="/login"><Button className="bg-[#8B0000] hover:bg-[#6B0000] text-white px-6 rounded-full">Join Us</Button></Link>
+          </div>
+        </div>
+      </nav>
+
+      <section className="relative pt-32 pb-16">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url("/church_building.avif")' }}>
+          <div className="absolute inset-0 bg-black/70" />
+        </div>
+        <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-8 text-center text-white">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold mb-6"
+          >
+            sermons & Teaching
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-xl text-white/80"
+          >
+            Grow in your faith through our weekly sermons and teaching series
+          </motion.p>
+        </div>
+      </section>
+
+      <section className="py-12 bg-white">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search sermons..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:border-[#8B0000]"
+              />
+            </div>
+            <div className="flex gap-2">
+              {["All", "This Month", "This Year"].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter.toLowerCase())}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    activeFilter === filter.toLowerCase() 
+                      ? "bg-[#8B0000] text-white" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="container px-4 sm:px-6 md:px-10 py-6 sm:py-10 md:py-14">
-        {/* AI Search Panel */}
-        {showAISearch && (
-          <div className="mb-8 glass-card-strong rounded-3xl p-6 shimmer-border">
-            <h3 className="text-xl font-bold flex items-center gap-2 font-[--font-display] mb-4">
-              <Sparkles className="w-5 h-5 text-accent" /> {t("smartSearch")}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div>
-                <label className="text-sm font-semibold mb-2 block text-foreground/70">{t("keywordSearch")}</label>
-                <Input placeholder={t("searchByTopicPlaceholder")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm" />
-              </div>
-              <div>
-                <label className="text-sm font-semibold mb-2 block text-foreground/70">{t("bibleVerse")}</label>
-                <Input placeholder="e.g., John 3:16" value={verseSearch} onChange={(e) => setVerseSearch(e.target.value)} className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm" />
-              </div>
-              <div>
-                <label className="text-sm font-semibold mb-2 block text-foreground/70">{t("topic")}</label>
-                <Select onValueChange={(value) => handleFilterChange("topic", value)}>
-                  <SelectTrigger className="bg-card/50 rounded-2xl border-border/50 backdrop-blur-sm"><SelectValue placeholder={t("selectTopic")} /></SelectTrigger>
-                  <SelectContent className="glass-card-strong border-border/30 shadow-2xl rounded-2xl">
-                    {uniqueTopics.map((topic) => (<SelectItem key={topic} value={topic}>{topic}</SelectItem>))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex gap-3 mt-5">
-              <Button onClick={handleAdvancedSearch} className="rounded-2xl font-bold gradient-accent text-primary-foreground shadow-lg"><Search className="w-4 h-4 mr-2" /> {t("search")}</Button>
-              <Button variant="outline" className="rounded-2xl font-bold border-border/50" onClick={() => { setSearchQuery(""); setVerseSearch(""); setFilters({}); }}>{t("clear")}</Button>
-            </div>
-          </div>
-        )}
-
-        {/* Recommendations Dialog */}
-        <Dialog open={showRecommendations} onOpenChange={setShowRecommendations}>
-          <DialogContent className="max-w-2xl rounded-3xl glass-card-strong border-border/20">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 font-[--font-display]"><Users className="w-5 h-5" /> {t("recommendedForYou")}</DialogTitle>
-            </DialogHeader>
-            {loadingRecommendations ? (
-              <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-96 overflow-y-auto">
-                {recommendations.map(sermon => (
-                  <div key={sermon.id} className="cursor-pointer glass-card hover:shadow-lg rounded-2xl transition-all p-5" onClick={() => { setShowRecommendations(false); window.location.href = `/sermons/${sermon.id}`; }}>
-                    <h4 className="font-bold line-clamp-1">{sermon.title}</h4>
-                    <p className="text-sm text-muted-foreground">{sermon.speaker}</p>
-                    <p className="text-sm text-muted-foreground mt-1.5">{new Date(sermon.date).toLocaleDateString()}</p>
+      <section className="py-12 bg-[#F8F8F8]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+          <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-6">Sermon Series</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <AnimatePresence>
+              {series.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                >
+                  <div className="aspect-video bg-gray-200 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                      <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                   </div>
-                ))}
-                {recommendations.length === 0 && <p className="text-muted-foreground col-span-2 text-center py-6">{t("noRecommendations")}</p>}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Filters */}
-        <div className="flex flex-col gap-2 sm:gap-4 mb-6 sm:mb-10">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <Input placeholder={t("searchByTitleOrPastor")} className="pl-8 sm:pl-10 rounded-xl sm:rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm h-9 sm:h-11 text-xs sm:text-sm" value={searchQuery} onChange={(e) => handleSearch(e.target.value)} />
-          </div>
-          <div className="flex gap-2 sm:gap-4 overflow-x-auto">
-          {[
-            { key: "status" as const, placeholder: t("status"), options: [{ value: "all", label: t("allMessages") }, { value: "past", label: t("pastMessages") }, { value: "upcoming", label: t("upcomingMessages") }] },
-            { key: "series" as const, placeholder: t("series"), options: [{ value: "all", label: t("allSeries") }, ...uniqueSeries.map(s => ({ value: s, label: s }))] },
-            { key: "speaker" as const, placeholder: t("speaker"), options: [{ value: "all", label: t("allSpeakers") }, ...uniqueSpeakers.map(s => ({ value: s, label: s }))] },
-            { key: "topic" as const, placeholder: t("topic"), options: [{ value: "all", label: t("allTopics") || "All Topics" }, ...uniqueTopics.map(t => ({ value: t, label: t }))] },
-          ].map(({ key, placeholder, options }) => (
-            <Select key={key} value={filters[key] || "all"} onValueChange={(value) => handleFilterChange(key, value)}>
-              <SelectTrigger className="w-full sm:w-[180px] bg-card/50 rounded-xl sm:rounded-2xl border-border/50 h-9 sm:h-11 backdrop-blur-sm text-xs sm:text-sm"><SelectValue placeholder={placeholder} /></SelectTrigger>
-              <SelectContent className="glass-card-strong border-border/30 shadow-2xl rounded-xl sm:rounded-2xl">
-                {options.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          ))}
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{item.title}</h3>
+                    <p className="text-gray-600 text-sm mb-2">{item.preacher}</p>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{item.date}</span>
+                      <span>{item.count} sermons</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
+      </section>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {isLoading ? (
-            Array(6).fill(0).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="aspect-video rounded-3xl" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))
-          ) : (
-            filteredSermons?.map(sermon => (<SermonCard key={sermon.id} sermon={sermon} />))
-          )}
-        </div>
-
-        {filteredSermons?.length === 0 && !isLoading && (
-          <div className="text-center py-16">
-            <BookOpen className="w-14 h-14 mx-auto text-muted-foreground/15 mb-4" />
-            <h3 className="text-xl font-bold mb-2 font-[--font-display]">{t("noSermonsFound")}</h3>
-            <p className="text-muted-foreground">{t("tryAdjustingSearch")}</p>
+      <section className="py-12 bg-white">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+          <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-6">Latest sermons</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence>
+              {sermons.map((sermon, index) => (
+                <motion.div
+                  key={sermon.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-white rounded-lg border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+                >
+                  <div className="aspect-video bg-gray-200 relative">
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                      <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      {sermon.duration}
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-xs text-[#8B0000] font-medium mb-1">{sermon.series}</p>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">{sermon.title}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{sermon.preacher} • {sermon.date}</p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="text-xs">
+                        <Headphones className="w-3 h-3 mr-1" /> Audio
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-xs">
+                        <BookOpen className="w-3 h-3 mr-1" /> Notes
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-[#8B0000]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 text-center text-white">
+          <motion.h2 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-3xl font-serif font-semibold mb-4"
+          >
+            Subscribe to Our Channel
+          </motion.h2>
+          <p className="text-white/80 mb-6 max-w-xl mx-auto">
+            Never miss a sermon. Subscribe on YouTube to get notified when new messages are posted.
+          </p>
+          <Button className="bg-white text-[#8B0000] hover:bg-white/90 px-8 py-3 rounded-full">
+            Subscribe Now
+          </Button>
+        </div>
+      </section>
+
+      <footer className="bg-[#1A1A1A] text-white py-12">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
+              <span className="text-xl font-serif font-bold text-white">W</span>
+            </div>
+            <span className="text-xl font-semibold">Winners Chapel</span>
+          </div>
+          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Winners Chapel Lagos. All rights reserved.</p>
+        </div>
+      </footer>
+    </>
   );
 }

@@ -98,7 +98,7 @@ export default function MembersPage() {
 
   useEffect(() => {
     async function fetchMembers() {
-      if (!user?.isAdmin) return;
+      if (!user) return;
       
       setLoading(true);
       setError(null);
@@ -135,7 +135,7 @@ export default function MembersPage() {
       }
     }
 
-    if (user?.isAdmin) {
+    if (user) {
       fetchMembers();
     }
   }, [user, page, roleFilter, houseFellowshipFilter, parishFilter, dateFrom, dateTo]);
@@ -216,19 +216,7 @@ export default function MembersPage() {
     );
   }
 
-  if (!user?.isAdmin) {
-    return (
-      <div className="container max-w-6xl mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-muted-foreground">
-              You don&apos;t have permission to view this page.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+
 
   return (
     <div className="container max-w-6xl mx-auto py-8 px-4">

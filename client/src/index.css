@@ -29,7 +29,7 @@
   --color-brand-tint: hsl(var(--brand-tint));
 
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Playfair Display", serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
 
   --radius-lg: var(--radius);
@@ -115,10 +115,10 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  font-weight: 300; /* Light weight for headings */
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-family: "Playfair Display", serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   color: hsl(var(--foreground));
 }
 
@@ -129,24 +129,24 @@ h1, h2, h3, h4, h5, h6 {
    Line height: 1.1 for headings, 1.7 for body - per urbe.build style */
 h1 {
   font-size: 2.5rem;
-  font-weight: 200; /* Extra light for hero */
+  font-weight: 600;
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 h2 {
   font-size: 2rem;
-  font-weight: 300;
+  font-weight: 500;
 }
 
 h3 {
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 h4 {
   font-size: 1.25rem;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 p, span, a, li {

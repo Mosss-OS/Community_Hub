@@ -9,8 +9,8 @@ const API_URL = env.VITE_API_URL || env.VITE_API_BASE_URL || '';
 // Determine if we're in development mode
 const isDev = env.DEV || env.VITE_DEV_MODE === 'true' || window.location.hostname === 'localhost' || window.location.hostname.endsWith('.local');
 
-// For development, always use localhost:3000
-const DEV_API_URL = 'http://localhost:3000';
+// For development, use relative paths so that it targets the same origin
+const DEV_API_URL = '';
 
 // Base domain for multi-tenant subdomains
 const BASE_DOMAIN = isDev ? 'chub.local' : 'chub.app';
