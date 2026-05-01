@@ -3,11 +3,12 @@ import { Link } from "wouter";
 import { HiDotsVertical, HiTrash, HiEye, HiCalendar, HiHeart, HiCreditCard } from "react-icons/hi";
 import { useAuth } from "@/hooks/use-auth";
 import { AnniversaryCountdown } from "@/components/AnniversaryCountdown";
+import { EventCheckinStats } from "@/components/EventCheckinStats";
 
 interface DashboardWidget {
   id: string;
   title: string;
-  type: "upcoming_events" | "recent_sermons" | "prayer_requests" | "giving_summary" | "my_groups" | "anniversary_countdown";
+  type: "upcoming_events" | "recent_sermons" | "prayer_requests" | "giving_summary" | "my_groups" | "anniversary_countdown" | "event_checkin_stats";
   visible: boolean;
   order: number;
 }
@@ -19,6 +20,7 @@ const defaultWidgets: DashboardWidget[] = [
   { id: "4", title: "Giving Summary", type: "giving_summary", visible: true, order: 3 },
   { id: "5", title: "My Groups", type: "my_groups", visible: true, order: 4 },
   { id: "6", title: "Anniversary Countdown", type: "anniversary_countdown", visible: true, order: 5 },
+  { id: "7", title: "Event Check-in Stats", type: "event_checkin_stats", visible: true, order: 6 },
 ];
 
 export function DashboardWidgets() {
@@ -132,6 +134,9 @@ export function DashboardWidgets() {
             )}
             {widget.type === "anniversary_countdown" && (
               <AnniversaryCountdown />
+            )}
+            {widget.type === "event_checkin_stats" && (
+              <EventCheckinStats />
             )}
           </div>
         ))}
