@@ -1,8 +1,9 @@
 import { Link } from "wouter";
-import { ArrowRight, Play, Calendar, Users, BookOpen, Heart, Clock, MapPin, Phone, Mail, Quote, ChevronRight, Menu, X, Star, Award, Cross } from "lucide-react";
+import { ArrowRight, Play, Calendar, BookOpen, Heart, Clock, MapPin, Phone, Mail, Quote, ChevronRight, Menu, X, Star, Award, Cross } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";
+import { StaffDirectory } from "@/components/StaffDirectory";
 
 export default function AboutPage() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -15,13 +16,6 @@ export default function AboutPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const leadership = [
-    { name: "Pastor John Doe", role: "Senior Pastor", image: "/church_building.avif" },
-    { name: "Jane Smith", role: "Worship Lead", image: "/church_building.avif" },
-    { name: "Michael Johnson", role: "Youth Pastor", image: "/church_building.avif" },
-    { name: "Grace Williams", role: "Children's Pastor", image: "/church_building.avif" },
-  ];
 
   const coreValues = [
     { title: "Worship", description: "We prioritize authentic worship in everything we do", icon: Heart },
@@ -130,29 +124,19 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Leadership */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
-              Our Leadership
-            </h2>
-            <p className="text-gray-600">Meet the team that guides our vision</p>
-          </div>
+        {/* Leadership */}
+        <section className="py-20 md:py-28 bg-white">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
+                Our Leadership
+              </h2>
+              <p className="text-gray-600">Meet the team that guides our vision</p>
+            </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
-            {leadership.map((leader, index) => (
-              <div key={index} className="text-center">
-                <div className="aspect-square bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                  <Users className="w-16 h-16 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">{leader.name}</h3>
-                <p className="text-gray-600">{leader.role}</p>
-              </div>
-            ))}
+            <StaffDirectory />
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* CTA */}
       <section className="py-20 md:py-28 bg-[#8B0000]">
