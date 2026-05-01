@@ -3,12 +3,15 @@ import { Calendar, Clock, MapPin, Users, Search, Plus, ChevronRight, Menu, Arrow
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";
+import { EventCalendar } from "@/components/EventCalendar";
+import { HiCalendar, HiViewList } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function EventsPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -152,6 +155,20 @@ export default function EventsPage() {
               />
             </div>
             <div className="flex gap-2 flex-wrap">
+              <div className="flex items-center gap-1 mr-2">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-lg ${viewMode === "list" ? "bg-primary text-primary-foreground" : "bg-gray-100"}`}
+                >
+                  <HiViewList className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("calendar")}
+                  className={`p-2 rounded-lg ${viewMode === "calendar" ? "bg-primary text-primary-foreground" : "bg-gray-100"}`}
+                >
+                  <HiCalendar className="w-5 h-5" />
+                </button>
+              </div>
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -172,8 +189,13 @@ export default function EventsPage() {
 
       <section className="py-12 bg-[#F8F8F8]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
+          {viewMode === "calendar" ? (
+            <EventCalendar 
+              events={filteredEvents.map(e => ({ id: e.id, title: e.title, date: e.date }))}
+            />
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <AnimatePresence>
               {filteredEvents.map((event, index) => (
                 <motion.div
                   key={event.id}
@@ -213,6 +235,7 @@ export default function EventsPage() {
               ))}
             </AnimatePresence>
           </div>
+          )}
         </div>
       </section>
 

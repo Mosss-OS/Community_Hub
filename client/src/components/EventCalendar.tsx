@@ -1,178 +1,99 @@
-"use client";
-
 import { useState } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
+import { HiChevronLeft, HiChevronRight, HiPlus } from "react-icons/hi";
 
 interface CalendarEvent {
   id: string;
   title: string;
-  date: Date;
-  type?: "service" | "event" | "meeting" | "other";
-  color?: string;
+  date: string;
 }
 
 interface EventCalendarProps {
-  events?: CalendarEvent[];
-  onDateClick?: (date: Date) => void;
+  events: CalendarEvent[];
   onEventClick?: (event: CalendarEvent) => void;
 }
 
-export function EventCalendar({ events = [], onDateClick, onEventClick }: EventCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+export function EventCalendar({ events, onEventClick }: EventCalendarProps) {
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const calendarStart = startOfWeek(monthStart);
-  const calendarEnd = endOfWeek(monthEnd);
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
 
-  const getEventsForDate = (date: Date) => {
-    return events.filter(event => isSameDay(new Date(event.date), date));
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const prevMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
   };
 
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
-    onDateClick?.(date);
+  const nextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-  const handleToday = () => setCurrentMonth(new Date());
-
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  const getEventColor = (type?: string) => {
-    switch (type) {
-      case "service": return "bg-blue-500";
-      case "event": return "bg-green-500";
-      case "meeting": return "bg-purple-500";
-      default: return "bg-gray-500";
-    }
+  const getEventsForDay = (day: number) => {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return events.filter(e => e.date.startsWith(dateStr));
   };
+
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const blanks = Array.from({ length: firstDay }, (_, i) => i);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5" />
-          {format(currentMonth, "MMMM yyyy")}
-        </CardTitle>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleToday}>Today</Button>
-          <Button variant="outline" size="icon" onClick={handlePrevMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={handleNextMonth}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          {weekDays.map(day => (
-            <div key={day} className="bg-muted p-2 text-center text-xs font-medium">
-              {day}
-            </div>
-          ))}
-          
-          {days.map(day => {
-            const dayEvents = getEventsForDate(day);
-            const isCurrentMonth = isSameMonth(day, currentMonth);
-            const isToday = isSameDay(day, new Date());
-            const isSelected = selectedDate && isSameDay(day, selectedDate);
-
-            return (
-              <button
-                key={day.toISOString()}
-                onClick={() => handleDateClick(day)}
-                className={`min-h-[80px] p-1 text-left transition-colors ${
-                  !isCurrentMonth ? "bg-muted/30 text-muted-foreground" : "bg-background"
-                } ${isSelected ? "ring-2 ring-primary" : ""} hover:bg-muted/50`}
-              >
-                <div className={`text-sm font-medium mb-1 ${
-                  isToday ? "bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center" : ""
-                }`}>
-                  {format(day, "d")}
-                </div>
-                <div className="space-y-0.5">
-                  {dayEvents.slice(0, 2).map(event => (
-                    <div
-                      key={event.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEventClick?.(event);
-                      }}
-                      className={`text-[10px] px-1 py-0.5 rounded truncate text-white cursor-pointer ${event.color || getEventColor(event.type)}`}
-                    >
-                      {event.title}
-                    </div>
-                  ))}
-                  {dayEvents.length > 2 && (
-                    <div className="text-[10px] text-muted-foreground">
-                      +{dayEvents.length - 2} more
-                    </div>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface MiniCalendarProps {
-  selected?: Date;
-  onSelect?: (date: Date) => void;
-}
-
-export function MiniCalendar({ selected, onSelect }: MiniCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const calendarStart = startOfWeek(monthStart);
-  const calendarEnd = endOfWeek(monthEnd);
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-
-  return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
-          <ChevronLeft className="h-3 w-3" />
-        </Button>
-        <span className="text-xs font-medium">{format(currentMonth, "MMM yyyy")}</span>
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
-          <ChevronRight className="h-3 w-3" />
-        </Button>
+    <div className="bg-card border rounded-lg overflow-hidden">
+      {/* Calendar Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <button onClick={prevMonth} className="p-2 hover:bg-muted rounded-lg">
+          <HiChevronLeft className="w-5 h-5" />
+        </button>
+        <h3 className="font-semibold">
+          {monthNames[month]} {year}
+        </h3>
+        <button onClick={nextMonth} className="p-2 hover:bg-muted rounded-lg">
+          <HiChevronRight className="w-5 h-5" />
+        </button>
       </div>
-      <div className="grid grid-cols-7 gap-0.5 text-[10px]">
-        {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-          <div key={i} className="text-center text-muted-foreground py-0.5">{day}</div>
+
+      {/* Day Headers */}
+      <div className="grid grid-cols-7 border-b text-center py-2">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+          <div key={day} className="text-xs text-muted-foreground font-medium">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7">
+        {blanks.map(i => (
+          <div key={`blank-${i}`} className="min-h-[100px] border" />
         ))}
         {days.map(day => {
-          const isSelected = selected && isSameDay(day, selected);
-          const isToday = isSameDay(day, new Date());
-          const isCurrentMonth = isSameMonth(day, currentMonth);
-          
+          const dayEvents = getEventsForDay(day);
           return (
-            <button
-              key={day.toISOString()}
-              onClick={() => onSelect?.(day)}
-              className={`p-1 rounded text-center ${
-                isSelected ? "bg-primary text-primary-foreground" : ""
-              } ${isToday && !isSelected ? "ring-1 ring-primary" : ""} ${
-                !isCurrentMonth ? "text-muted-foreground/50" : ""
-              }`}
-            >
-              {format(day, "d")}
-            </button>
+            <div key={day} className="min-h-[100px] border p-2 hover:bg-muted/50">
+              <div className="text-sm font-medium mb-1">{day}</div>
+              <div className="space-y-1">
+                {dayEvents.slice(0, 2).map(event => (
+                  <button
+                    key={event.id}
+                    onClick={() => onEventClick?.(event)}
+                    className="w-full text-left text-xs bg-primary/10 text-primary px-1 py-0.5 rounded truncate"
+                  >
+                    {event.title}
+                  </button>
+                ))}
+                {dayEvents.length > 2 && (
+                  <div className="text-xs text-muted-foreground">
+                    +{dayEvents.length - 2} more
+                  </div>
+                )}
+              </div>
+            </div>
           );
         })}
       </div>
