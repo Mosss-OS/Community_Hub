@@ -8,6 +8,8 @@ import { Slider } from "@/components/ui/slider";
 interface ProfilePhotoUploadProps {
   currentPhoto?: string;
   onSave?: (blob: Blob) => void;
+  bio?: string;
+  onBioChange?: (bio: string) => void;
 }
 
 export function ProfilePhotoUpload({ currentPhoto, onSave }: ProfilePhotoUploadProps) {

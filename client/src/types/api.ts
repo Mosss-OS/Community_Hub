@@ -56,6 +56,7 @@ export interface User {
   isAdmin?: boolean;
   isVerified?: boolean;
   profileImage?: string | null;
+  bio?: string | null;
   organizationId?: string | null;
   organization?: Organization | null;
   createdAt?: string;
