@@ -17,7 +17,7 @@ export default function AboutPage() {
   }, []);
 
   const leadership = [
-    { name: " Pastor John Doe", role: "Senior Pastor", image: "/church_building.avif" },
+    { name: "Pastor John Doe", role: "Senior Pastor", image: "/church_building.avif" },
     { name: "Jane Smith", role: "Worship Lead", image: "/church_building.avif" },
     { name: "Michael Johnson", role: "Youth Pastor", image: "/church_building.avif" },
     { name: "Grace Williams", role: "Children's Pastor", image: "/church_building.avif" },
@@ -87,7 +87,7 @@ export default function AboutPage() {
                 Our <span className="text-[#8B0000]">Story</span>
               </h2>
               <p className="text-gray-600 mb-4 leading-relaxed">
-                Watchman Lagos was founded with a vision to create a welcoming 
+                Watchman Lekki was founded with a vision to create a welcoming 
                 community where people can experience the love of God and grow in their faith.
               </p>
               <p className="text-gray-600 mb-6 leading-relaxed">
