@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ export function Layout({ children }: LayoutProps) {
       <main className="flex-1 w-full pb-16 md:pb-0">{children}</main>
       <Footer />
       <MobileBottomNav />
+      <FloatingActionButton />
     </div>
   );
 }

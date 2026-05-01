@@ -416,3 +416,4 @@
 14:44:34 [vite] (client) hmr update /src/index.css
 14:44:43 [vite] (client) hmr update /src/index.css, /src/components/Navbar.tsx
 14:45:01 [vite] (client) hmr update /src/index.css, /src/components/Navbar.tsx
+14:46:22 [vite] (client) hmr update /src/components/Layout.tsx, /src/index.css
