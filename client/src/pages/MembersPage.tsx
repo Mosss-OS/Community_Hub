@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonList";
 import { EmptyState } from "@/components/EmptyState";
 import { Users } from "lucide-react";
+import { HiViewGrid, HiMenu } from "react-icons/hi";
 import { 
   Search, 
   Loader2, 
@@ -98,6 +99,7 @@ export default function MembersPage() {
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
   const [directoryOnly, setDirectoryOnly] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   useEffect(() => {
     async function fetchMembers() {
@@ -260,6 +262,20 @@ export default function MembersPage() {
         <div className="text-sm text-muted-foreground">
           {data?.pagination.total || 0} total members
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-2 rounded-lg ${viewMode === "list" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+          >
+            <HiMenu className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-2 rounded-lg ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+          >
+            <HiViewGrid className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       <Card className="mb-6">
@@ -396,9 +412,9 @@ export default function MembersPage() {
             />
           ) : (
             <>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className={`grid gap-4 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
                 {data.members.map((member) => (
-                  <Card key={member.id} className="hover:shadow-md transition-shadow">
+                  <Card key={member.id} className={`hover:shadow-md transition-shadow ${viewMode === "grid" ? "" : "flex items-center p-4"}`}>
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
