@@ -49,6 +49,7 @@ import DiscipleshipPage from "@/pages/DiscipleshipPage";
 import SermonClipGeneratorPage from "@/pages/SermonClipGeneratorPage";
 import SocialFeedPage from "@/pages/SocialFeedPage";
 import MemberStoriesPage from "@/pages/MemberStoriesPage";
+import SessionManagementPage from "@/pages/SessionManagementPage";
 import CelebrationsPage from "@/pages/CelebrationsPage";
 import { useWebSocket } from "@/hooks/use-websocket";
 import LanguageSettingsPage from "@/pages/LanguageSettingsPage";
@@ -129,6 +130,7 @@ function Router() {
               <Route path="/celebrations" component={CelebrationsPage} />
               <Route path="/messages" component={MessagesPage} />
               <Route path="/settings/language" component={LanguageSettingsPage} />
+              <Route path="/settings/sessions" component={SessionManagementPage} />
               <Route component={NotFound} />
             </>
         </Switch>
