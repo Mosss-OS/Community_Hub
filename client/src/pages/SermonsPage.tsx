@@ -36,7 +36,7 @@ export default function SermonsPage() {
 
   return (
     <>
-      <PageSEO title="Sermons | Winners Chapel Lagos" description="Watch and listen to sermons from Winners Chapel Lagos." />
+      <PageSEO title="Sermons | Watchman Lagos" description="Watch and listen to sermons from Watchman Lagos." />
 
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-[#1A1A1A]"}`}>
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4">
@@ -45,7 +45,7 @@ export default function SermonsPage() {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isScrolled ? "bg-[#8B0000]" : "bg-[#8B0000]"}`}>
                 <span className="text-xl font-serif font-bold text-white">W</span>
               </div>
-              <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>Winners Chapel</span>
+              <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>Watchman</span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
               <Link href="/about" className={`text-sm font-medium hover:text-[#8B0000] ${isScrolled ? "text-gray-700" : "text-white/90"}`}>About</Link>
@@ -213,9 +213,9 @@ export default function SermonsPage() {
             <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
               <span className="text-xl font-serif font-bold text-white">W</span>
             </div>
-            <span className="text-xl font-semibold">Winners Chapel</span>
+            <span className="text-xl font-semibold">Watchman</span>
           </div>
-          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Winners Chapel Lagos. All rights reserved.</p>
+          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Watchman Lagos. All rights reserved.</p>
         </div>
       </footer>
     </>

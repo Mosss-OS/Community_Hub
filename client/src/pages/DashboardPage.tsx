@@ -119,7 +119,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background py-4 sm:py-6">
-      <Helmet><title>Dashboard | CHub</title></Helmet>
+      <Helmet><title>Dashboard | Watchman Lagos</title></Helmet>
 
       <div className="container px-3 sm:px-4 md:px-8 max-w-[70%] mx-auto">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -629,7 +629,7 @@ export default function DashboardPage() {
                           <Button size="sm" variant="outline" className="rounded-2xl border-border/50"
                             onClick={async () => {
                               try {
-                                await sendMessage.mutateAsync({ userId: member.userId, type: 'GENERAL', title: 'We Miss You!', content: `Dear ${member.firstName || 'Brother/Sister'},\n\nWe noticed you haven't been with us for the past ${member.missedCount} services. We truly miss seeing you!\n\nPlease know that you are always welcome.\n\nGrace and Peace,\nCHub`, priority: 'normal' });
+                                await sendMessage.mutateAsync({ userId: member.userId, type: 'GENERAL', title: 'We Miss You!', content: `Dear ${member.firstName || 'Brother/Sister'},\n\nWe noticed you haven't been with us for the past ${member.missedCount} services. We truly miss seeing you!\n\nPlease know that you are always welcome.\n\nGrace and Peace,\nWatchman`, priority: 'normal' });
                                 toast({ title: "Message sent! ✅", description: `${member.firstName || 'Member'} will be removed from the absent list for 7 days.` });
                               } catch (err: any) { toast({ title: "Failed to send message", description: err?.message, variant: "destructive" }); }
                             }}>

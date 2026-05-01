@@ -36,8 +36,8 @@ export default function ContactPage() {
   return (
     <>
       <PageSEO
-        title="Contact Us | Winners Chapel Lagos"
-        description="Get in touch with Winners Chapel Lagos. We'd love to hear from you."
+        title="Contact Us | Watchman Lagos"
+        description="Get in touch with Watchman Lagos. We'd love to hear from you."
       />
 
       {/* Navbar */}
@@ -49,7 +49,7 @@ export default function ContactPage() {
                 <span className="text-xl font-serif font-bold text-white">W</span>
               </div>
               <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>
-                Winners Chapel
+                Watchman
               </span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
@@ -228,9 +228,9 @@ export default function ContactPage() {
             <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
               <span className="text-xl font-serif font-bold text-white">W</span>
             </div>
-            <span className="text-xl font-semibold">Winners Chapel</span>
+            <span className="text-xl font-semibold">Watchman</span>
           </div>
-          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Winners Chapel Lagos. All rights reserved.</p>
+          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Watchman Lagos. All rights reserved.</p>
         </div>
       </footer>
     </>

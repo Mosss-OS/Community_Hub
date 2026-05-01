@@ -34,7 +34,7 @@ export function Navbar() {
               <span className="text-xl font-serif font-bold text-white">W</span>
             </div>
             <span className="text-xl font-semibold text-gray-900">
-              Winners Chapel
+              Watchman
             </span>
           </Link>
 

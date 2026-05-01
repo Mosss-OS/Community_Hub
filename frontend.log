@@ -168,3 +168,108 @@
 11:54:09 [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
 11:54:16 [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
 11:54:25 [vite] (client) hmr update /src/index.css, /src/components/PageSEO.tsx
+11:57:23 [vite] (client) hmr update /src/pages/AdminDashboardPage.tsx, /src/index.css
+11:57:30 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+11:57:36 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+11:57:42 [vite] (client) hmr update /src/pages/MessagesPage.tsx, /src/index.css
+11:57:48 [vite] (client) hmr update /src/pages/RegisterChurchPage.tsx, /src/index.css
+11:57:53 [vite] (client) hmr update /src/pages/auth/callback.tsx, /src/index.css
+11:58:05 [vite] (client) hmr update /src/pages/HomePage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AboutPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AbsentMembersPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AdminDashboardPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AdminLiveStreamPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AnalyticsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AttendanceAnalyticsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/AttendanceHistoryPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/BeliefsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/BiblePage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/CelebrationsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/CheckinPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/ContactPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/DevotionalsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/DiscipleshipPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/EventDetailPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/EventsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/GivePage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/GroupsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/HomePage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/HouseCellsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/LanguageSettingsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/LiveStreamPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/login.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/logout.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/MembersPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/MessagesPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/MusicPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/not-found.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/PrayerPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/PrivacyPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/QRScannerPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/RegisterChurchPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/SermonClipGeneratorPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/SermonDetailPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/SermonsPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/StaffDirectoryPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/SocialFeedPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/pages/VolunteerPage.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/components/AppInstallBanner.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/components/Layout.tsx, /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css, /src/components/MobileBottomNav.tsx
+11:58:11 [vite] (client) hmr update /src/index.css
+11:58:11 [vite] (client) hmr update /src/index.css, /src/components/Navbar.tsx
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css, /src/components/PageSEO.tsx
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css
+11:58:12 [vite] (client) hmr update /src/index.css

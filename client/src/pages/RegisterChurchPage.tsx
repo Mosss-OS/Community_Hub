@@ -88,7 +88,7 @@ export default function RegisterChurchPage() {
   return (
     <>
       <Helmet>
-        <title>Register Your Church | Community Hub</title>
+        <title>Register Your Church | Watchman Lagos</title>
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
@@ -122,7 +122,7 @@ export default function RegisterChurchPage() {
                       name="churchName"
                       value={formData.churchName}
                       onChange={handleChange}
-                      placeholder="e.g., Winners Chapel"
+                      placeholder="e.g., Watchman"
                       required
                       className="rounded-xl h-11"
                     />
@@ -135,7 +135,7 @@ export default function RegisterChurchPage() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="e.g., Winners Chapel Community"
+                      placeholder="e.g., Watchman Community"
                       required
                       className="rounded-xl h-11"
                     />

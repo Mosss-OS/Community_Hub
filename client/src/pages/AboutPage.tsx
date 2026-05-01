@@ -33,8 +33,8 @@ export default function AboutPage() {
   return (
     <>
       <PageSEO
-        title="About Us | Winners Chapel Lagos"
-        description="Learn more about Winners Chapel Lagos - our story, leadership, and core values."
+        title="About Us | Watchman Lagos"
+        description="Learn more about Watchman Lagos - our story, leadership, and core values."
       />
 
       {/* Navbar */}
@@ -46,7 +46,7 @@ export default function AboutPage() {
                 <span className="text-xl font-serif font-bold text-white">W</span>
               </div>
               <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>
-                Winners Chapel
+                Watchman
               </span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
@@ -95,7 +95,7 @@ export default function AboutPage() {
                 Our <span className="text-[#8B0000]">Story</span>
               </h2>
               <p className="text-gray-600 mb-4 leading-relaxed">
-                Winners Chapel Lagos was founded with a vision to create a welcoming 
+                Watchman Lagos was founded with a vision to create a welcoming 
                 community where people can experience the love of God and grow in their faith.
               </p>
               <p className="text-gray-600 mb-6 leading-relaxed">
@@ -194,9 +194,9 @@ export default function AboutPage() {
             <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
               <span className="text-xl font-serif font-bold text-white">W</span>
             </div>
-            <span className="text-xl font-semibold">Winners Chapel</span>
+            <span className="text-xl font-semibold">Watchman</span>
           </div>
-          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Winners Chapel Lagos. All rights reserved.</p>
+          <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} Watchman Lagos. All rights reserved.</p>
         </div>
       </footer>
     </>

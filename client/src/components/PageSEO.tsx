@@ -21,10 +21,10 @@ export function PageSEO({
   publishedTime,
   author,
 }: PageSEOProps) {
-  const siteName = "Winners Chapel Lagos";
+  const siteName = "Watchman Lagos";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
   
-  const defaultDescription = "Welcome to Winners Chapel Lagos - your church family. Join us for worship, fellowship, and spiritual growth.";
+  const defaultDescription = "Welcome to Watchman Lagos - your church family. Join us for worship, fellowship, and spiritual growth.";
 
   return (
     <Helmet>

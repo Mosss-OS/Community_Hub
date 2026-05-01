@@ -16,7 +16,7 @@ export function Footer() {
               </div>
             </Link>
             <p className="text-sm text-[#a0a0a0] leading-relaxed mb-6 max-w-sm">
-              Winners Chapel Lagos - A community of believers dedicated to spreading the love of God and making a positive impact in our world.
+              Watchman Lagos - A community of believers dedicated to spreading the love of God and making a positive impact in our world.
             </p>
             <div className="flex items-center gap-3">
               <a href="https://facebook.com/WinnersChapelLagos" target="_blank" rel="noopener noreferrer" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#a0a0a0] hover:text-white transition-opacity">
@@ -81,7 +81,7 @@ export function Footer() {
       <div className="w-full border-t border-white/10 mt-12 pt-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-[#a0a0a0]">
-            © {currentYear} Winners Chapel Lagos. All rights reserved.
+            © {currentYear} Watchman Lagos. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <a href="mailto:info@winnerschapel.org" className="text-sm text-[#a0a0a0] hover:text-white transition-colors">

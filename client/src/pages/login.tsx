@@ -31,7 +31,7 @@ export default function AuthPage() {
 
   return (
     <>
-      <PageSEO title={isLogin ? "Login | Winners Chapel Lagos" : "Join Us | Winners Chapel Lagos"} />
+      <PageSEO title={isLogin ? "Login | Watchman Lagos" : "Join Us | Watchman Lagos"} />
 
       <div className="min-h-screen flex">
         {/* Left Panel - Form */}
@@ -45,7 +45,7 @@ export default function AuthPage() {
               <div className="w-12 h-12 rounded-full bg-[#8B0000] flex items-center justify-center">
                 <span className="text-2xl font-serif font-bold text-white">W</span>
               </div>
-              <span className="text-2xl font-semibold text-gray-900">Winners Chapel</span>
+              <span className="text-2xl font-semibold text-gray-900">Watchman</span>
             </Link>
 
             <h1 className="text-3xl font-serif font-semibold text-gray-900 mb-2">

@@ -62,8 +62,8 @@ export default function HomePage() {
   return (
     <>
       <PageSEO
-        title="Winners Chapel Lagos | Welcome Home"
-        description="Welcome to Winners Chapel Lagos - your church family. Join us for worship, fellowship, and growth in faith."
+        title="Watchman Chapel Lagos | Welcome Home"
+        description="Welcome to Watchman Chapel Lagos - your church family. Join us for worship, fellowship, and growth in faith."
       />
 
       {/* Navbar - Transparent to solid on scroll */}
@@ -76,7 +76,7 @@ export default function HomePage() {
                 <span className={`text-xl font-serif font-bold ${isScrolled ? "text-white" : "text-white"}`}>W</span>
               </div>
               <span className={`text-xl font-semibold ${isScrolled ? "text-gray-900" : "text-white"} hidden sm:block`}>
-                Winners Chapel
+                Watchman Chapel
               </span>
             </Link>
 
@@ -236,7 +236,7 @@ export default function HomePage() {
             </h2>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            At Winners Chapel Lagos, we believe in the transformative power of God's love. 
+            At Watchman Chapel Lagos, we believe in the transformative power of God's love. 
             Our mission is to create an environment where everyone can experience 
             authentic worship, meaningful community, and spiritual growth.
           </p>
@@ -517,7 +517,7 @@ export default function HomePage() {
 
           {/* Copyright */}
           <div className="pt-8 border-t border-white/10 text-center text-white/40 text-sm">
-            <p>&copy; {new Date().getFullYear()} Winners Chapel Lagos. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Watchman Chapel Lagos. All rights reserved.</p>
           </div>
         </div>
       </footer>
