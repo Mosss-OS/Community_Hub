@@ -35,6 +35,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <Link href="/about" className="text-sm font-medium hover:text-[#8B0000] text-gray-700">About</Link>
             <Link href="/sermons" className="text-sm font-medium hover:text-[#8B0000] text-gray-700">Sermons</Link>
+            <Link href="/bookmarks" className="text-sm font-medium hover:text-[#8B0000] text-gray-700">Bookmarks</Link>
             <Link href="/events" className="text-sm font-medium hover:text-[#8B0000] text-gray-700">Events</Link>
             <Link href="/groups" className="text-sm font-medium hover:text-[#8B0000] text-gray-700">Groups</Link>
             <Link href="/live" className="text-sm font-medium hover:text-[#8B0000] text-gray-700">Live</Link>
@@ -83,6 +84,9 @@ export function Navbar() {
                   </Link>
                   <Link href="/sermons" onClick={() => setIsOpen(false)}>
                     <span className="text-base font-medium text-gray-700">Sermons</span>
+                  </Link>
+                  <Link href="/bookmarks" onClick={() => setIsOpen(false)}>
+                    <span className="text-base font-medium text-gray-700">Bookmarks</span>
                   </Link>
                   <Link href="/events" onClick={() => setIsOpen(false)}>
                     <span className="text-base font-medium text-gray-700">Events</span>

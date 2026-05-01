@@ -1,23 +1,58 @@
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { Play, Calendar, User } from "lucide-react";
+import { HiBookmark } from "react-icons/hi";
 import type { Sermon } from "@/types/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 interface SermonCardProps {
   sermon: Sermon;
 }
 
 export function SermonCard({ sermon }: SermonCardProps) {
+  const [isBookmarked, setIsBookmarked] = useState(() => {
+    if (typeof window !== "undefined") {
+      const bookmarks = JSON.parse(localStorage.getItem("sermon_bookmarks") || "[]");
+      return bookmarks.includes(sermon.id);
+    }
+    return false;
+  });
+
+  const toggleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const bookmarks = JSON.parse(localStorage.getItem("sermon_bookmarks") || "[]");
+    let newBookmarks;
+    
+    if (bookmarks.includes(sermon.id)) {
+      newBookmarks = bookmarks.filter((id: string) => id !== sermon.id);
+    } else {
+      newBookmarks = [...bookmarks, sermon.id];
+    }
+    
+    localStorage.setItem("sermon_bookmarks", JSON.stringify(newBookmarks));
+    setIsBookmarked(!isBookmarked);
+  };
+
   return (
     <Link href={`/sermons/${sermon.id}`}>
       <motion.div
         whileHover={{ y: -6 }}
         transition={{ duration: 0.2 }}
-        className="cursor-pointer"
+        className="cursor-pointer relative"
       >
+        <button
+          onClick={toggleBookmark}
+          className={`absolute top-2 right-2 z-10 p-2 rounded-full shadow-md ${
+            isBookmarked ? "bg-primary text-white" : "bg-white/90 text-gray-600 hover:text-primary"
+          }`}
+        >
+          <HiBookmark className="w-4 h-4" />
+        </button>
         <Card className="group h-full overflow-hidden hover:shadow-md transition-all duration-300 border-border/50 rounded-none">
         <div className="relative aspect-video overflow-hidden bg-muted">
           {sermon.thumbnailUrl ? (

@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 // Pages
 import HomePage from "@/pages/HomePage";
 import AboutPage from "@/pages/AboutPage";
+import BookmarksPage from "@/pages/BookmarksPage";
 import ContactPage from "@/pages/ContactPage";
 import BeliefsPage from "@/pages/BeliefsPage";
 import SermonsPage from "@/pages/SermonsPage";
@@ -96,6 +97,7 @@ function Router() {
               <Route path="/contact" component={ContactPage} />
               <Route path="/beliefs" component={BeliefsPage} />
               <Route path="/sermons" component={SermonsPage} />
+              <Route path="/bookmarks" component={BookmarksPage} />
               <Route path="/sermons/:id" component={SermonDetailPage} />
               <Route path="/events" component={EventsPage} />
               <Route path="/events/:id" component={EventDetailPage} />
