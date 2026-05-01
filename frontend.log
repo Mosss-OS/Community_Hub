@@ -450,3 +450,9 @@
 15:18:02 [vite] (client) hmr update /src/App.tsx, /src/index.css
 15:18:08 [vite] (client) hmr update /src/index.css, /src/components/Navbar.tsx
 15:18:25 [vite] (client) hmr update /src/index.css, /src/components/Navbar.tsx
+15:19:57 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+15:20:09 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+15:21:10 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+15:21:39 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+15:21:48 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
+15:22:05 [vite] (client) hmr update /src/pages/DashboardPage.tsx, /src/index.css
