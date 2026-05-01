@@ -163,3 +163,8 @@
 11:33:16 [vite] (client) hmr update /src/pages/PrayerPage.tsx, /src/index.css
 11:33:48 [vite] (client) hmr update /src/pages/PrayerPage.tsx, /src/index.css
 11:33:54 [vite] (client) hmr update /src/pages/PrayerPage.tsx, /src/index.css
+11:53:46 [vite] (client) hmr update /src/index.css, /src/components/Navbar.tsx
+11:53:59 [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
+11:54:09 [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
+11:54:16 [vite] (client) hmr update /src/index.css, /src/components/Footer.tsx
+11:54:25 [vite] (client) hmr update /src/index.css, /src/components/PageSEO.tsx

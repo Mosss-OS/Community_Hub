@@ -21,10 +21,10 @@ export function PageSEO({
   publishedTime,
   author,
 }: PageSEOProps) {
-  const siteName = "CHub - Church Community Platform";
+  const siteName = "Winners Chapel Lagos";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
   
-  const defaultDescription = "Connect with your church community, access sermons, events, devotionals, and more through CHub - your all-in-one church management platform.";
+  const defaultDescription = "Welcome to Winners Chapel Lagos - your church family. Join us for worship, fellowship, and spiritual growth.";
 
   return (
     <Helmet>

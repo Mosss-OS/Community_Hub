@@ -30,8 +30,11 @@ export function Navbar() {
         <div className="flex items-center justify-between h-20 min-h-[80px] px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-light tracking-tight text-[#111111]">
-              Community<span className="font-normal">Hub</span>
+            <div className="w-10 h-10 rounded-full bg-[#8B0000] flex items-center justify-center">
+              <span className="text-xl font-serif font-bold text-white">W</span>
+            </div>
+            <span className="text-xl font-semibold text-gray-900">
+              Winners Chapel
             </span>
           </Link>
 
