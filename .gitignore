@@ -13,3 +13,4 @@ service.cert
 ca.pem
 test-kafka.js
 .env*.local
+dist/
