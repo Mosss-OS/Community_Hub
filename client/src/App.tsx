@@ -22,6 +22,7 @@ import EventsPage from "@/pages/EventsPage";
 import EventDetailPage from "@/pages/EventDetailPage";
 import PrayerPage from "@/pages/PrayerPage";
 import GivePage from "@/pages/GivePage";
+import GivingStatementPage from "@/pages/GivingStatementPage";
 import AuthPage from "@/pages/login"; // This is our combined auth page
 import LogoutPage from "@/pages/logout";
 import RegisterChurchPage from "@/pages/RegisterChurchPage";
@@ -105,6 +106,7 @@ function Router() {
               <Route path="/events/:id" component={EventDetailPage} />
               <Route path="/prayer" component={PrayerPage} />
               <Route path="/give" component={GivePage} />
+              <Route path="/giving-statement" component={GivingStatementPage} />
               <Route path="/dashboard" component={DashboardPage} />
               <Route path="/admin" component={AdminDashboardPage} />
               <Route path="/attendance" component={AttendanceHistoryPage} />

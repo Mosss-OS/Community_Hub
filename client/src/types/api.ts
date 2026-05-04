@@ -155,6 +155,18 @@ export interface Donation {
   createdAt: string;
 }
 
+export interface DonationStatement {
+  year: number;
+  donorName: string;
+  donorEmail: string;
+  organizationName: string;
+  organizationAddress?: string;
+  totalAmount: number;
+  donationCount: number;
+  donations: Donation[];
+  generatedAt: string;
+}
+
 export interface EventRsvp {
   id: number;
   eventId: number;

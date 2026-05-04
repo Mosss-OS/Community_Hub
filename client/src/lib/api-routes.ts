@@ -39,6 +39,8 @@ export const apiRoutes = {
   },
   donations: {
     create: "/api/donations",
+    statement: (year: number) => `/api/donations/statement/${year}`,
+    history: (year?: number) => year ? `/api/donations/history?year=${year}` : `/api/donations/history`,
   },
   uploads: {
     requestUrl: "/api/uploads/request-url",
