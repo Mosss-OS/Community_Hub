@@ -246,6 +246,10 @@ export default function DashboardPage() {
 
         <InterestTags />
 
+        <ProfileFrame userId={user?.id} profile={user || undefined} />
+
+        <ContactExport />
+
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <BirthdayMessageScheduler />
           {/* Profile Completeness */}
