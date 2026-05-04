@@ -20,6 +20,7 @@ import { Link } from "wouter";
 import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { MemberEngagementScore } from "@/components/MemberEngagementScore";
 import { BirthdayMessageScheduler } from "@/components/BirthdayMessageScheduler";
+import { BibleVerseWidget } from "@/components/BibleVerseWidget";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -239,6 +240,8 @@ export default function DashboardPage() {
         <DashboardWidgets />
 
         <MemberEngagementScore />
+
+        <BibleVerseWidget />
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <BirthdayMessageScheduler />
