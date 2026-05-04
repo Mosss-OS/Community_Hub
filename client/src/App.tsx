@@ -47,6 +47,7 @@ import MusicPage from "@/pages/MusicPage";
 import GroupsPage from "@/pages/GroupsPage";
 import BiblePage from "@/pages/BiblePage";
 import YouthDashboardPage from "@/pages/YouthDashboardPage";
+import ChildrenCheckinPage from "@/pages/ChildrenCheckinPage";
 import DiscipleshipPage from "@/pages/DiscipleshipPage";
 import SermonClipGeneratorPage from "@/pages/SermonClipGeneratorPage";
 import SocialFeedPage from "@/pages/SocialFeedPage";
@@ -132,6 +133,8 @@ function Router() {
               <Route path="/feed" component={SocialFeedPage} />
               <Route path="/member-stories" component={MemberStoriesPage} />
               <Route path="/celebrations" component={CelebrationsPage} />
+              <Route path="/youth" component={YouthDashboardPage} />
+              <Route path="/children-checkin" component={ChildrenCheckinPage} />
               <Route path="/messages" component={MessagesPage} />
               <Route path="/settings/language" component={LanguageSettingsPage} />
               <Route path="/settings/sessions" component={SessionManagementPage} />
