@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";
 import { EventCalendar } from "@/components/EventCalendar";
+import { EventWaitlist } from "@/components/EventWaitlist";
 import { HiCalendar, HiViewList } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,30 +21,34 @@ export default function EventsPage() {
   }, []);
 
   const events = [
-    { 
-      id: 1, 
-      title: "Sunday Service", 
-      date: "May 4, 2025", 
+    {
+      id: 1,
+      title: "Sunday Service",
+      date: "May 4, 2025",
       time: "8:00 AM - 12:00 PM",
       location: "Main Sanctuary",
       category: "Worship",
       image: "/church_building.avif",
-      description: "Join us for worship and the Word"
+      description: "Join us for worship and the Word",
+      capacity: 200,
+      enrolled: 200
     },
-    { 
-      id: 2, 
-      title: "Youth Night", 
-      date: "May 9, 2025", 
+    {
+      id: 2,
+      title: "Youth Night",
+      date: "May 9, 2025",
       time: "7:00 PM - 9:00 PM",
       location: "Youth Hall",
       category: "Youth",
       image: "/church_building.avif",
-      description: "Fun, fellowship and God"
+      description: "Fun, fellowship and God",
+      capacity: 50,
+      enrolled: 45
     },
-    { 
-      id: 3, 
-      title: "Bible Study", 
-      date: "May 7, 2025", 
+    {
+      id: 3,
+      title: "Bible Study",
+      date: "May 7, 2025",
       time: "6:00 PM - 8:00 PM",
       location: "Fellowship Hall",
       category: "Discipleship",
@@ -213,25 +218,40 @@ export default function EventsPage() {
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
                     <p className="text-gray-600 text-sm mb-3">{event.description}</p>
-                    <div className="space-y-2 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        {event.date}
+                      <div className="space-y-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          {event.date}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          {event.time}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          {event.location}
+                        </div>
+                        {event.capacity && (
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            {event.enrolled || 0}/{event.capacity} spots
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        {event.time}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        {event.location}
-                      </div>
+                      {event.capacity && (event.enrolled || 0) >= event.capacity ? (
+                        <EventWaitlist
+                          eventId={event.id}
+                          eventTitle={event.title}
+                          capacity={event.capacity}
+                          enrolled={event.enrolled || 0}
+                        />
+                      ) : (
+                        <Button className="w-full mt-4 bg-[#8B0000] hover:bg-[#6B0000]">
+                          RSVP Now
+                        </Button>
+                      )}
                     </div>
-                    <Button className="w-full mt-4 bg-[#8B0000] hover:bg-[#6B0000]">
-                      RSVP Now
-                    </Button>
-                  </div>
-                </motion.div>
+                  </motion.div>
               ))}
             </AnimatePresence>
           </div>
