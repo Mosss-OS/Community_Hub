@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { FaXTwitter, FaWhatsapp, FaFacebook, FaEnvelope, FaLinkedin, FaLink } from "react-icons/fa6";
+import { SermonNotes } from "@/components/SermonNotes";
 
 export default function SermonDetailPage() {
   const [, params] = useRoute<{ id: string }>("/sermons/:id");
@@ -337,6 +338,9 @@ export default function SermonDetailPage() {
             </Card>
           </div>
         </div>
+
+        {/* Sermon Notes */}
+        {sermonId && <SermonNotes sermonId={sermonId} />}
       </div>
 
       {/* Share Modal */}
