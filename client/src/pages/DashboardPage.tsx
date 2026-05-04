@@ -22,6 +22,7 @@ import { MemberEngagementScore } from "@/components/MemberEngagementScore";
 import { BirthdayMessageScheduler } from "@/components/BirthdayMessageScheduler";
 import { BibleVerseWidget } from "@/components/BibleVerseWidget";
 import { InterestTags } from "@/components/InterestTags";
+import { ProfileFrame } from "@/components/ProfileFrame";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -245,6 +246,8 @@ export default function DashboardPage() {
         <BibleVerseWidget />
 
         <InterestTags />
+
+        <ProfileFrame userId={user?.id} profile={user || undefined} />
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <BirthdayMessageScheduler />
