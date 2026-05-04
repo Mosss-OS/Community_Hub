@@ -253,6 +253,14 @@ export default function DashboardPage() {
 
         <InteractiveMap />
 
+        <SermonCertificate userId={user?.id} />
+
+        <AnnouncementBanner />
+
+        <ContentModerationQueue />
+
+        <MemberMilestones />
+
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <BirthdayMessageScheduler />
           {/* Profile Completeness */}
