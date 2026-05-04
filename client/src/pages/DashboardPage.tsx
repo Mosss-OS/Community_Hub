@@ -18,6 +18,7 @@ import { buildApiUrl } from "@/lib/api-config";
 import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, AlertCircle, Play, Trash2, QrCode, Download } from "lucide-react";
 import { Link } from "wouter";
 import { DashboardWidgets } from "@/components/DashboardWidgets";
+import { MemberEngagementScore } from "@/components/MemberEngagementScore";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -235,6 +236,8 @@ export default function DashboardPage() {
         </div>
 
         <DashboardWidgets />
+
+        <MemberEngagementScore />
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           {/* Profile Completeness */}
