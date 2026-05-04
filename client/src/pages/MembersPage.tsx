@@ -202,6 +202,36 @@ export default function MembersPage() {
     doc.save(`members_export_${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
+  const exportToVCard = () => {
+    if (!data?.members.length) return;
+    
+    const vcards = data.members.map(member => {
+      const name = `${member.firstName} ${member.lastName}`.trim();
+      const lines = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        `FN:${name}`,
+        `EMAIL:${member.email}`,
+      ];
+      
+      if (member.phone) lines.push(`TEL:${member.phone}`);
+      if (member.address) lines.push(`ADR;TYPE=HOME:;;${member.address}`);
+      if (member.role) lines.push(`TITLE:${formatRole(member.role)}`);
+      if (member.houseFellowship) lines.push(`NOTE:House Fellowship: ${member.houseFellowship}`);
+      
+      lines.push("END:VCARD");
+      return lines.join("\r\n");
+    }).join("\r\n\r\n");
+
+    const blob = new Blob([vcards], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `members_export_${new Date().toISOString().split("T")[0]}.vcf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const clearFilters = () => {
     setSearch("");
     setRoleFilter("");
@@ -375,6 +405,10 @@ export default function MembersPage() {
         <Button variant="outline" onClick={exportToPDF} disabled={!data?.members.length}>
           <Download className="w-4 h-4 mr-2" />
           Export PDF
+        </Button>
+        <Button variant="outline" onClick={exportToVCard} disabled={!data?.members.length}>
+          <Download className="w-4 h-4 mr-2" />
+          Export VCard
         </Button>
       </div>
 
