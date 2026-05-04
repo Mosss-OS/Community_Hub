@@ -19,6 +19,7 @@ import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Buil
 import { Link } from "wouter";
 import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { MemberEngagementScore } from "@/components/MemberEngagementScore";
+import { BirthdayMessageScheduler } from "@/components/BirthdayMessageScheduler";
 import { formatDistanceToNow, format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -240,6 +241,7 @@ export default function DashboardPage() {
         <MemberEngagementScore />
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+          <BirthdayMessageScheduler />
           {/* Profile Completeness */}
           {(() => {
             const completeness = calculateProfileCompleteness(user);
