@@ -139,8 +139,8 @@ export default function HomePage() {
             {/* Left Content */}
             <div className="text-white">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-semibold leading-[1.1] mb-6">
-                Welcome Home to Your <br />
-                <span className="italic font-light text-[#E8B4B4]">Church Family</span>
+                <span className="text-white">Welcome Home to Your</span> <br />
+                <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent animate-pulse">Church Family</span>
               </h1>
               <p className="text-lg sm:text-xl text-white/80 max-w-xl mb-8 leading-relaxed">
                 Experience the love of God in a community that cares. Join us for worship, 
@@ -212,7 +212,7 @@ export default function HomePage() {
             
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-semibold text-gray-900 mb-6 leading-tight">
               A Place Where Faith <br />
-              <span className="text-[#8B0000]">Comes Alive</span>
+              <span className="italic font-light bg-gradient-to-r from-[#8B0000] via-[#E8B4B4] to-[#8B0000] bg-clip-text text-transparent animate-pulse">Comes Alive</span>
             </h2>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
