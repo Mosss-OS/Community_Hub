@@ -78,7 +78,7 @@ export function OnboardingTour() {
     return (
       <button 
         onClick={handleRestart}
-        className="fixed bottom-24 left-6 z-40 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg text-sm md:hidden"
+        className="fixed bottom-24 left-6 z-40 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg text-sm hidden"
       >
         Tour
       </button>
