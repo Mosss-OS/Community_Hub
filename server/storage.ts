@@ -1,4 +1,4 @@
-import { 
+import {
   users, branding, events, sermons, prayerRequests, donations, eventRsvps, eventCategories, eventFeedback,
   attendance, attendanceLinks, attendanceSettings, memberMessages, fundraisingCampaigns,
   dailyDevotionals, bibleReadingPlans, bibleReadingProgress,
@@ -23,8 +23,13 @@ import {
   reportCategories, userReports, moderationQueue, userBlocks, userHiddenContent,
   userSessions, loginHistory, user2FA, dataExportRequests, dataDeletionRequests,
   externalApiKeys, webhookDeliveries, externalIntegrations, oauthApps, oauthCodes, oauthTokens, apiRateLimits, apiCallLogs, integrationSyncJobs,
-  organizations, organizationThemes, customPages, customMenuItems, emailTemplates, customFields, 
+  organizations, organizationThemes, customPages, customMenuItems, emailTemplates, customFields,
   organizationMembers, organizationSettings, customDomains, organizationAnalytics,
+  resources, resourceDownloads, resourceFavorites,
+  subscriptions, invoices, paymentMethods,
+  projects, tasks, taskComments, taskAttachments,
+  backups,
+  notifications, notificationTemplates,
   type User, type Branding, type Event, type Sermon, type PrayerRequest, type Donation, type EventRsvp, type EventCategory, type EventFeedback, type FundraisingCampaign, type DailyDevotional, type BibleReadingPlan, type BibleReadingProgress,
   type Music, type MusicPlaylist, type MusicGenre,
   type InsertBranding, type InsertEvent, type InsertSermon, type InsertPrayerRequest, type InsertDonation, type InsertEventRsvp, type InsertFundraisingCampaign,
@@ -107,7 +112,20 @@ import {
   type OrganizationMember, type InsertOrganizationMember,
   type OrganizationSetting, type InsertOrganizationSetting,
   type CustomDomain, type InsertCustomDomain,
-  type OrganizationAnalytic, type InsertOrganizationAnalytic
+  type OrganizationAnalytic, type InsertOrganizationAnalytic,
+  type Resource, type InsertResource,
+  type ResourceDownload, type InsertResourceDownload,
+  type ResourceFavorite, type InsertResourceFavorite,
+  type Subscription, type InsertSubscription,
+  type Invoice, type InsertInvoice,
+  type PaymentMethod, type InsertPaymentMethod,
+  type Project, type InsertProject,
+  type Task, type InsertTask,
+  type TaskComment, type InsertTaskComment,
+  type TaskAttachment, type InsertTaskAttachment,
+  type Backup, type InsertBackup,
+  type Notification, type InsertNotification,
+  type NotificationTemplate, type InsertNotificationTemplate
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, like, or, and, sql, gte, lte, lt, asc, count } from "drizzle-orm";
@@ -497,12 +515,75 @@ export interface IStorage {
   createReflection(reflection: InsertReflection): Promise<Reflection>;
   deleteReflection(id: number): Promise<void>;
 
-  // Sermon Clips
-  getSermonClips(): Promise<SermonClip[]>;
-  getSermonClip(id: number): Promise<SermonClip | undefined>;
-  createSermonClip(clip: InsertSermonClip): Promise<SermonClip>;
-  updateSermonClip(id: number, updates: Partial<SermonClip>): Promise<SermonClip>;
-  deleteSermonClip(id: number): Promise<void>;
+   // Sermon Clips
+   getSermonClips(): Promise<SermonClip[]>;
+   getSermonClip(id: number): Promise<SermonClip | undefined>;
+   createSermonClip(clip: InsertSermonClip): Promise<SermonClip>;
+   updateSermonClip(id: number, updates: Partial<SermonClip>): Promise<SermonClip>;
+   deleteSermonClip(id: number): Promise<void>;
+
+   // === RESOURCES & CONTENT LIBRARY ===
+   getResources(organizationId?: string): Promise<Resource[]>;
+   getResource(id: number): Promise<Resource | undefined>;
+   createResource(resource: InsertResource): Promise<Resource>;
+   updateResource(id: number, updates: Partial<Resource>): Promise<Resource>;
+   deleteResource(id: number): Promise<void>;
+   downloadResource(resourceId: number, userId: string, ipAddress?: string): Promise<ResourceDownload>;
+   getResourceDownloads(resourceId: number): Promise<ResourceDownload[]>;
+   favoriteResource(resourceId: number, userId: string): Promise<ResourceFavorite>;
+   unfavoriteResource(resourceId: number, userId: string): Promise<void>;
+   getUserFavoriteResources(userId: string): Promise<ResourceFavorite[]>;
+
+   // === BILLING & SUBSCRIPTIONS ===
+   getSubscription(organizationId: string): Promise<Subscription | undefined>;
+   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+   updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription>;
+   getInvoices(organizationId: string): Promise<Invoice[]>;
+   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+   updateInvoice(id: number, updates: Partial<Invoice>): Promise<Invoice>;
+   getPaymentMethods(organizationId: string): Promise<PaymentMethod[]>;
+   createPaymentMethod(paymentMethod: InsertPaymentMethod): Promise<PaymentMethod>;
+   deletePaymentMethod(id: number): Promise<void>;
+   setDefaultPaymentMethod(id: number, organizationId: string): Promise<PaymentMethod>;
+
+   // === TASKS & PROJECTS ===
+   getProjects(organizationId?: string): Promise<Project[]>;
+   getProject(id: number): Promise<Project | undefined>;
+   createProject(project: InsertProject): Promise<Project>;
+   updateProject(id: number, updates: Partial<Project>): Promise<Project>;
+   deleteProject(id: number): Promise<void>;
+   getProjectTasks(projectId: number): Promise<Task[]>;
+   getTasks(filters?: { projectId?: number; assignedTo?: string; status?: string }): Promise<Task[]>;
+   getTask(id: number): Promise<Task | undefined>;
+   createTask(task: InsertTask): Promise<Task>;
+   updateTask(id: number, updates: Partial<Task>): Promise<Task>;
+   deleteTask(id: number): Promise<void>;
+   getTaskComments(taskId: number): Promise<TaskComment[]>;
+   addTaskComment(comment: InsertTaskComment): Promise<TaskComment>;
+   deleteTaskComment(id: number): Promise<void>;
+   getTaskAttachments(taskId: number): Promise<TaskAttachment[]>;
+   addTaskAttachment(attachment: InsertTaskAttachment): Promise<TaskAttachment>;
+   deleteTaskAttachment(id: number): Promise<void>;
+
+   // === BACKUP & DATA MANAGEMENT ===
+   getBackups(organizationId?: string): Promise<Backup[]>;
+   getBackup(id: number): Promise<Backup | undefined>;
+   createBackup(backup: InsertBackup): Promise<Backup>;
+   updateBackup(id: number, updates: Partial<Backup>): Promise<Backup>;
+   deleteBackup(id: number): Promise<void>;
+
+   // === NOTIFICATIONS SYSTEM ===
+   getUserNotifications(userId: string, unreadOnly?: boolean): Promise<Notification[]>;
+   getNotification(id: number): Promise<Notification | undefined>;
+   createNotification(notification: InsertNotification): Promise<Notification>;
+   markNotificationRead(id: number): Promise<Notification>;
+   markAllNotificationsRead(userId: string): Promise<void>;
+   deleteNotification(id: number): Promise<void>;
+   getNotificationTemplates(): Promise<NotificationTemplate[]>;
+   getNotificationTemplate(id: number): Promise<NotificationTemplate | undefined>;
+   createNotificationTemplate(template: InsertNotificationTemplate): Promise<NotificationTemplate>;
+   updateNotificationTemplate(id: number, updates: Partial<NotificationTemplate>): Promise<NotificationTemplate>;
+   deleteNotificationTemplate(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -4878,6 +4959,274 @@ export class DatabaseStorage implements IStorage {
       conditions.push(eq(organizationAnalytics.metricType, metricType));
     }
     return db.select().from(organizationAnalytics).where(and(...conditions)).orderBy(desc(organizationAnalytics.recordedAt));
+  }
+
+  // === RESOURCES & CONTENT LIBRARY ===
+  async getResources(organizationId?: string): Promise<Resource[]> {
+    if (organizationId) {
+      return db.select().from(resources).where(eq(resources.organizationId, organizationId)).orderBy(desc(resources.createdAt));
+    }
+    return db.select().from(resources).orderBy(desc(resources.createdAt));
+  }
+
+  async getResource(id: number): Promise<Resource | undefined> {
+    const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+    return resource;
+  }
+
+  async createResource(resource: InsertResource): Promise<Resource> {
+    const [created] = await db.insert(resources).values({ ...resource, updatedAt: new Date() }).returning();
+    return created;
+  }
+
+  async updateResource(id: number, updates: Partial<Resource>): Promise<Resource> {
+    const [updated] = await db.update(resources).set({ ...updates, updatedAt: new Date() }).where(eq(resources.id, id)).returning();
+    return updated;
+  }
+
+  async deleteResource(id: number): Promise<void> {
+    await db.delete(resources).where(eq(resources.id, id));
+  }
+
+  async downloadResource(resourceId: number, userId: string, ipAddress?: string): Promise<ResourceDownload> {
+    const [download] = await db.insert(resourceDownloads).values({ resourceId, userId, ipAddress }).returning();
+    await db.update(resources).set({ downloadCount: sql`${resources.downloadCount} + 1` }).where(eq(resources.id, resourceId));
+    return download;
+  }
+
+  async getResourceDownloads(resourceId: number): Promise<ResourceDownload[]> {
+    return db.select().from(resourceDownloads).where(eq(resourceDownloads.resourceId, resourceId)).orderBy(desc(resourceDownloads.downloadedAt));
+  }
+
+  async favoriteResource(resourceId: number, userId: string): Promise<ResourceFavorite> {
+    const [favorite] = await db.insert(resourceFavorites).values({ resourceId, userId }).returning();
+    return favorite;
+  }
+
+  async unfavoriteResource(resourceId: number, userId: string): Promise<void> {
+    await db.delete(resourceFavorites).where(and(eq(resourceFavorites.resourceId, resourceId), eq(resourceFavorites.userId, userId)));
+  }
+
+  async getUserFavoriteResources(userId: string): Promise<ResourceFavorite[]> {
+    return db.select().from(resourceFavorites).where(eq(resourceFavorites.userId, userId)).orderBy(desc(resourceFavorites.createdAt));
+  }
+
+  // === BILLING & SUBSCRIPTIONS ===
+  async getSubscription(organizationId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.organizationId, organizationId)).orderBy(desc(subscriptions.createdAt));
+    return subscription;
+  }
+
+  async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    const [created] = await db.insert(subscriptions).values({ ...subscription, updatedAt: new Date() }).returning();
+    return created;
+  }
+
+  async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription> {
+    const [updated] = await db.update(subscriptions).set({ ...updates, updatedAt: new Date() }).where(eq(subscriptions.id, id)).returning();
+    return updated;
+  }
+
+  async getInvoices(organizationId: string): Promise<Invoice[]> {
+    return db.select().from(invoices).where(eq(invoices.organizationId, organizationId)).orderBy(desc(invoices.createdAt));
+  }
+
+  async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
+    const [created] = await db.insert(invoices).values(invoice).returning();
+    return created;
+  }
+
+  async updateInvoice(id: number, updates: Partial<Invoice>): Promise<Invoice> {
+    const [updated] = await db.update(invoices).set(updates).where(eq(invoices.id, id)).returning();
+    return updated;
+  }
+
+  async getPaymentMethods(organizationId: string): Promise<PaymentMethod[]> {
+    return db.select().from(paymentMethods).where(eq(paymentMethods.organizationId, organizationId));
+  }
+
+  async createPaymentMethod(paymentMethod: InsertPaymentMethod): Promise<PaymentMethod> {
+    const [created] = await db.insert(paymentMethods).values(paymentMethod).returning();
+    return created;
+  }
+
+  async deletePaymentMethod(id: number): Promise<void> {
+    await db.delete(paymentMethods).where(eq(paymentMethods.id, id));
+  }
+
+  async setDefaultPaymentMethod(id: number, organizationId: string): Promise<PaymentMethod> {
+    await db.update(paymentMethods).set({ isDefault: false }).where(eq(paymentMethods.organizationId, organizationId));
+    const [updated] = await db.update(paymentMethods).set({ isDefault: true }).where(eq(paymentMethods.id, id)).returning();
+    return updated;
+  }
+
+  // === TASKS & PROJECTS ===
+  async getProjects(organizationId?: string): Promise<Project[]> {
+    if (organizationId) {
+      return db.select().from(projects).where(eq(projects.organizationId, organizationId)).orderBy(desc(projects.createdAt));
+    }
+    return db.select().from(projects).orderBy(desc(projects.createdAt));
+  }
+
+  async getProject(id: number): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+
+  async createProject(project: InsertProject): Promise<Project> {
+    const [created] = await db.insert(projects).values({ ...project, updatedAt: new Date() }).returning();
+    return created;
+  }
+
+  async updateProject(id: number, updates: Partial<Project>): Promise<Project> {
+    const [updated] = await db.update(projects).set({ ...updates, updatedAt: new Date() }).where(eq(projects.id, id)).returning();
+    return updated;
+  }
+
+  async deleteProject(id: number): Promise<void> {
+    await db.delete(projects).where(eq(projects.id, id));
+  }
+
+  async getProjectTasks(projectId: number): Promise<Task[]> {
+    return db.select().from(tasks).where(eq(tasks.projectId, projectId)).orderBy(desc(tasks.createdAt));
+  }
+
+  async getTasks(filters?: { projectId?: number; assignedTo?: string; status?: string }): Promise<Task[]> {
+    const conditions = [];
+    if (filters?.projectId) conditions.push(eq(tasks.projectId, filters.projectId));
+    if (filters?.assignedTo) conditions.push(eq(tasks.assignedTo, filters.assignedTo));
+    if (filters?.status) conditions.push(eq(tasks.status, filters.status));
+    if (conditions.length > 0) {
+      return db.select().from(tasks).where(and(...conditions)).orderBy(desc(tasks.createdAt));
+    }
+    return db.select().from(tasks).orderBy(desc(tasks.createdAt));
+  }
+
+  async getTask(id: number): Promise<Task | undefined> {
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+    return task;
+  }
+
+  async createTask(task: InsertTask): Promise<Task> {
+    const [created] = await db.insert(tasks).values({ ...task, updatedAt: new Date() }).returning();
+    return created;
+  }
+
+  async updateTask(id: number, updates: Partial<Task>): Promise<Task> {
+    const [updated] = await db.update(tasks).set({ ...updates, updatedAt: new Date() }).where(eq(tasks.id, id)).returning();
+    return updated;
+  }
+
+  async deleteTask(id: number): Promise<void> {
+    await db.delete(tasks).where(eq(tasks.id, id));
+  }
+
+  async getTaskComments(taskId: number): Promise<TaskComment[]> {
+    return db.select().from(taskComments).where(eq(taskComments.taskId, taskId)).orderBy(desc(taskComments.createdAt));
+  }
+
+  async addTaskComment(comment: InsertTaskComment): Promise<TaskComment> {
+    const [created] = await db.insert(taskComments).values({ ...comment, updatedAt: new Date() }).returning();
+    return created;
+  }
+
+  async deleteTaskComment(id: number): Promise<void> {
+    await db.delete(taskComments).where(eq(taskComments.id, id));
+  }
+
+  async getTaskAttachments(taskId: number): Promise<TaskAttachment[]> {
+    return db.select().from(taskAttachments).where(eq(taskAttachments.taskId, taskId)).orderBy(desc(taskAttachments.createdAt));
+  }
+
+  async addTaskAttachment(attachment: InsertTaskAttachment): Promise<TaskAttachment> {
+    const [created] = await db.insert(taskAttachments).values(attachment).returning();
+    return created;
+  }
+
+  async deleteTaskAttachment(id: number): Promise<void> {
+    await db.delete(taskAttachments).where(eq(taskAttachments.id, id));
+  }
+
+  // === BACKUP & DATA MANAGEMENT ===
+  async getBackups(organizationId?: string): Promise<Backup[]> {
+    if (organizationId) {
+      return db.select().from(backups).where(eq(backups.organizationId, organizationId)).orderBy(desc(backups.startedAt));
+    }
+    return db.select().from(backups).orderBy(desc(backups.startedAt));
+  }
+
+  async getBackup(id: number): Promise<Backup | undefined> {
+    const [backup] = await db.select().from(backups).where(eq(backups.id, id));
+    return backup;
+  }
+
+  async createBackup(backup: InsertBackup): Promise<Backup> {
+    const [created] = await db.insert(backups).values(backup).returning();
+    return created;
+  }
+
+  async updateBackup(id: number, updates: Partial<Backup>): Promise<Backup> {
+    const [updated] = await db.update(backups).set(updates).where(eq(backups.id, id)).returning();
+    return updated;
+  }
+
+  async deleteBackup(id: number): Promise<void> {
+    await db.delete(backups).where(eq(backups.id, id));
+  }
+
+  // === NOTIFICATIONS SYSTEM ===
+  async getUserNotifications(userId: string, unreadOnly?: boolean): Promise<Notification[]> {
+    const conditions = [eq(notifications.userId, userId)];
+    if (unreadOnly) {
+      conditions.push(eq(notifications.isRead, false));
+    }
+    return db.select().from(notifications).where(and(...conditions)).orderBy(desc(notifications.createdAt));
+  }
+
+  async getNotification(id: number): Promise<Notification | undefined> {
+    const [notification] = await db.select().from(notifications).where(eq(notifications.id, id));
+    return notification;
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [created] = await db.insert(notifications).values(notification).returning();
+    return created;
+  }
+
+  async markNotificationRead(id: number): Promise<Notification> {
+    const [updated] = await db.update(notifications).set({ isRead: true, readAt: new Date() }).where(eq(notifications.id, id)).returning();
+    return updated;
+  }
+
+  async markAllNotificationsRead(userId: string): Promise<void> {
+    await db.update(notifications).set({ isRead: true, readAt: new Date() }).where(eq(notifications.userId, userId));
+  }
+
+  async deleteNotification(id: number): Promise<void> {
+    await db.delete(notifications).where(eq(notifications.id, id));
+  }
+
+  async getNotificationTemplates(): Promise<NotificationTemplate[]> {
+    return db.select().from(notificationTemplates).orderBy(notificationTemplates.name);
+  }
+
+  async getNotificationTemplate(id: number): Promise<NotificationTemplate | undefined> {
+    const [template] = await db.select().from(notificationTemplates).where(eq(notificationTemplates.id, id));
+    return template;
+  }
+
+  async createNotificationTemplate(template: InsertNotificationTemplate): Promise<NotificationTemplate> {
+    const [created] = await db.insert(notificationTemplates).values({ ...template, updatedAt: new Date() }).returning();
+    return created;
+  }
+
+  async updateNotificationTemplate(id: number, updates: Partial<NotificationTemplate>): Promise<NotificationTemplate> {
+    const [updated] = await db.update(notificationTemplates).set({ ...updates, updatedAt: new Date() }).where(eq(notificationTemplates.id, id)).returning();
+    return updated;
+  }
+
+  async deleteNotificationTemplate(id: number): Promise<void> {
+    await db.delete(notificationTemplates).where(eq(notificationTemplates.id, id));
   }
 }
 

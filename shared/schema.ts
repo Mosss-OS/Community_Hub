@@ -2736,6 +2736,248 @@ export const organizationAnalytics = pgTable("organization_analytics", {
   recordedAt: timestamp("recorded_at").defaultNow(),
 });
 
+// === RESOURCES & CONTENT LIBRARY ===
+
+export const resourceCategoryEnum = pgEnum('resource_category', [
+  'DOCUMENT',
+  'VIDEO',
+  'AUDIO',
+  'IMAGE',
+  'LINK',
+  'OTHER'
+]);
+
+export const resources = pgTable("resources", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  category: resourceCategoryEnum("category").notNull(),
+  fileUrl: text("file_url"),
+  filePath: text("file_path"),
+  externalUrl: text("external_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  fileSize: integer("file_size"),
+  mimeType: text("mime_type"),
+  isPublic: boolean("is_public").default(false),
+  downloadCount: integer("download_count").default(0),
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+});
+
+export const resourceDownloads = pgTable("resource_downloads", {
+  id: serial("id").primaryKey(),
+  resourceId: integer("resource_id").references(() => resources.id).notNull(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  downloadedAt: timestamp("downloaded_at").defaultNow(),
+  ipAddress: text("ip_address"),
+});
+
+export const resourceFavorites = pgTable("resource_favorites", {
+  id: serial("id").primaryKey(),
+  resourceId: integer("resource_id").references(() => resources.id).notNull(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// === BILLING & SUBSCRIPTIONS ===
+
+export const subscriptionPlanEnum = pgEnum('subscription_plan', [
+  'FREE',
+  'BASIC',
+  'PREMIUM',
+  'ENTERPRISE'
+]);
+
+export const subscriptionStatusEnum = pgEnum('subscription_status', [
+  'ACTIVE',
+  'CANCELED',
+  'PAST_DUE',
+  'TRIALING',
+  'INCOMPLETE',
+  'INCOMPLETE_EXPIRED',
+  'UNPAID'
+]);
+
+export const billingIntervalEnum = pgEnum('billing_interval', [
+  'MONTHLY',
+  'YEARLY'
+]);
+
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
+  plan: subscriptionPlanEnum("plan").notNull(),
+  status: subscriptionStatusEnum("status").notNull().default('TRIALING'),
+  billingInterval: billingIntervalEnum("billing_interval").notNull(),
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  canceledAt: timestamp("canceled_at"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  stripeCustomerId: text("stripe_customer_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const invoices = pgTable("invoices", {
+  id: serial("id").primaryKey(),
+  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
+  amount: integer("amount").notNull(),
+  currency: text("currency").default("usd"),
+  status: text("status").notNull(),
+  stripeInvoiceId: text("stripe_invoice_id"),
+  invoiceUrl: text("invoice_url"),
+  pdfUrl: text("pdf_url"),
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
+  type: text("type").notNull(),
+  last4: text("last4"),
+  brand: text("brand"),
+  expMonth: integer("exp_month"),
+  expYear: integer("exp_year"),
+  isDefault: boolean("is_default").default(false),
+  stripePaymentMethodId: text("stripe_payment_method_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// === TASKS & PROJECTS ===
+
+export const taskStatusEnum = pgEnum('task_status', [
+  'TODO',
+  'IN_PROGRESS',
+  'IN_REVIEW',
+  'DONE',
+  'CANCELED'
+]);
+
+export const taskPriorityEnum = pgEnum('task_priority', [
+  'LOW',
+  'MEDIUM',
+  'HIGH',
+  'URGENT'
+]);
+
+export const projects = pgTable("projects", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: taskStatusEnum("status").default('TODO'),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  leaderId: uuid("leader_id").references(() => users.id),
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+});
+
+export const tasks = pgTable("tasks", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").references(() => projects.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: taskStatusEnum("status").default('TODO'),
+  priority: taskPriorityEnum("priority").default('MEDIUM'),
+  assignedTo: uuid("assigned_to").references(() => users.id),
+  createdBy: uuid("created_by").references(() => users.id),
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+});
+
+export const taskComments = pgTable("task_comments", {
+  id: serial("id").primaryKey(),
+  taskId: integer("task_id").references(() => tasks.id).notNull(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const taskAttachments = pgTable("task_attachments", {
+  id: serial("id").primaryKey(),
+  taskId: integer("task_id").references(() => tasks.id).notNull(),
+  fileName: text("file_name").notNull(),
+  fileUrl: text("file_url").notNull(),
+  fileSize: integer("file_size"),
+  uploadedBy: uuid("uploaded_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// === BACKUP & DATA MANAGEMENT ===
+
+export const backupStatusEnum = pgEnum('backup_status', [
+  'PENDING',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'FAILED'
+]);
+
+export const backups = pgTable("backups", {
+  id: serial("id").primaryKey(),
+  fileName: text("file_name").notNull(),
+  filePath: text("file_path").notNull(),
+  fileSize: integer("file_size"),
+  status: backupStatusEnum("status").notNull().default('PENDING'),
+  backupType: text("backup_type").default('manual'),
+  createdBy: uuid("created_by").references(() => users.id),
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+});
+
+// === NOTIFICATIONS SYSTEM ===
+
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'INFO',
+  'SUCCESS',
+  'WARNING',
+  'ERROR',
+  'TASK_ASSIGNED',
+  'EVENT_REMINDER',
+  'DONATION_RECEIVED',
+  'PRAYER_REQUEST',
+  'NEW_MESSAGE',
+  'MENTION'
+]);
+
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  type: notificationTypeEnum("type").notNull(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  link: text("link"),
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+});
+
+export const notificationTemplates = pgTable("notification_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  type: notificationTypeEnum("type").notNull(),
+  subject: text("subject"),
+  bodyTemplate: text("body_template").notNull(),
+  channels: text("channels").array().default(['in_app']),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const organizationRelations = relations(organizations, ({ one, many }) => ({
   themes: many(organizationThemes),
@@ -2829,3 +3071,191 @@ export type InsertCustomDomain = z.infer<typeof insertCustomDomainSchema>;
 export const insertOrganizationAnalyticSchema = createInsertSchema(organizationAnalytics).omit({ id: true, recordedAt: true });
 export type OrganizationAnalytic = typeof organizationAnalytics.$inferSelect;
 export type InsertOrganizationAnalytic = z.infer<typeof insertOrganizationAnalyticSchema>;
+
+// === RESOURCES RELATIONS & SCHEMAS ===
+
+export const resourcesRelations = relations(resources, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [resources.createdBy],
+    references: [users.id],
+  }),
+  downloads: many(resourceDownloads),
+  favorites: many(resourceFavorites),
+}));
+
+export const resourceDownloadsRelations = relations(resourceDownloads, ({ one }) => ({
+  resource: one(resources, {
+    fields: [resourceDownloads.resourceId],
+    references: [resources.id],
+  }),
+  user: one(users, {
+    fields: [resourceDownloads.userId],
+    references: [users.id],
+  }),
+}));
+
+export const resourceFavoritesRelations = relations(resourceFavorites, ({ one }) => ({
+  resource: one(resources, {
+    fields: [resourceFavorites.resourceId],
+    references: [resources.id],
+  }),
+  user: one(users, {
+    fields: [resourceFavorites.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertResourceSchema = createInsertSchema(resources).omit({ id: true, createdAt: true, updatedAt: true, downloadCount: true });
+export type Resource = typeof resources.$inferSelect;
+export type InsertResource = z.infer<typeof insertResourceSchema>;
+
+export const insertResourceDownloadSchema = createInsertSchema(resourceDownloads).omit({ id: true, downloadedAt: true });
+export type ResourceDownload = typeof resourceDownloads.$inferSelect;
+export type InsertResourceDownload = z.infer<typeof insertResourceDownloadSchema>;
+
+export const insertResourceFavoriteSchema = createInsertSchema(resourceFavorites).omit({ id: true, createdAt: true });
+export type ResourceFavorite = typeof resourceFavorites.$inferSelect;
+export type InsertResourceFavorite = z.infer<typeof insertResourceFavoriteSchema>;
+
+// === BILLING & SUBSCRIPTIONS RELATIONS & SCHEMAS ===
+
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [subscriptions.organizationId],
+    references: [organizations.id],
+  }),
+  invoices: many(invoices),
+}));
+
+export const invoicesRelations = relations(invoices, ({ one }) => ({
+  subscription: one(subscriptions, {
+    fields: [invoices.subscriptionId],
+    references: [subscriptions.id],
+  }),
+  organization: one(organizations, {
+    fields: [invoices.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+export const paymentMethodsRelations = relations(paymentMethods, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [paymentMethods.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ id: true, createdAt: true, updatedAt: true });
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({ id: true, createdAt: true });
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods).omit({ id: true, createdAt: true });
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
+
+// === TASKS & PROJECTS RELATIONS & SCHEMAS ===
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  leader: one(users, {
+    fields: [projects.leaderId],
+    references: [users.id],
+  }),
+  creator: one(users, {
+    fields: [projects.createdBy],
+    references: [users.id],
+  }),
+  tasks: many(tasks),
+}));
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [tasks.projectId],
+    references: [projects.id],
+  }),
+  assignee: one(users, {
+    fields: [tasks.assignedTo],
+    references: [users.id],
+  }),
+  creator: one(users, {
+    fields: [tasks.createdBy],
+    references: [users.id],
+  }),
+  comments: many(taskComments),
+  attachments: many(taskAttachments),
+}));
+
+export const taskCommentsRelations = relations(taskComments, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskComments.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskComments.userId],
+    references: [users.id],
+  }),
+}));
+
+export const taskAttachmentsRelations = relations(taskAttachments, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskAttachments.taskId],
+    references: [tasks.id],
+  }),
+  uploader: one(users, {
+    fields: [taskAttachments.uploadedBy],
+    references: [users.id],
+  }),
+}));
+
+export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = z.infer<typeof insertProjectSchema>;
+
+export const insertTaskSchema = createInsertSchema(tasks).omit({ id: true, createdAt: true, updatedAt: true, completedAt: true });
+export type Task = typeof tasks.$inferSelect;
+export type InsertTask = z.infer<typeof insertTaskSchema>;
+
+export const insertTaskCommentSchema = createInsertSchema(taskComments).omit({ id: true, createdAt: true, updatedAt: true });
+export type TaskComment = typeof taskComments.$inferSelect;
+export type InsertTaskComment = z.infer<typeof insertTaskCommentSchema>;
+
+export const insertTaskAttachmentSchema = createInsertSchema(taskAttachments).omit({ id: true, createdAt: true });
+export type TaskAttachment = typeof taskAttachments.$inferSelect;
+export type InsertTaskAttachment = z.infer<typeof insertTaskAttachmentSchema>;
+
+// === BACKUP & DATA MANAGEMENT RELATIONS & SCHEMAS ===
+
+export const backupsRelations = relations(backups, ({ one }) => ({
+  creator: one(users, {
+    fields: [backups.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const insertBackupSchema = createInsertSchema(backups).omit({ id: true, startedAt: true, completedAt: true });
+export type Backup = typeof backups.$inferSelect;
+export type InsertBackup = z.infer<typeof insertBackupSchema>;
+
+// === NOTIFICATIONS RELATIONS & SCHEMAS ===
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
+export const notificationTemplatesRelations = relations(notificationTemplates, ({ many }) => ({
+  // No direct relations needed
+}));
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true, readAt: true });
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+export const insertNotificationTemplateSchema = createInsertSchema(notificationTemplates).omit({ id: true, createdAt: true, updatedAt: true });
+export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
+export type InsertNotificationTemplate = z.infer<typeof insertNotificationTemplateSchema>;
