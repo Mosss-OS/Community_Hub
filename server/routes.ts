@@ -2056,6 +2056,10 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const input = api.sermons.create.input.parse(req.body);
       const sermon = await storage.createSermon(input);
+
+      // Invalidate sermons cache
+      cache.flushAll();
+
       res.status(201).json(sermon);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -2083,7 +2087,12 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
       if (description !== undefined) input.description = description;
       if (thumbnailUrl !== undefined) input.thumbnailUrl = thumbnailUrl;
       if (isUpcoming !== undefined) input.isUpcoming = isUpcoming;
+
       const sermon = await storage.updateSermon(id, input);
+
+      // Invalidate sermons cache
+      cache.flushAll();
+
       res.json(sermon);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -2098,6 +2107,10 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const id = Number(req.params.id);
       await storage.deleteSermon(id);
+
+      // Invalidate sermons cache
+      cache.flushAll();
+
       res.json({ message: "Sermon deleted successfully" });
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });
