@@ -138,7 +138,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-center md:text-left text-white">
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-serif font-semibold leading-[1.1] mb-6">
+              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-serif font-semibold leading-[1.1] mb-6">
                 <span className="text-white">Welcome Home to Your</span> <br />
                 <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent animate-pulse">Church Family</span>
               </h1>
