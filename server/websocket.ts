@@ -206,6 +206,21 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: any) {
       });
       break;
 
+    case 'READ_RECEIPT':
+      // Mark messages as read
+      if (message.messageIds && message.chatId) {
+        // TODO: Update read status in DB
+        // Notify sender that messages were read
+        broadcastToAllExcept(userId, {
+          type: 'MESSAGES_READ',
+          chatId: message.chatId,
+          messageIds: message.messageIds,
+          readBy: userId,
+          timestamp: Date.now(),
+        });
+      }
+      break;
+
     default:
       console.log('Unknown message type:', message.type);
   }
