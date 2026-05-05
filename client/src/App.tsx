@@ -10,6 +10,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AppInstallBanner } from "@/components/AppInstallBanner";
 import { ThemeProvider } from "@/hooks/use-theme";
 
+// Initialize Sentry for frontend error tracking
+if (import.meta.env.VITE_SENTRY_DSN) {
+  const Sentry = await import('@sentry/react');
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE || 'development',
+    integrations: [
+      new Sentry.BrowserTracing(),
+    ],
+    tracesSampleRate: 1.0,
+  });
+}
+
 // Pages
 import HomePage from "@/pages/HomePage";
 import AboutPage from "@/pages/AboutPage";
