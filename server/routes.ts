@@ -799,14 +799,67 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     }
   });
 
-  // Logout
-  app.post("/api/auth/logout", (req, res) => {
-       const isProduction = process.env.NODE_ENV === 'production';
-       // Clear auth token
-       res.clearCookie('token');
-       // Clear CSRF token
-       res.clearCookie('csrf_token');
-       res.json({ message: "Logged out successfully" });
+   // Logout
+   app.post("/api/auth/logout", (req, res) => {
+        const isProduction = process.env.NODE_ENV === 'production';
+        // Clear auth token
+        res.clearCookie('token');
+        // Clear CSRF token
+        res.clearCookie('csrf_token');
+        res.json({ message: "Logged out successfully" });
+    });
+
+   // Forgot password (rate limited)
+   const forgotPasswordLimiter = rateLimit({
+     windowMs: 15 * 60 * 1000,
+     max: 3,
+     message: { message: 'Too many password reset attempts, please try again after 15 minutes' },
+     standardHeaders: true,
+     legacyHeaders: false,
+   });
+
+   app.post("/api/auth/forgot-password", forgotPasswordLimiter, async (req, res) => {
+     try {
+       const { email } = req.body;
+       if (!email) return res.status(400).json({ message: "Email is required" });
+
+       const user = await storage.getUserByEmail(email);
+       if (!user) {
+         // Don't reveal if user exists
+         return res.json({ message: "If an account exists, a reset link has been sent" });
+       }
+
+       // Generate reset token (in production, store in DB with expiry)
+       const resetToken = crypto.randomBytes(32).toString('hex');
+       const resetTokenHash = await bcrypt.hash(resetToken, 10);
+
+       // TODO: Store token in DB with expiry (add password_reset_tokens table)
+       // TODO: Send email with reset link: /reset-password?token=...&email=...
+
+       console.log(`Password reset token for ${email}: ${resetToken}`); // For dev only
+
+       res.json({ message: "If an account exists, a reset link has been sent" });
+     } catch (err) {
+       console.error("Error in forgot password:", err);
+       res.status(500).json({ message: "Internal server error" });
+     }
+   });
+
+   // Reset password
+   app.post("/api/auth/reset-password", async (req, res) => {
+     try {
+       const { token, email, newPassword } = req.body;
+       if (!token || !email || !newPassword) {
+         return res.status(400).json({ message: "Missing required fields" });
+       }
+
+       // TODO: Verify token from DB and check expiry
+       // For now, return a message
+       res.status(501).json({ message: "Password reset not fully implemented yet" });
+     } catch (err) {
+       console.error("Error in reset password:", err);
+       res.status(500).json({ message: "Internal server error" });
+     }
    });
 
   // Legacy login redirect (for compatibility)
