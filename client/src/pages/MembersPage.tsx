@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonList";
 import { EmptyState } from "@/components/EmptyState";
-import { Users } from "lucide-react";
-import { HiViewGrid, HiMenu } from "react-icons/hi";
 import { 
   Search, 
   Loader2, 
@@ -28,6 +26,7 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
+import { HiViewGrid, HiMenu } from "react-icons/hi";
 import { buildApiUrl } from "@/lib/api-config";
 
 interface Member {
