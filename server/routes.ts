@@ -426,6 +426,32 @@ export async function registerRoutes(
   });
 
   // Health check endpoint (no auth required)
+  /**
+   * @openapi
+   * /api/health:
+   *   get:
+   *     tags:
+   *       - Health
+   *     summary: Health check endpoint
+   *     description: Returns the health status of the API
+   *     responses:
+   *       200:
+   *         description: Server is healthy
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: ok
+   *                 timestamp:
+   *                   type: string
+   *                   format: date-time
+   *                 uptime:
+   *                   type: number
+   *                   description: Server uptime in seconds
+   */
   app.get("/api/health", (req, res) => {
     res.json({
       status: 'ok',

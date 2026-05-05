@@ -57,6 +57,19 @@ import CelebrationsPage from "@/pages/CelebrationsPage";
 import { useWebSocket } from "@/hooks/use-websocket";
 import LanguageSettingsPage from "@/pages/LanguageSettingsPage";
 import StaffDirectoryPage from "@/pages/StaffDirectoryPage";
+import ResourcesPage from "@/pages/ResourcesPage";
+import BillingPage from "@/pages/BillingPage";
+import TasksPage from "@/pages/TasksPage";
+import NotificationsPage from "@/pages/NotificationsPage";
+import BackupsPage from "@/pages/BackupsPage";
+import CounselingPage from "@/pages/CounselingPage";
+import WebhooksPage from "@/pages/WebhooksPage";
+import IntegrationsPage from "@/pages/IntegrationsPage";
+import CampusesPage from "@/pages/CampusesPage";
+import MemberActivityPage from "@/pages/MemberActivityPage";
+import SpiritualHealthPage from "@/pages/SpiritualHealthPage";
+import CustomPagesPage from "@/pages/CustomPagesPage";
+import EmailTemplatesPage from "@/pages/EmailTemplatesPage";
 import { LanguageProvider } from "@/hooks/use-language";
 
 import { useLocation, Redirect } from "wouter";
@@ -138,6 +151,19 @@ function Router() {
               <Route path="/messages" component={MessagesPage} />
               <Route path="/settings/language" component={LanguageSettingsPage} />
               <Route path="/settings/sessions" component={SessionManagementPage} />
+              <Route path="/resources" component={ResourcesPage} />
+              <Route path="/billing" component={BillingPage} />
+              <Route path="/tasks" component={TasksPage} />
+              <Route path="/notifications" component={NotificationsPage} />
+              <Route path="/admin/backups" component={BackupsPage} />
+              <Route path="/counseling" component={CounselingPage} />
+              <Route path="/admin/webhooks" component={WebhooksPage} />
+              <Route path="/admin/integrations" component={IntegrationsPage} />
+              <Route path="/admin/campuses" component={CampusesPage} />
+              <Route path="/activity" component={MemberActivityPage} />
+              <Route path="/spiritual-health" component={SpiritualHealthPage} />
+              <Route path="/admin/custom-pages" component={CustomPagesPage} />
+              <Route path="/admin/email-templates" component={EmailTemplatesPage} />
               <Route component={NotFound} />
             </>
         </Switch>

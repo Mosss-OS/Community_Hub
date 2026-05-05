@@ -6,6 +6,8 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { connectKafka } from "./services/kafka";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
 
 // Force production if not explicitly development
 if (!process.env.NODE_ENV) {
@@ -131,6 +133,12 @@ app.use((req, res, next) => {
     console.log('Routes registered successfully');
   } catch (err) {
     console.error('Failed to register routes:', err);
+  }
+
+  // Setup Swagger API docs (only in development)
+  if (process.env.NODE_ENV !== 'production') {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    console.log('API docs available at /api-docs');
   }
 
   // Setup WebSocket

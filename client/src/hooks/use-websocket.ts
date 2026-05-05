@@ -1,126 +1,168 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { useAuth } from './use-auth';
-import { useQueryClient } from '@tanstack/react-query';
-import { buildApiUrl } from '@/lib/api-config';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
-interface WebSocketMessage {
-  type: string;
-  data?: any;
-  message?: string;
-  users?: string[];
+interface UseWebSocketOptions {
+  onMessage?: (data: any) => void;
+  onOpen?: () => void;
+  onClose?: () => void;
+  onError?: (error: Event) => void;
 }
 
-export function useWebSocket() {
-  const { user } = useAuth();
-  const wsRef = useRef<WebSocket | null>(null);
-  const queryClient = useQueryClient();
+export function useWebSocket(options: UseWebSocketOptions = {}) {
+  const ws = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const reconnectAttempts = useRef(0);
-  const maxReconnectAttempts = 5;
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const { onMessage, onOpen, onClose, onError } = options;
 
   const connect = useCallback(() => {
-    if (!user) return;
-
-    // Get token from localStorage (where we store it for cross-origin auth)
-    const token = localStorage.getItem('auth_token');
-
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (!token) return;
 
-    // Determine WebSocket URL based on environment
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // Use current host for WebSocket connections
-    const wsHost = window.location.host;
-    const wsUrl = `${wsProtocol}//${wsHost}/ws`;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws?token=${token}`;
 
-    try {
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
+    ws.current = new WebSocket(wsUrl);
 
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-        setIsConnected(true);
-        reconnectAttempts.current = 0;
-      };
+    ws.current.onopen = () => {
+      setIsConnected(true);
+      onOpen?.();
+    };
 
-      ws.onmessage = (event) => {
-        try {
-          const message: WebSocketMessage = JSON.parse(event.data);
-          handleMessage(message);
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
+    ws.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'ONLINE_USERS') {
+          setOnlineUsers(data.users);
         }
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        setIsConnected(false);
-        wsRef.current = null;
-        attemptReconnect();
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    } catch (err) {
-      console.error('Error creating WebSocket:', err);
-    }
-  }, [user]);
-
-  const handleMessage = useCallback((message: WebSocketMessage) => {
-    switch (message.type) {
-      case 'NEW_MESSAGE':
-        queryClient.invalidateQueries({ queryKey: ['my-messages'] });
-        queryClient.invalidateQueries({ queryKey: ['unread-count'] });
-        break;
-      case 'CONNECTED':
-        console.log('WebSocket:', message.message);
-        break;
-      case 'PONG':
-        break;
-      default:
-        console.log('Unknown WebSocket message:', message);
-    }
-  }, [queryClient]);
-
-  const attemptReconnect = useCallback(() => {
-    if (reconnectAttempts.current >= maxReconnectAttempts) {
-      console.log('Max reconnect attempts reached');
-      return;
-    }
-
-    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
-    reconnectTimeoutRef.current = setTimeout(() => {
-      reconnectAttempts.current++;
-      console.log(`Attempting to reconnect (${reconnectAttempts.current}/${maxReconnectAttempts})...`);
-      connect();
-    }, delay);
-  }, [connect]);
-
-  useEffect(() => {
-    if (user) {
-      connect();
-    }
-
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+        onMessage?.(data);
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
       }
     };
-  }, [user, connect]);
 
-  const sendMessage = useCallback((data: any) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
+    ws.current.onclose = () => {
+      setIsConnected(false);
+      onClose?.();
+      // Reconnect after 3 seconds
+      setTimeout(connect, 3000);
+    };
+
+    ws.current.onerror = (error) => {
+      onError?.(error);
+    };
+  }, [onMessage, onOpen, onClose, onError]);
+
+  const send = useCallback((data: any) => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(data));
     }
   }, []);
 
-  const ping = useCallback(() => {
-    sendMessage({ type: 'PING' });
-  }, [sendMessage]);
+  const disconnect = useCallback(() => {
+    if (ws.current) {
+      ws.current.close();
+    }
+  }, []);
 
-  return { isConnected, sendMessage, ping };
+  useEffect(() => {
+    connect();
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [connect]);
+
+  return {
+    isConnected,
+    onlineUsers,
+    send,
+    disconnect,
+    ws: ws.current,
+  };
+}
+
+export function useTypingIndicator(chatId: string | null) {
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+
+  const startTyping = useCallback((send: (data: any) => void) => {
+    if (!chatId) return;
+    send({ type: 'TYPING_START', chatId });
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+    typingTimeout.current = setTimeout(() => {
+      stopTyping(send);
+    }, 3000);
+  }, [chatId]);
+
+  const stopTyping = useCallback((send: (data: any) => void) => {
+    if (!chatId) return;
+    send({ type: 'TYPING_STOP', chatId });
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+      typingTimeout.current = null;
+    }
+  }, [chatId]);
+
+  const handleTypingMessage = useCallback((data: any) => {
+    if (data.type === 'USER_TYPING' && data.chatId === chatId) {
+      setTypingUsers(prev => {
+        if (data.isTyping && !prev.includes(data.userId)) {
+          return [...prev, data.userId];
+        } else if (!data.isTyping) {
+          return prev.filter(id => id !== data.userId);
+        }
+        return prev;
+      });
+    }
+  }, [chatId]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeout.current) {
+        clearTimeout(typingTimeout.current);
+      }
+    };
+  }, []);
+
+  return {
+    typingUsers,
+    startTyping,
+    stopTyping,
+    handleTypingMessage,
+  };
+}
+
+export function useLiveAttendance() {
+  const [attendanceCount, setAttendanceCount] = useState(0);
+  const [recentCheckins, setRecentCheckins] = useState<any[]>([]);
+
+  const handleAttendanceMessage = useCallback((data: any) => {
+    if (data.type === 'ATTENDANCE_UPDATE') {
+      setAttendanceCount(prev => prev + 1);
+      setRecentCheckins(prev => [data.data, ...prev].slice(0, 10));
+    }
+  }, []);
+
+  return {
+    attendanceCount,
+    recentCheckins,
+    handleAttendanceMessage,
+  };
+}
+
+export function useNotificationsRealtime() {
+  const [newNotification, setNewNotification] = useState<any>(null);
+
+  const handleNotificationMessage = useCallback((data: any) => {
+    if (data.type === 'NOTIFICATION') {
+      setNewNotification(data.data);
+    }
+  }, []);
+
+  return {
+    newNotification,
+    handleNotificationMessage,
+  };
 }
