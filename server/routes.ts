@@ -1913,9 +1913,12 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
   app.get(api.sermons.list.path, async (req: AuthenticatedRequest, res) => {
     const { speaker, series, status, search } = req.query;
     const orgId = getOrganizationId(req);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
 
     // Create cache key from query params
-    const cacheKey = `sermons:${orgId}:${speaker || ''}:${series || ''}:${status || ''}:${search || ''}`;
+    const cacheKey = `sermons:${orgId}:${speaker || ''}:${series || ''}:${status || ''}:${search || ''}:${page}:${limit}`;
 
     // Check cache
     const cached = cache.get(cacheKey);
@@ -1932,12 +1935,23 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     if (status === 'past') filter.isUpcoming = false;
     if (orgId) filter.organizationId = orgId;
 
-    const sermons = await storage.getSermons(filter);
+    const allSermons = await storage.getSermons(filter);
+    const paginatedSermons = allSermons.slice(offset, offset + limit);
+
+    const result = {
+      sermons: paginatedSermons,
+      pagination: {
+        page,
+        limit,
+        total: allSermons.length,
+        totalPages: Math.ceil(allSermons.length / limit),
+      },
+    };
 
     // Cache the result
-    cache.set(cacheKey, sermons);
+    cache.set(cacheKey, result);
 
-    res.json(sermons);
+    res.json(result);
   });
 
   // Get sermon topics for filtering - must be BEFORE :id route
