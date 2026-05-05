@@ -6,6 +6,10 @@ import { supportedLanguages, groupJoinRequests, groupActivityLogs, volunteerSkil
 import { eq, desc } from "drizzle-orm";
 import { api } from "@shared/routes";
 import rateLimit from 'express-rate-limit';
+import NodeCache from 'node-cache';
+
+// Cache instance (TTL: 5 minutes)
+const cache = new NodeCache({ stdTTL: 300, checkperiod: 320 });
 
 // Rate limiters for auth endpoints
 const loginLimiter = rateLimit({
@@ -1890,20 +1894,34 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     }
   });
 
-  // Sermons
+  // Sermons (with caching)
   app.get(api.sermons.list.path, async (req: AuthenticatedRequest, res) => {
     const { speaker, series, status, search } = req.query;
     const orgId = getOrganizationId(req);
+
+    // Create cache key from query params
+    const cacheKey = `sermons:${orgId}:${speaker || ''}:${series || ''}:${status || ''}:${search || ''}`;
+
+    // Check cache
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const filter: ISermonFilter = {};
-    
+
     if (speaker) filter.speaker = speaker as string;
     if (series) filter.series = series as string;
     if (search) filter.search = search as string;
     if (status === 'upcoming') filter.isUpcoming = true;
     if (status === 'past') filter.isUpcoming = false;
     if (orgId) filter.organizationId = orgId;
-    
+
     const sermons = await storage.getSermons(filter);
+
+    // Cache the result
+    cache.set(cacheKey, sermons);
+
     res.json(sermons);
   });
 

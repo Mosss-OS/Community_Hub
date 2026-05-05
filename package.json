@@ -92,6 +92,7 @@
     "multiparty": "^4.2.3",
     "nanoid": "^5.1.6",
     "next-themes": "^0.4.6",
+    "node-cache": "^5.1.2",
     "node-rdkafka": "^3.6.1",
     "nodemailer": "^8.0.0",
     "openid-client": "^6.8.1",
