@@ -134,13 +134,13 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-8 w-full py-32">
+        <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-8 w-full py-32 md:py-48">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-center md:text-left text-white">
-              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-serif font-semibold leading-[1.1] mb-6">
+              <h1 className="text-7xl sm:text-8xl md:text-[9xl] lg:text-[10rem] xl:text-[12rem] font-serif font-semibold leading-[1.1] mb-6">
                 <span className="text-white">Welcome Home to Your</span> <br />
-                <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent animate-pulse">Church Family</span>
+                <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent animate-pulse scale-110">Church Family</span>
               </h1>
               <p className="text-lg sm:text-xl text-white/80 max-w-xl mx-auto md:mx-0 mb-8 leading-relaxed">
                 Experience the love of God in a community that cares. Join us for worship, 
