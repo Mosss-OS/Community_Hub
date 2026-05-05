@@ -31,7 +31,7 @@ import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
-import { sendNewMessageNotification } from "./websocket";
+import { sendNewMessageNotification, sendNotificationToUser, broadcastToAll, broadcastToAdmins, broadcastAttendanceUpdate, getOnlineUsers, isUserOnline } from "./websocket";
 import { processVideoClip } from "./video-processing";
 import { publicVapidKey } from "./services/push-notifications";
 
@@ -87,12 +87,12 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for videos
   fileFilter: (req, file, cb) => {
     // Allowed video extensions
-    const allowedExtensions = [".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".mkv"];
+    const allowedExtensions = [".mp4", ".avi", ".mov", ".wmv", ".webm", ".mkv"];
     const extension = path.extname(file.originalname).toLowerCase();
     
     // Check file extension
     if (!allowedExtensions.includes(extension)) {
-      return cb(new Error("Invalid video file type. Allowed formats: MP4, AVI, MOV, WMV, FLV, WEBM, MKV"));
+      return cb(new Error("Invalid video file type. Allowed formats: MP4, AVI, MOV, WMV, WEBM, MKV"));
     }
     
     // Check MIME type
@@ -102,6 +102,48 @@ const upload = multer({
       cb(new Error("Invalid video file type"));
     }
   }
+});
+
+// Document upload for resources
+const documentStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(process.cwd(), "uploads", "documents"));
+  },
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    const randomName = crypto.randomBytes(16).toString("hex");
+    cb(null, `${randomName}${extension}`);
+  }
+});
+
+const documentUpload = multer({
+  storage: documentStorage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for documents
+  fileFilter: (req, file, cb) => {
+    const allowedExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".csv"];
+    const extension = path.extname(file.originalname).toLowerCase();
+    if (!allowedExtensions.includes(extension)) {
+      return cb(new Error("Invalid file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV"));
+    }
+    cb(null, true);
+  }
+});
+
+// General file upload for task attachments
+const attachmentStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(process.cwd(), "uploads", "attachments"));
+  },
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    const randomName = crypto.randomBytes(16).toString("hex");
+    cb(null, `${randomName}${extension}`);
+  }
+});
+
+const attachmentUpload = multer({
+  storage: attachmentStorage,
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB limit for attachments
 });
 
 // Extend Express Request type to include user
@@ -381,6 +423,15 @@ export async function registerRoutes(
       maxAge: 24 * 60 * 60 * 1000,
     });
     res.json({ csrfToken });
+  });
+
+  // Health check endpoint (no auth required)
+  app.get("/api/health", (req, res) => {
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
   });
 
   // Apply subdomain detection middleware to all API routes
@@ -4937,11 +4988,687 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     console.error("Error cleaning up old messages on startup:", err);
   }
 
-  // Seed data function
+  // Seed database tables
   try {
+  // === RESOURCES & CONTENT LIBRARY API ===
+
+  // Get all resources
+  app.get("/api/resources", async (req, res) => {
+    try {
+      const organizationId = req.query.organizationId as string;
+      const resources = await storage.getResources(organizationId);
+      res.json(resources);
+    } catch (err) {
+      console.error("Error fetching resources:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get single resource
+  app.get("/api/resources/:id", async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const resource = await storage.getResource(id);
+      if (!resource) return res.status(404).json({ message: "Resource not found" });
+      res.json(resource);
+    } catch (err) {
+      console.error("Error fetching resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create resource (admin)
+  app.post("/api/resources", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const resource = await storage.createResource({ ...req.body, createdBy: req.user!.id });
+      // Notify all online users about new resource if public
+      if (resource.isPublic) {
+        broadcastToAll({
+          type: 'NEW_RESOURCE',
+          data: resource
+        });
+      }
+      res.json(resource);
+    } catch (err) {
+      console.error("Error creating resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update resource (admin)
+  app.put("/api/resources/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const resource = await storage.updateResource(id, req.body);
+      res.json(resource);
+    } catch (err) {
+      console.error("Error updating resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete resource (admin)
+  app.delete("/api/resources/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteResource(id);
+      res.json({ message: "Resource deleted" });
+    } catch (err) {
+      console.error("Error deleting resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Upload resource file (admin)
+  app.post("/api/resources/upload", isAuthenticated, isAdmin, documentUpload.single("file"), async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const fileUrl = `/uploads/documents/${req.file.filename}`;
+      const resource = await storage.createResource({
+        title: req.file.originalname,
+        fileUrl,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        isPublic: false,
+        createdBy: req.user!.id,
+      });
+      res.json(resource);
+    } catch (err) {
+      console.error("Error uploading resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Download resource
+  app.post("/api/resources/:id/download", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const resourceId = Number(req.params.id);
+      const download = await storage.downloadResource(resourceId, req.user!.id, req.ip);
+      res.json(download);
+    } catch (err) {
+      console.error("Error downloading resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Favorite resource
+  app.post("/api/resources/:id/favorite", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const resourceId = Number(req.params.id);
+      const favorite = await storage.favoriteResource(resourceId, req.user!.id);
+      res.json(favorite);
+    } catch (err) {
+      console.error("Error favoriting resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Unfavorite resource
+  app.delete("/api/resources/:id/favorite", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const resourceId = Number(req.params.id);
+      await storage.unfavoriteResource(resourceId, req.user!.id);
+      res.json({ message: "Resource unfavorited" });
+    } catch (err) {
+      console.error("Error unfavoriting resource:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get user's favorite resources
+  app.get("/api/resources/favorites/me", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const favorites = await storage.getUserFavoriteResources(req.user!.id);
+      res.json(favorites);
+    } catch (err) {
+      console.error("Error fetching favorite resources:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === BILLING & SUBSCRIPTIONS API ===
+
+  // Get subscription for organization
+  app.get("/api/billing/subscription", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const organizationId = req.user!.organizationId || req.query.organizationId as string;
+      const subscription = await storage.getSubscription(organizationId);
+      res.json(subscription || { plan: 'FREE', status: 'TRIALING' });
+    } catch (err) {
+      console.error("Error fetching subscription:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create subscription (admin)
+  app.post("/api/billing/subscription", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const subscription = await storage.createSubscription(req.body);
+      res.json(subscription);
+    } catch (err) {
+      console.error("Error creating subscription:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update subscription (admin)
+  app.put("/api/billing/subscription/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const subscription = await storage.updateSubscription(id, req.body);
+      res.json(subscription);
+    } catch (err) {
+      console.error("Error updating subscription:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get invoices
+  app.get("/api/billing/invoices", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const organizationId = req.user!.organizationId || req.query.organizationId as string;
+      const invoices = await storage.getInvoices(organizationId);
+      res.json(invoices);
+    } catch (err) {
+      console.error("Error fetching invoices:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create invoice (admin)
+  app.post("/api/billing/invoices", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const invoice = await storage.createInvoice(req.body);
+      res.json(invoice);
+    } catch (err) {
+      console.error("Error creating invoice:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get payment methods
+  app.get("/api/billing/payment-methods", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const organizationId = req.user!.organizationId || req.query.organizationId as string;
+      const paymentMethods = await storage.getPaymentMethods(organizationId);
+      res.json(paymentMethods);
+    } catch (err) {
+      console.error("Error fetching payment methods:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Add payment method (admin)
+  app.post("/api/billing/payment-methods", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const paymentMethod = await storage.createPaymentMethod(req.body);
+      res.json(paymentMethod);
+    } catch (err) {
+      console.error("Error creating payment method:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete payment method (admin)
+  app.delete("/api/billing/payment-methods/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deletePaymentMethod(id);
+      res.json({ message: "Payment method deleted" });
+    } catch (err) {
+      console.error("Error deleting payment method:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Set default payment method (admin)
+  app.post("/api/billing/payment-methods/:id/default", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = Number(req.params.id);
+      const organizationId = req.user!.organizationId || req.body.organizationId;
+      const paymentMethod = await storage.setDefaultPaymentMethod(id, organizationId);
+      res.json(paymentMethod);
+    } catch (err) {
+      console.error("Error setting default payment method:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === TASKS & PROJECTS API ===
+
+  // Get all projects
+  app.get("/api/projects", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const organizationId = req.user!.organizationId || req.query.organizationId as string;
+      const projects = await storage.getProjects(organizationId);
+      res.json(projects);
+    } catch (err) {
+      console.error("Error fetching projects:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get single project
+  app.get("/api/projects/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const project = await storage.getProject(id);
+      if (!project) return res.status(404).json({ message: "Project not found" });
+      res.json(project);
+    } catch (err) {
+      console.error("Error fetching project:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create project (admin)
+  app.post("/api/projects", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const project = await storage.createProject({ ...req.body, createdBy: req.user!.id });
+      res.json(project);
+    } catch (err) {
+      console.error("Error creating project:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update project (admin)
+  app.put("/api/projects/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const project = await storage.updateProject(id, req.body);
+      res.json(project);
+    } catch (err) {
+      console.error("Error updating project:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete project (admin)
+  app.delete("/api/projects/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteProject(id);
+      res.json({ message: "Project deleted" });
+    } catch (err) {
+      console.error("Error deleting project:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get project tasks
+  app.get("/api/projects/:id/tasks", isAuthenticated, async (req, res) => {
+    try {
+      const projectId = Number(req.params.id);
+      const tasks = await storage.getProjectTasks(projectId);
+      res.json(tasks);
+    } catch (err) {
+      console.error("Error fetching project tasks:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get all tasks
+  app.get("/api/tasks", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const filters: any = {};
+      if (req.query.projectId) filters.projectId = Number(req.query.projectId);
+      if (req.query.assignedTo) filters.assignedTo = req.query.assignedTo as string;
+      if (req.query.status) filters.status = req.query.status as string;
+      const tasks = await storage.getTasks(filters);
+      res.json(tasks);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get single task
+  app.get("/api/tasks/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const task = await storage.getTask(id);
+      if (!task) return res.status(404).json({ message: "Task not found" });
+      res.json(task);
+    } catch (err) {
+      console.error("Error fetching task:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create task (admin)
+  app.post("/api/tasks", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const task = await storage.createTask({ ...req.body, createdBy: req.user!.id });
+      // Real-time notification to assigned user
+      if (task.assignedTo && task.assignedTo !== req.user!.id) {
+        sendNotificationToUser(task.assignedTo, {
+          id: Date.now(),
+          type: 'TASK_ASSIGNED',
+          title: 'New Task Assigned',
+          message: `You have been assigned a new task: ${task.title}`,
+          link: `/tasks/${task.id}`,
+          isRead: false,
+          createdAt: new Date(),
+        });
+      }
+      res.json(task);
+    } catch (err) {
+      console.error("Error creating task:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update task
+  app.put("/api/tasks/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const task = await storage.updateTask(id, req.body);
+      res.json(task);
+    } catch (err) {
+      console.error("Error updating task:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete task
+  app.delete("/api/tasks/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteTask(id);
+      res.json({ message: "Task deleted" });
+    } catch (err) {
+      console.error("Error deleting task:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get task comments
+  app.get("/api/tasks/:id/comments", isAuthenticated, async (req, res) => {
+    try {
+      const taskId = Number(req.params.id);
+      const comments = await storage.getTaskComments(taskId);
+      res.json(comments);
+    } catch (err) {
+      console.error("Error fetching task comments:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Upload task attachment
+  app.post("/api/tasks/:id/attachments/upload", isAuthenticated, attachmentUpload.single("file"), async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const taskId = Number(req.params.id);
+      const attachment = await storage.addTaskAttachment({
+        taskId,
+        fileName: req.file.originalname,
+        fileUrl: `/uploads/attachments/${req.file.filename}`,
+        fileSize: req.file.size,
+        uploadedBy: req.user!.id,
+      });
+      res.json(attachment);
+    } catch (err) {
+      console.error("Error uploading attachment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Add task comment
+  app.post("/api/tasks/:id/comments", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const taskId = Number(req.params.id);
+      const comment = await storage.addTaskComment({ ...req.body, taskId, userId: req.user!.id });
+      res.json(comment);
+    } catch (err) {
+      console.error("Error adding task comment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete task comment
+  app.delete("/api/tasks/comments/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteTaskComment(id);
+      res.json({ message: "Comment deleted" });
+    } catch (err) {
+      console.error("Error deleting task comment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get task attachments
+  app.get("/api/tasks/:id/attachments", isAuthenticated, async (req, res) => {
+    try {
+      const taskId = Number(req.params.id);
+      const attachments = await storage.getTaskAttachments(taskId);
+      res.json(attachments);
+    } catch (err) {
+      console.error("Error fetching task attachments:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Add task attachment
+  app.post("/api/tasks/:id/attachments", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const taskId = Number(req.params.id);
+      const attachment = await storage.addTaskAttachment({ ...req.body, taskId, uploadedBy: req.user!.id });
+      res.json(attachment);
+    } catch (err) {
+      console.error("Error adding task attachment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete task attachment
+  app.delete("/api/tasks/attachments/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteTaskAttachment(id);
+      res.json({ message: "Attachment deleted" });
+    } catch (err) {
+      console.error("Error deleting task attachment:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === BACKUP & DATA MANAGEMENT API ===
+
+  // Get all backups
+  app.get("/api/backups", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const organizationId = req.user!.organizationId || req.query.organizationId as string;
+      const backups = await storage.getBackups(organizationId);
+      res.json(backups);
+    } catch (err) {
+      console.error("Error fetching backups:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get single backup
+  app.get("/api/backups/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const backup = await storage.getBackup(id);
+      if (!backup) return res.status(404).json({ message: "Backup not found" });
+      res.json(backup);
+    } catch (err) {
+      console.error("Error fetching backup:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create backup (admin)
+  app.post("/api/backups", isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const backup = await storage.createBackup({ ...req.body, createdBy: req.user!.id });
+      res.json(backup);
+    } catch (err) {
+      console.error("Error creating backup:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update backup status (admin)
+  app.put("/api/backups/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const backup = await storage.updateBackup(id, req.body);
+      res.json(backup);
+    } catch (err) {
+      console.error("Error updating backup:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete backup (admin)
+  app.delete("/api/backups/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteBackup(id);
+      res.json({ message: "Backup deleted" });
+    } catch (err) {
+      console.error("Error deleting backup:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // === NOTIFICATIONS SYSTEM API ===
+
+  // Get user notifications
+  app.get("/api/notifications", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const unreadOnly = req.query.unread === 'true';
+      const notifications = await storage.getUserNotifications(req.user!.id, unreadOnly);
+      res.json(notifications);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get single notification
+  app.get("/api/notifications/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const notification = await storage.getNotification(id);
+      if (!notification) return res.status(404).json({ message: "Notification not found" });
+      res.json(notification);
+    } catch (err) {
+      console.error("Error fetching notification:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create notification (admin)
+  app.post("/api/notifications", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const notification = await storage.createNotification(req.body);
+      // Real-time notification to the target user
+      if (notification.userId) {
+        sendNotificationToUser(notification.userId, notification);
+      }
+      res.json(notification);
+    } catch (err) {
+      console.error("Error creating notification:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Mark notification as read
+  app.post("/api/notifications/:id/read", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = Number(req.params.id);
+      const notification = await storage.markNotificationRead(id);
+      res.json(notification);
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Mark all notifications as read
+  app.post("/api/notifications/read-all", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      await storage.markAllNotificationsRead(req.user!.id);
+      res.json({ message: "All notifications marked as read" });
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete notification
+  app.delete("/api/notifications/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteNotification(id);
+      res.json({ message: "Notification deleted" });
+    } catch (err) {
+      console.error("Error deleting notification:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get notification templates (admin)
+  app.get("/api/notifications/templates", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const templates = await storage.getNotificationTemplates();
+      res.json(templates);
+    } catch (err) {
+      console.error("Error fetching notification templates:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create notification template (admin)
+  app.post("/api/notifications/templates", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const template = await storage.createNotificationTemplate(req.body);
+      res.json(template);
+    } catch (err) {
+      console.error("Error creating notification template:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update notification template (admin)
+  app.put("/api/notifications/templates/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const template = await storage.updateNotificationTemplate(id, req.body);
+      res.json(template);
+    } catch (err) {
+      console.error("Error updating notification template:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete notification template (admin)
+  app.delete("/api/notifications/templates/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      await storage.deleteNotificationTemplate(id);
+      res.json({ message: "Template deleted" });
+    } catch (err) {
+      console.error("Error deleting notification template:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
     await seedDatabase();
-    
-    // Check if ANY super admin exists
+  } catch (err) {
+    console.error("Error seeding database on startup:", err);
+  }
+
+  // Check if ANY super admin exists
+  try {
     const allUsers = await storage.getAllUsers();
     const anySuperAdmin = allUsers.some(u => u.isSuperAdmin);
 
@@ -4969,7 +5696,7 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
       console.warn("WARNING: No super admin exists. Use the invite system or set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD to create one.");
     }
   } catch (err) {
-    console.error("Error seeding database on startup:", err);
+    console.error("Error creating super admin on startup:", err);
   }
 
   // === MUSIC LIBRARY ROUTES ===
@@ -8706,4 +9433,5 @@ async function seedDatabase() {
       isActive: true,
     });
   }
+
 }
