@@ -9,6 +9,19 @@ import { connectKafka } from "./services/kafka";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import validateEnv from "./validateEnv";
+import logger from "./logger";
+import { errorHandler } from "./errorHandler";
+
+// Initialize Sentry (if DSN provided)
+if (process.env.SENTRY_DSN) {
+  const Sentry = require('@sentry/node');
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 1.0,
+  });
+  logger.info('Sentry initialized');
+}
 
 // Validate environment variables on startup
 try {
@@ -67,6 +80,12 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Sentry request handler (must be before all routes)
+if (process.env.SENTRY_DSN) {
+  const Sentry = require('@sentry/node');
+  app.use(Sentry.Handlers.requestHandler());
+}
 
 app.use(
   express.json({
@@ -155,18 +174,8 @@ app.use((req, res, next) => {
   const { setupWebSocket } = await import('./websocket');
   setupWebSocket(httpServer);
 
-  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    console.error("Internal Server Error:", err);
-
-    if (res.headersSent) {
-      return next(err);
-    }
-
-    return res.status(status).json({ message });
-  });
+  // Use centralized error handler
+  app.use(errorHandler);
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
@@ -190,7 +199,7 @@ app.use((req, res, next) => {
     await connectKafka();
   }
 
-  const port = parseInt(process.env.PORT || "5000", 10);
+   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
     {
       port,
@@ -202,3 +211,9 @@ app.use((req, res, next) => {
     },
   );
 })();
+
+// Sentry error handler (must be after all routes)
+if (process.env.SENTRY_DSN) {
+  const Sentry = require('@sentry/node');
+  app.use(Sentry.Handlers.errorHandler());
+}
