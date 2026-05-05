@@ -8,6 +8,16 @@ import { createServer } from "http";
 import { connectKafka } from "./services/kafka";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
+import validateEnv from "./validateEnv";
+
+// Validate environment variables on startup
+try {
+  validateEnv();
+  console.log('Environment variables validated successfully');
+} catch (err: any) {
+  console.error('Environment validation failed:', err.message);
+  process.exit(1);
+}
 
 // Force production if not explicitly development
 if (!process.env.NODE_ENV) {
