@@ -654,7 +654,7 @@ export async function registerRoutes(
    });
 
 // Login with rate limiting (CSRF protection disabled for now)
-app.post("/api/auth/login", async (req, res) => {
+app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const { email, password } = loginSchema.parse(req.body);
       
