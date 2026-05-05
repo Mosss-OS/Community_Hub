@@ -139,7 +139,7 @@ export default function HomePage() {
             {/* Left Content */}
             <div className="text-center md:text-left text-white">
               <h1 className="text-3xl md:text-4xl font-serif font-semibold leading-[1.1] mb-6">
-                <span className="text-white">Welcome Home to Your</span> <br />
+                <span className="text-white text-3xl md:text-3xl">Welcome Home to Your</span> <br />
                 <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent">Church Family</span>
               </h1>
               <p className="text-lg sm:text-xl text-white/80 max-w-xl mx-auto md:mx-0 mb-8 leading-relaxed">
