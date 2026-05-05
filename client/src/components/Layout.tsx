@@ -15,7 +15,7 @@ export function Layout({ children }: LayoutProps) {
       <main className="flex-1 w-full">{children}</main>
       <Footer />
       <FloatingActionButton />
-      <OnboardingTour />
+      <OnboardingTour className="hidden md:block" />
     </div>
   );
 }
