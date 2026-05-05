@@ -1350,14 +1350,29 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
   // Events
   app.get(api.events.list.path, async (req: AuthenticatedRequest, res) => {
     const orgId = getOrganizationId(req);
-    const events = await storage.getEvents(orgId);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
+    const allEvents = await storage.getEvents(orgId);
+    const paginatedEvents = allEvents.slice(offset, offset + limit);
+
     const eventsWithRsvpCount = await Promise.all(
-      events.map(async (event) => {
+      paginatedEvents.map(async (event) => {
         const rsvps = await storage.getEventRsvps(event.id);
         return { ...event, rsvpCount: rsvps.length };
       })
     );
-    res.json(eventsWithRsvpCount);
+
+    res.json({
+      events: eventsWithRsvpCount,
+      pagination: {
+        page,
+        limit,
+        total: allEvents.length,
+        totalPages: Math.ceil(allEvents.length / limit),
+      },
+    });
   });
 
   app.get("/api/events/list-with-rsvps", isAuthenticated, async (req: AuthenticatedRequest, res) => {
