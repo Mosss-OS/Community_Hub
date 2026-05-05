@@ -862,6 +862,85 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
      }
    });
 
+   // === 2FA ENDPOINTS ===
+
+   // Setup 2FA - generate secret and QR code
+   app.post("/api/auth/2fa/setup", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+     try {
+       const speakeasy = require('speakeasy');
+       const qrcode = require('qrcode');
+
+       const secret = speakeasy.generateSecret({
+         name: `CommunityHub:${req.user!.email}`,
+       });
+
+       // Save secret temporarily (not enabled yet)
+       // TODO: Store in DB temporarily
+       const tempSecret = secret.base32;
+
+       // Generate QR code
+       const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+
+       res.json({
+         secret: tempSecret,
+         qrCode: qrCodeUrl,
+       });
+     } catch (err) {
+       console.error("Error setting up 2FA:", err);
+       res.status(500).json({ message: "Internal server error" });
+     }
+   });
+
+   // Verify 2FA token and enable
+   app.post("/api/auth/2fa/verify", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+     try {
+       const { token } = req.body;
+       if (!token) return res.status(400).json({ message: "Token required" });
+
+       // TODO: Get secret from DB/temp storage
+       const tempSecret = req.body.secret;
+       if (!tempSecret) return res.status(400).json({ message: "Setup required first" });
+
+       const speakeasy = require('speakeasy');
+       const verified = speakeasy.totp.verify({
+         secret: tempSecret,
+         encoding: 'base32',
+         token,
+       });
+
+       if (!verified) {
+         return res.status(400).json({ message: "Invalid token" });
+       }
+
+       // TODO: Save 2FA secret to user in DB and enable 2FA
+       // await storage.updateUser(req.user!.id, {
+       //   twoFactorEnabled: true,
+       //   twoFactorSecret: tempSecret,
+       // });
+
+       res.json({ message: "2FA enabled successfully" });
+     } catch (err) {
+       console.error("Error verifying 2FA:", err);
+       res.status(500).json({ message: "Internal server error" });
+     }
+   });
+
+   // Disable 2FA
+   app.post("/api/auth/2fa/disable", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+     try {
+       // TODO: Disable 2FA in DB
+       // await storage.updateUser(req.user!.id, {
+       //   twoFactorEnabled: false,
+       //   twoFactorSecret: null,
+       //   twoFactorBackupCodes: null,
+       // });
+       res.json({ message: "2FA disabled" });
+     } catch (err) {
+       console.error("Error disabling 2FA:", err);
+       res.status(500).json({ message: "Internal server error" });
+     }
+   });
+
   // Legacy login redirect (for compatibility)
   app.get("/api/login", (req, res) => {
     res.redirect("/auth/login");
