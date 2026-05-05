@@ -1353,8 +1353,25 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
+    const search = req.query.q as string;
+    const category = req.query.category as string;
 
-    const allEvents = await storage.getEvents(orgId);
+    let allEvents = await storage.getEvents(orgId);
+
+    // Search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      allEvents = allEvents.filter(e =>
+        e.title.toLowerCase().includes(searchLower) ||
+        e.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Category filter
+    if (category) {
+      allEvents = allEvents.filter(e => e.category === category);
+    }
+
     const paginatedEvents = allEvents.slice(offset, offset + limit);
 
     const eventsWithRsvpCount = await Promise.all(
