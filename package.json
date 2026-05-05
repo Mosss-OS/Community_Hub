@@ -10,7 +10,7 @@
     "build:server": "echo 'Server ready'",
     "start": "NODE_ENV=production node --import tsx server/index.ts",
     "db:push": "drizzle-kit push",
-    "db:migrate": "node --import tsx script/migrate.ts",
+    "db:migrate": "npx tsx server/migrate.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
