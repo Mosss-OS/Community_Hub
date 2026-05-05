@@ -137,16 +137,16 @@ export default function HomePage() {
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-8 w-full py-32">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
-            <div className="text-white">
+            <div className="text-center md:text-left text-white">
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-serif font-semibold leading-[1.1] mb-6">
                 <span className="text-white">Welcome Home to Your</span> <br />
                 <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent animate-pulse">Church Family</span>
               </h1>
-              <p className="text-lg sm:text-xl text-white/80 max-w-xl mb-8 leading-relaxed">
+              <p className="text-lg sm:text-xl text-white/80 max-w-xl mx-auto md:mx-0 mb-8 leading-relaxed">
                 Experience the love of God in a community that cares. Join us for worship, 
                 fellowship, and spiritual growth as we journey together in faith.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4">
                 <Link href="/login">
                   <Button className="bg-[#8B0000] hover:bg-[#6B0000] text-white px-8 py-3 rounded-full text-lg">
                     Join Us This Sunday
