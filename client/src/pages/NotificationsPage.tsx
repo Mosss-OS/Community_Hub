@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LuBell, LuCheck, LuTrash2, LuFilter, LuInfo, LuCheckCircle, LuAlertTriangle, LuAlertCircle, LuMessageSquare, LuUser, LuHash } from 'react-icons/lu';
+import { LuBell, LuTrash2, LuCircleCheck, LuTriangleAlert, LuCircleAlert, LuMessageSquare, LuUser, LuFileText } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 
 type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'TASK_ASSIGNED' | 'EVENT_REMINDER' | 'DONATION_RECEIVED' | 'PRAYER_REQUEST' | 'NEW_MESSAGE' | 'MENTION';
@@ -91,16 +91,16 @@ async function createTemplate(data: Partial<NotificationTemplate>): Promise<Noti
 }
 
 const typeIcons: Record<NotificationType, any> = {
-  INFO: Info,
-  SUCCESS: CheckCircle,
-  WARNING: AlertTriangle,
-  ERROR: AlertCircle,
-  TASK_ASSIGNED: CheckCircle,
-  EVENT_REMINDER: Bell,
-  DONATION_RECEIVED: CheckCircle,
-  PRAYER_REQUEST: MessageSquare,
-  NEW_MESSAGE: MessageSquare,
-  MENTION: User,
+  INFO: LuBell,
+  SUCCESS: LuCircleCheck,
+  WARNING: LuTriangleAlert,
+  ERROR: LuCircleAlert,
+  TASK_ASSIGNED: LuCircleCheck,
+  EVENT_REMINDER: LuBell,
+  DONATION_RECEIVED: LuCircleCheck,
+  PRAYER_REQUEST: LuMessageSquare,
+  NEW_MESSAGE: LuMessageSquare,
+  MENTION: LuUser,
 };
 
 const typeColors: Record<NotificationType, string> = {
@@ -196,7 +196,7 @@ export default function NotificationsPage() {
           {user?.isAdmin && (
             <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
               <DialogTrigger asChild>
-                <Button variant="outline"><Hash className="mr-2 h-4 w-4" /> Templates</Button>
+                <Button variant="outline"><LuFileText className="mr-2 h-4 w-4" /> Templates</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
