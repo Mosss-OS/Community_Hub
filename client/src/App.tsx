@@ -101,6 +101,16 @@ import ContentModerationPage from "@/pages/ContentModerationPage";
 import EventRemindersPage from "@/pages/EventRemindersPage";
 import MultiPlatformStreamingPage from "@/pages/MultiPlatformStreamingPage";
 import SermonClipCreatorPage from "@/pages/SermonClipCreatorPage";
+import TestimoniesPage from "@/pages/TestimoniesPage";
+import MinistryTeamsPage from "@/pages/MinistryTeamsPage";
+import PrayerWallPage from "@/pages/PrayerWallPage";
+import DirectoryPage from "@/pages/DirectoryPage";
+import ChurchCalendarPage from "@/pages/ChurchCalendarPage";
+import BaptismPage from "@/pages/BaptismPage";
+import AnnouncementsPage from "@/pages/AnnouncementsPage";
+import WeddingPage from "@/pages/WeddingPage";
+import FuneralPage from "@/pages/FuneralPage";
+import NotificationPreferencesPage from "@/pages/NotificationPreferencesPage";
 import { LanguageProvider } from "@/hooks/use-language";
 
 import { useLocation, Redirect } from "wouter";
@@ -213,6 +223,16 @@ function Router() {
               <Route path="/event-reminders" component={EventRemindersPage} />
               <Route path="/admin/multi-stream" component={MultiPlatformStreamingPage} />
               <Route path="/sermon-clips" component={SermonClipCreatorPage} />
+              <Route path="/testimonies" component={TestimoniesPage} />
+              <Route path="/ministries" component={MinistryTeamsPage} />
+              <Route path="/prayer-wall" component={PrayerWallPage} />
+              <Route path="/directory" component={DirectoryPage} />
+              <Route path="/calendar" component={ChurchCalendarPage} />
+              <Route path="/baptism" component={BaptismPage} />
+              <Route path="/announcements" component={AnnouncementsPage} />
+              <Route path="/wedding" component={WeddingPage} />
+              <Route path="/funeral" component={FuneralPage} />
+              <Route path="/settings/notifications" component={NotificationPreferencesPage} />
               <Route component={NotFound} />
             </>
         </Switch>
