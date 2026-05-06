@@ -86,6 +86,19 @@ import MemberActivityPage from "@/pages/MemberActivityPage";
 import SpiritualHealthPage from "@/pages/SpiritualHealthPage";
 import CustomPagesPage from "@/pages/CustomPagesPage";
 import EmailTemplatesPage from "@/pages/EmailTemplatesPage";
+import SermonManagerPage from "@/pages/SermonManagerPage";
+import EventManagerPage from "@/pages/EventManagerPage";
+import ChurchMapPage from "@/pages/ChurchMapPage";
+import AuditLogsPage from "@/pages/AuditLogsPage";
+import FinancialReportsPage from "@/pages/FinancialReportsPage";
+import UserManagementPage from "@/pages/UserManagementPage";
+import SystemSettingsPage from "@/pages/SystemSettingsPage";
+import DonationReceiptsPage from "@/pages/DonationReceiptsPage";
+import SermonNotesPage from "@/pages/SermonNotesPage";
+import ZoomIntegrationPage from "@/pages/ZoomIntegrationPage";
+import PaymentGatewayPage from "@/pages/PaymentGatewayPage";
+import ContentModerationPage from "@/pages/ContentModerationPage";
+import EventRemindersPage from "@/pages/EventRemindersPage";
 import { LanguageProvider } from "@/hooks/use-language";
 
 import { useLocation, Redirect } from "wouter";
@@ -183,6 +196,19 @@ function Router() {
               <Route path="/spiritual-health" component={SpiritualHealthPage} />
               <Route path="/admin/custom-pages" component={CustomPagesPage} />
               <Route path="/admin/email-templates" component={EmailTemplatesPage} />
+              <Route path="/admin/sermons" component={SermonManagerPage} />
+              <Route path="/admin/events" component={EventManagerPage} />
+              <Route path="/church-map" component={ChurchMapPage} />
+              <Route path="/admin/audit-logs" component={AuditLogsPage} />
+              <Route path="/admin/financial-reports" component={FinancialReportsPage} />
+              <Route path="/admin/users" component={UserManagementPage} />
+              <Route path="/admin/settings" component={SystemSettingsPage} />
+              <Route path="/donation-receipts" component={DonationReceiptsPage} />
+              <Route path="/sermon-notes" component={SermonNotesPage} />
+              <Route path="/admin/zoom" component={ZoomIntegrationPage} />
+              <Route path="/admin/payment-gateway" component={PaymentGatewayPage} />
+              <Route path="/admin/content-moderation" component={ContentModerationPage} />
+              <Route path="/event-reminders" component={EventRemindersPage} />
               <Route component={NotFound} />
             </>
         </Switch>
