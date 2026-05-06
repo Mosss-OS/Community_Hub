@@ -2,37 +2,43 @@ version: "3.8"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: runner
-    container_name: community-hub-app
+    image: node:20-alpine
+    container_name: community-hub-app-dev
+    working_dir: /app
+    command: sh -c "npm ci && cd client && npm ci && cd .. && npm run dev"
     ports:
       - "5000:5000"
+      - "5173:5173"
     env_file:
-      - .env.production
+      - .env.development
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/community_hub
+    volumes:
+      - .:/app
+      - app_node_modules:/app/node_modules
+      - client_node_modules:/app/client/node_modules
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
 
   db:
     image: postgres:16
-    container_name: community-hub-db
+    container_name: community-hub-db-dev
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=community_hub
+    ports:
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d community_hub"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  postgres_data_dev:
+  app_node_modules:
+  client_node_modules:
