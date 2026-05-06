@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { QrCode, Camera, X, Check, AlertCircle, Flashlight } from "lucide-react";
+import { LuQrCode, LuCamera, LuX, LuCheck, LuAlertCircle, LuFlashlight } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 

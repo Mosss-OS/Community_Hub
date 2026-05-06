@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Plus, Users, Building, Trash2, Edit } from "lucide-react";
+import { LuMapPin, LuPlus, LuUsers, LuBuilding, LuTrash2, LuEdit } from 'react-icons/lu';
 import { format } from "date-fns";
 
 interface Campus {

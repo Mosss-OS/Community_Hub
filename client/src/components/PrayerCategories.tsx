@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Plus, Heart, Family, Health, Work, Finance, Education, Travel, Other } from "lucide-react";
+import { LuX, LuPlus, LuHeart, LuFamily, LuHealth, LuWork, LuFinance, LuEducation, LuTravel, LuOther } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Users, Shield, Calendar, FileText, Plus, Trash2, Edit, Palette, Heart, Search, MapPin, Clock, User, Mail, Phone, BarChart3, Link, QrCode, TrendingUp, Video, DollarSign, TrendingDown, CheckCircle, HeartHandshake } from "lucide-react";
+import { LuLoader2, LuUsers, LuShield, LuCalendar, LuFileText, LuPlus, LuTrash2, LuEdit, LuPalette, LuHeart, LuSearch, LuMapPin, LuClock, LuUser, LuMail, LuPhone, LuBarChart3, LuLink, LuQrCode, LuTrendingUp, LuVideo, LuDollarSign, LuTrendingDown, LuCheckCircle, LuHeartHandshake } from 'react-icons/lu';
 import { apiRoutes } from "@/lib/api-routes";
 import { buildApiUrl } from "@/lib/api-config";
 import type { Event, Sermon, InsertEvent, InsertSermon, UserRole } from "@/types/api";

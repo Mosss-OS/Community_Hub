@@ -7,19 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  Users, 
-  UserX, 
-  Mail, 
-  Calendar, 
-  AlertTriangle, 
-  Loader2,
-  RefreshCw,
-  MessageSquare,
-  Phone,
-  Send,
-  Check
-} from "lucide-react";
+import { LuUsers, LuUserX, LuMail, LuCalendar, LuAlertTriangle, LuLoader2, LuRefreshCw, LuMessageSquare, LuPhone, LuSend, LuCheck } from 'react-icons/lu';
 import { useToast } from "@/components/ui/use-toast";
 
 export default function AbsentMembersPage() {

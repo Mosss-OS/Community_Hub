@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plug, Plus, Trash2, CheckCircle, XCircle, RefreshCw, Settings, Link } from "lucide-react";
+import { LuPlug, LuPlus, LuTrash2, LuCheckCircle, LuXCircle, LuRefreshCw, LuSettings, LuLink } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 
 interface ExternalIntegration {

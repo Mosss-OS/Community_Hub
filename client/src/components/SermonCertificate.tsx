@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Trophy } from "lucide-react";
+import { LuDownload, LuTrophy } from 'react-icons/lu';
 import { jsPDF } from "jspdf";
 
 interface Certificate {

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Music, Play, Pause, Plus, ListMusic, Disc, Clock, User, Search } from "lucide-react";
+import { LuMusic, LuPlay, LuPause, LuPlus, LuListMusic, LuDisc, LuClock, LuUser, LuSearch } from 'react-icons/lu';
 
 interface MusicTrack {
   id: number;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, FileText, Loader2 } from "lucide-react";
+import { LuDownload, LuFileText, LuLoader2 } from 'react-icons/lu';
 import { jsPDF } from "jspdf";
 import { Helmet } from "react-helmet-async";
 

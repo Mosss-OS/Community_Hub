@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Trash2, Plus, Database, CheckCircle, Clock, AlertCircle, XCircle } from "lucide-react";
+import { LuDownload, LuTrash2, LuPlus, LuDatabase, LuCheckCircle, LuClock, LuAlertCircle, LuXCircle } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 
 type BackupStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';

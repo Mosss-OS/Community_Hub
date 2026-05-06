@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Share2, Link, Mail, Twitter, Facebook, Check } from "lucide-react";
+import { LuShare2, LuLink, LuMail, LuTwitter, LuFacebook, LuCheck } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Video, Play, Calendar, Clock } from "lucide-react";
+import { LuVideo, LuPlay, LuCalendar, LuClock } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 

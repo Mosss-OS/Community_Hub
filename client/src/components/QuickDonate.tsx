@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { LuHeart } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useEffect, useState } from "react";

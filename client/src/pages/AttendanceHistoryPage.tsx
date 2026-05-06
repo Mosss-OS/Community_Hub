@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Video, MapPin, Loader2, CheckCircle2 } from "lucide-react";
+import { LuCalendar, LuClock, LuVideo, LuMapPin, LuLoader2, LuCheckCircle2 } from 'react-icons/lu';
 import { useLocation } from "wouter";
 
 const serviceTypeLabels: Record<string, string> = {

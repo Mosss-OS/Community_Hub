@@ -1,6 +1,6 @@
 import { useEngagementMetrics } from "@/hooks/use-member-activity";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Tv, Heart, Calendar, BookOpen, MessageSquare, Clock } from "lucide-react";
+import { LuLoader2, LuTv, LuHeart, LuCalendar, LuBookOpen, LuMessageSquare, LuClock } from 'react-icons/lu';
 import { Progress } from "@/components/ui/progress";
 
 export function MemberEngagementScore() {

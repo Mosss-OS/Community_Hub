@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { Users, Calendar, Music, BookOpen, Camera, MessageSquare } from "lucide-react";
+import { LuUsers, LuCalendar, LuMusic, LuBookOpen, LuCamera, LuMessageSquare } from 'react-icons/lu';
 import { Link } from "wouter";
 
 export default function YouthDashboardPage() {

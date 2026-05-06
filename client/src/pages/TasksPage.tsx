@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, CheckCircle, Clock, AlertTriangle, XCircle, User, Calendar } from "lucide-react";
+import { LuPlus, LuCheckCircle, LuClock, LuAlertTriangle, LuXCircle, LuUser, LuCalendar } from 'react-icons/lu';
 import { format } from "date-fns";
 
 type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' | 'CANCELED';

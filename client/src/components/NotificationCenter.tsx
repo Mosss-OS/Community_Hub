@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
+import { LuBell, LuCheck, LuCheckCheck, LuTrash2 } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 

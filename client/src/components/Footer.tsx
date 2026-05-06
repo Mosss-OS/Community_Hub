@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
+import { LuMapPin, LuPhone, LuMail, LuArrowRight } from 'react-icons/lu';
 import { FaFacebookF, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 
 export function Footer() {

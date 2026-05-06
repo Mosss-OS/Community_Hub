@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Edit, Trash2, Eye, Building2, Users, Calendar, Loader2, Search, Palette, UserMinus, ShieldAlert, ArrowLeft, Mail as MailIcon, LogOut } from "lucide-react";
+import { LuPlus, LuEdit, LuTrash2, LuEye, LuBuilding2, LuUsers, LuCalendar, LuLoader2, LuSearch, LuPalette, LuUserMinus, LuShieldAlert, LuArrowLeft, LuMail as MailIcon, LuLogOut } from 'react-icons/lu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { User, Branding } from "@/types/api";

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Check, X } from "lucide-react";
+import { LuCalendarIcon, LuCheck, LuX } from 'react-icons/lu';
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
 

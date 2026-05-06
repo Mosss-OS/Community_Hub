@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { MapPin, Clock, Calendar, Check, CalendarPlus, Share2, Facebook, Twitter, Linkedin, Instagram, Link as LinkIcon, ChevronDown, Download } from "lucide-react";
+import { LuMapPin, LuClock, LuCalendar, LuCheck, LuCalendarPlus, LuShare2, LuFacebook, LuTwitter, LuLinkedin, LuInstagram, LuLink as LinkIcon, LuChevronDown, LuDownload } from 'react-icons/lu';
 import type { Event } from "@/types/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

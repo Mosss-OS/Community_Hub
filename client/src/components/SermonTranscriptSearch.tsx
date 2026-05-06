@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, FileText } from "lucide-react";
+import { LuSearch, LuFileText } from 'react-icons/lu';
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 

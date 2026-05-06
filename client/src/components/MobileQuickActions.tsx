@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "wouter";
-import { Calendar, Heart, Gift, MessageSquare, Users, BookOpen, Video, Bell, Plus } from "lucide-react";
+import { LuCalendar, LuHeart, LuGift, LuMessageSquare, LuUsers, LuBookOpen, LuVideo, LuBell, LuPlus } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 
 interface QuickAction {

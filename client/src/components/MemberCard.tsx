@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone, Calendar, MapPin } from "lucide-react";
+import { LuMail, LuPhone, LuCalendar, LuMapPin } from 'react-icons/lu';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 

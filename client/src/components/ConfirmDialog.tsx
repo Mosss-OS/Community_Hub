@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { LuAlertTriangle } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

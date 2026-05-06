@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Home, ArrowLeft, Search } from "lucide-react";
+import { LuAlertCircle, LuHome, LuArrowLeft, LuSearch } from 'react-icons/lu';
 import { PageSEO } from "@/components/PageSEO";
 
 export default function NotFound() {

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Webhook, Plus, Trash2, CheckCircle, XCircle, AlertCircle, RefreshCw } from "lucide-react";
+import { LuWebhook, LuPlus, LuTrash2, LuCheckCircle, LuXCircle, LuAlertCircle, LuRefreshCw } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 
 interface Webhook {

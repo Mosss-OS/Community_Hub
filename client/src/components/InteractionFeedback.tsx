@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, Heart, ThumbsUp, Star, Sparkles } from "lucide-react";
+import { LuCheck, LuX, LuHeart, LuThumbsUp, LuStar, LuSparkles } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 
 interface Reaction {

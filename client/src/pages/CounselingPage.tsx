@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageSquare, Plus } from "lucide-react";
+import { LuCalendar, LuClock, LuCheckCircle, LuXCircle, LuAlertCircle, LuUser, LuMessageSquare, LuPlus } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 
 type RequestStatus = 'PENDING' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED';

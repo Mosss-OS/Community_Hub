@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Image, Paperclip, MoreVertical, Users } from "lucide-react";
+import { LuSend, LuImage, LuPaperclip, LuMoreVertical, LuUsers } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

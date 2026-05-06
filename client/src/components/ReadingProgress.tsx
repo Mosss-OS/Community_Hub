@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BookOpen, Flame, ChevronRight } from "lucide-react";
+import { LuBookOpen, LuFlame, LuChevronRight } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";

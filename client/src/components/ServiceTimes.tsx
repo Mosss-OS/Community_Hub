@@ -1,4 +1,4 @@
-import { Clock, MapPin } from "lucide-react";
+import { LuClock, LuMapPin } from 'react-icons/lu';
 
 interface ServiceTime {
   day: string;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Smile } from "lucide-react";
+import { LuSmile } from 'react-icons/lu';
 
 const CUSTOM_EMOJIS = [
   { id: "pray", emoji: "🙏", label: "Prayer" },

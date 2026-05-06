@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, AlertCircle } from "lucide-react";
+import { LuCheck, LuAlertCircle } from 'react-icons/lu';
 
 interface FormFieldProps {
   label: string;

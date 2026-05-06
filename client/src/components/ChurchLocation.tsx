@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Navigation, Car, Parking } from "lucide-react";
+import { LuMapPin, LuNavigation, LuCar, LuParking } from 'react-icons/lu';
 
 interface ChurchLocationProps {
   address: string;

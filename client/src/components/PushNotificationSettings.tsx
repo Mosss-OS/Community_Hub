@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
-import { Bell, BellOff, Loader2 } from "lucide-react";
+import { LuBell, LuBellOff, LuLoader2 } from 'react-icons/lu';
 
 interface NotificationPreferences {
   eventNotifications: boolean;

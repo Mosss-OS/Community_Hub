@@ -2,20 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Video, 
-  MapPin, 
-  Loader2, 
-  Calendar,
-  AlertCircle,
-  Download,
-  RefreshCw,
-  Target,
-  CheckCircle2
-} from "lucide-react";
+import { LuBarChart3, LuTrendingUp, LuUsers, LuVideo, LuMapPin, LuLoader2, LuCalendar, LuAlertCircle, LuDownload, LuRefreshCw, LuTarget, LuCheckCircle2 } from 'react-icons/lu';
 import { buildApiUrl } from "@/lib/api-config";
 
 const serviceTypeLabels: Record<string, string> = {

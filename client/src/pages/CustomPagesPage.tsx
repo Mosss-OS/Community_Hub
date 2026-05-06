@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Plus, Trash2, Globe, Lock, Eye } from "lucide-react";
+import { LuFileText, LuPlus, LuTrash2, LuGlobe, LuLock, LuEye } from 'react-icons/lu';
 import { format } from "date-fns";
 
 interface CustomPage {

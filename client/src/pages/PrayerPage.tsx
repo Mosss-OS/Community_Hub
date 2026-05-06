@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Sprout, Lightbulb, MessageCircle, CheckCircle, ChevronRight, Menu, Sparkles } from "lucide-react";
+import { LuHeart, LuSprout, LuLightbulb, LuMessageCircle, LuCheckCircle, LuChevronRight, LuMenu, LuSparkles } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";

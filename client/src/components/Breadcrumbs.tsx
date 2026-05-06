@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ChevronRight, Home } from "lucide-react";
+import { LuChevronRight, LuHome } from 'react-icons/lu';
 
 interface BreadcrumbItem {
   label: string;

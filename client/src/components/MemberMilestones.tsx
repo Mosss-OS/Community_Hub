@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Gift, Cake, Star } from "lucide-react";
+import { LuGift, LuCake, LuStar } from 'react-icons/lu';
 
 interface Milestone {
   id: string;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Home, Search, PlusCircle, Bell, User } from "lucide-react";
+import { LuHome, LuSearch, LuPlusCircle, LuBell, LuUser } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 

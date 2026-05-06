@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
+import { LuGlobe } from 'react-icons/lu';
 
 export function LanguageSelector({ variant = "default" }: { variant?: "default" | "navbar" }) {
   const { language, setLanguage, languages } = useLanguage();

@@ -5,7 +5,7 @@ import { useCheckinWithLink } from "@/hooks/use-attendance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, QrCode, Camera, CheckCircle2, AlertCircle } from "lucide-react";
+import { LuLoader2, LuQrCode, LuCamera, LuCheckCircle2, LuAlertCircle } from 'react-icons/lu';
 
 export default function QRScannerPage() {
   const [, setLocation] = useLocation();

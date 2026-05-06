@@ -1,6 +1,6 @@
 import { useBranding } from "@/hooks/use-branding";
 import { Button } from "@/components/ui/button";
-import { MapPin, Navigation, Phone } from "lucide-react";
+import { LuMapPin, LuNavigation, LuPhone } from 'react-icons/lu';
 
 interface LocationMapProps {
   className?: string;

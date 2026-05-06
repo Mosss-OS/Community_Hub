@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageSEO } from "@/components/PageSEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Laptop, Smartphone, Tablet, MapPin, Clock, Trash2, CheckCheck } from "lucide-react";
+import { LuLaptop, LuSmartphone, LuTablet, LuMapPin, LuClock, LuTrash2, LuCheckCheck } from 'react-icons/lu';
 
 interface Session {
   id: string;

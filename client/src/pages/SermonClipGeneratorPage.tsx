@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Slider } from "@/components/ui/slider";
-import { Video, Film, Download, Trash2, Play, Square, Instagram, Smartphone, Monitor, Scissors, Plus, Clock, Loader2, Upload, Link as LinkIcon, X, AlertCircle, Share2, Facebook, Twitter, Youtube, ExternalLink, Copy, Check } from "lucide-react";
+import { LuVideo, LuFilm, LuDownload, LuTrash2, LuPlay, LuSquare, LuInstagram, LuSmartphone, LuMonitor, LuScissors, LuPlus, LuClock, LuLoader2, LuUpload, LuLink as LinkIcon, LuX, LuAlertCircle, LuShare2, LuFacebook, LuTwitter, LuYoutube, LuExternalLink, LuCopy, LuCheck } from 'react-icons/lu';
 
 interface SermonClip {
   id: number;

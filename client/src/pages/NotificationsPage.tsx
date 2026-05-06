@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, Check, Trash2, Filter, Info, CheckCircle, AlertTriangle, AlertCircle, MessageSquare, User, Hash } from "lucide-react";
+import { LuBell, LuCheck, LuTrash2, LuFilter, LuInfo, LuCheckCircle, LuAlertTriangle, LuAlertCircle, LuMessageSquare, LuUser, LuHash } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 
 type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'TASK_ASSIGNED' | 'EVENT_REMINDER' | 'DONATION_RECEIVED' | 'PRAYER_REQUEST' | 'NEW_MESSAGE' | 'MENTION';

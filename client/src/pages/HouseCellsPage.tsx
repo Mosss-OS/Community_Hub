@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Users, MapPin, Calendar, Plus, MessageSquare, UserPlus, ChevronRight } from "lucide-react";
+import { LuUsers, LuMapPin, LuCalendar, LuPlus, LuMessageSquare, LuUserPlus, LuChevronRight } from 'react-icons/lu';
 
 interface HouseCell {
   id: number;

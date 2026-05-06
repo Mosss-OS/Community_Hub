@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Download, Plus, CheckCircle, AlertCircle, Calendar } from "lucide-react";
+import { LuCreditCard, LuDownload, LuPlus, LuCheckCircle, LuAlertCircle, LuCalendar } from 'react-icons/lu';
 import { format } from "date-fns";
 
 type SubscriptionPlan = 'FREE' | 'BASIC' | 'PREMIUM' | 'ENTERPRISE';

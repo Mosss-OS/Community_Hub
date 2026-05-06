@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, Upload, File, Image, Video, Music } from "lucide-react";
+import { LuX, LuUpload, LuFile, LuImage, LuVideo, LuMusic } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 

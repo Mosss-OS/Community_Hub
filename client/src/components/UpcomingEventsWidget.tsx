@@ -2,7 +2,7 @@
 
 import { useEvents } from "@/hooks/use-events";
 import { Link } from "wouter";
-import { Calendar, Clock, MapPin, ArrowRight } from "lucide-react";
+import { LuCalendar, LuClock, LuMapPin, LuArrowRight } from 'react-icons/lu';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, TrendingUp, BookOpen, Users, Activity, RefreshCw } from "lucide-react";
+import { LuHeart, LuTrendingUp, LuBookOpen, LuUsers, LuActivity, LuRefreshCw } from 'react-icons/lu';
 import { format } from "date-fns";
 
 interface SpiritualHealthScore {

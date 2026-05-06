@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud, File, X, CheckCircle } from "lucide-react";
+import { LuUploadCloud, LuFile, LuX, LuCheckCircle } from 'react-icons/lu';
 import { buildApiUrl } from "@/lib/api-config";
 
 interface FileUploadProps {

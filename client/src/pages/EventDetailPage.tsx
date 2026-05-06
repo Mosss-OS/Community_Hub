@@ -3,7 +3,7 @@ import { useEventWithRsvps, useRsvpEvent, useUserRsvps, useAddToCalendar } from 
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, ArrowLeft, Share2, CalendarPlus, Check, Facebook, Twitter, Linkedin, Instagram, Link as LinkIcon } from "lucide-react";
+import { LuCalendar, LuClock, LuMapPin, LuArrowLeft, LuShare2, LuCalendarPlus, LuCheck, LuFacebook, LuTwitter, LuLinkedin, LuInstagram, LuLink as LinkIcon } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

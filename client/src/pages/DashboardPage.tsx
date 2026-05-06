@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { buildApiUrl } from "@/lib/api-config";
-import { User, Mail, Calendar, Shield, Heart, Loader2, Phone, MapPin, Home, Building, Edit, MessageSquare, Bell, Check, Users, UserX, Send, Reply, Briefcase, Cake, AlertCircle, Play, Trash2, QrCode, Download } from "lucide-react";
+import { LuUser, LuMail, LuCalendar, LuShield, LuHeart, LuLoader2, LuPhone, LuMapPin, LuHome, LuBuilding, LuEdit, LuMessageSquare, LuBell, LuCheck, LuUsers, LuUserX, LuSend, LuReply, LuBriefcase, LuCake, LuAlertCircle, LuPlay, LuTrash2, LuQrCode, LuDownload } from 'react-icons/lu';
 import { Link } from "wouter";
 import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { MemberEngagementScore } from "@/components/MemberEngagementScore";

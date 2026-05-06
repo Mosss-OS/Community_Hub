@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, MessageSquare, Bell, Send, Reply, Check, CheckCheck } from "lucide-react";
+import { LuLoader2, LuMessageSquare, LuBell, LuSend, LuReply, LuCheck, LuCheckCheck } from 'react-icons/lu';
 import { format, formatDistanceToNow } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";

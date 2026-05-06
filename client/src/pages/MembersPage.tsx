@@ -6,26 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonList";
 import { EmptyState } from "@/components/EmptyState";
-import { 
-  Search, 
-  Loader2, 
-  Users,
-  Mail,
-  Phone,
-  MapPin,
-  Home,
-  Building,
-  Shield,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Download,
-  Calendar,
-  Activity,
-  MessageSquare,
-  Eye,
-  EyeOff
-} from "lucide-react";
+import { LuSearch, LuLoader2, LuUsers, LuMail, LuPhone, LuMapPin, LuHome, LuBuilding, LuShield, LuChevronLeft, LuChevronRight, LuUser, LuDownload, LuCalendar, LuActivity, LuMessageSquare, LuEye, LuEyeOff } from 'react-icons/lu';
 import { HiViewGrid, HiMenu } from "react-icons/hi";
 import { buildApiUrl } from "@/lib/api-config";
 

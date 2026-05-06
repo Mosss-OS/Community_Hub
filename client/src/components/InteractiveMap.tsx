@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Navigation } from "lucide-react";
+import { LuMapPin, LuNavigation } from 'react-icons/lu';
 
 const MAP_MARKERS = [
   { id: 1, name: "Main Sanctuary", x: 50, y: 30, type: "building" },

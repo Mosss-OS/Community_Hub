@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Check } from "lucide-react";
+import { LuBell, LuCheck } from 'react-icons/lu';
 import { useState } from "react";
 
 export function ScripturePush() {

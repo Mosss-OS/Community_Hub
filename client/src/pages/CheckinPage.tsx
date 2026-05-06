@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, Calendar, Video, MapPin, Clock, QrCode, Link as LinkIcon, BarChart3 } from "lucide-react";
+import { LuLoader2, LuCheckCircle2, LuCalendar, LuVideo, LuMapPin, LuClock, LuQrCode, LuLink as LinkIcon, LuBarChart3 } from 'react-icons/lu';
 import { useLocation } from "wouter";
 
 const serviceTypes = [

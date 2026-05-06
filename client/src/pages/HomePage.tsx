@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Play, Calendar, Users, BookOpen, Heart, Clock, MapPin, Phone, Mail, Quote, ChevronRight, Menu, X } from "lucide-react";
+import { LuArrowRight, LuPlay, LuCalendar, LuUsers, LuBookOpen, LuHeart, LuClock, LuMapPin, LuPhone, LuMail, LuQuote, LuChevronRight, LuMenu, LuX } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";

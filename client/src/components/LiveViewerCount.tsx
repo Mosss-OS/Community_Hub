@@ -1,6 +1,6 @@
 "use client";
 
-import { Users } from "lucide-react";
+import { LuUsers } from 'react-icons/lu';
 
 interface LiveViewerCountProps {
   count: number;

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Plus, Trash2, Edit, Send } from "lucide-react";
+import { LuMail, LuPlus, LuTrash2, LuEdit, LuSend } from 'react-icons/lu';
 import { format } from "date-fns";
 
 interface EmailTemplate {

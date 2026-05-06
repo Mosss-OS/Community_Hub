@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { MapPin, Phone, Mail, Clock, Send, Menu, X } from "lucide-react";
+import { LuMapPin, LuPhone, LuMail, LuClock, LuSend, LuMenu, LuX } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronUp } from "lucide-react";
+import { LuChevronUp } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 
 export function BackToTop() {

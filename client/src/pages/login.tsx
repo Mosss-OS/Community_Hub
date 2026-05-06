@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Chrome, Facebook, Apple } from "lucide-react";
+import { LuEye, LuEyeOff, LuMail, LuLock, LuArrowRight, LuChrome, LuFacebook, LuApple } from 'react-icons/lu';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);

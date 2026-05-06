@@ -1,4 +1,4 @@
-import { FolderOpen } from "lucide-react";
+import { LuFolderOpen } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 

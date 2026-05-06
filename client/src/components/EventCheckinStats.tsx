@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, TrendingUp, Activity, BarChart3 } from "lucide-react";
+import { LuUsers, LuTrendingUp, LuActivity, LuBarChart3 } from 'react-icons/lu';
 
 interface CheckinStat {
   label: string;

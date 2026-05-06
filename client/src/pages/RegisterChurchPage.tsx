@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Loader2, ArrowLeft, Building2 } from "lucide-react";
+import { LuLoader2, LuArrowLeft, LuBuilding2 } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

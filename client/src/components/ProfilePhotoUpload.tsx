@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Camera, Crop, RotateCw, ZoomIn, Check, X, Loader2 } from "lucide-react";
+import { LuCamera, LuCrop, LuRotateCw, LuZoomIn, LuCheck, LuX, LuLoader2 } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 

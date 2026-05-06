@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Type, Image, MessageSquare, Settings, Maximize2, Minimize2 } from "lucide-react";
+import { LuX, LuChevronLeft, LuChevronRight, LuType, LuImage, LuMessageSquare, LuSettings, LuMaximize2, LuMinimize2 } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

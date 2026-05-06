@@ -6,18 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  BookOpen, 
-  Loader2, 
-  Calendar, 
-  ChevronRight,
-  Clock,
-  Target,
-  Plus,
-  Sparkles,
-  CheckCircle2,
-  ArrowLeft
-} from "lucide-react";
+import { LuBookOpen, LuLoader2, LuCalendar, LuChevronRight, LuClock, LuTarget, LuPlus, LuSparkles, LuCheckCircle2, LuArrowLeft } from 'react-icons/lu';
 import { buildApiUrl } from "@/lib/api-config";
 
 function getAuthHeaders(): Record<string, string> {

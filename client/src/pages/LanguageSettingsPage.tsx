@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, Globe, Clock, DollarSign, Save } from "lucide-react";
+import { LuLoader2, LuCheckCircle2, LuGlobe, LuClock, LuDollarSign, LuSave } from 'react-icons/lu';
 import { toast } from "sonner";
 
 export default function LanguageSettingsPage() {

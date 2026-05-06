@@ -1,9 +1,5 @@
 import { format, formatDistanceToNow } from "date-fns";
-import { 
-  Play, Heart, Calendar, DollarSign, Users, 
-  MessageSquare, User, LogIn, LogOut, Clock,
-  Video, BookOpen, CheckCircle
-} from "lucide-react";
+import { LuPlay, LuHeart, LuCalendar, LuDollarSign, LuUsers, LuMessageSquare, LuUser, LuLogIn, LuLogOut, LuClock, LuVideo, LuBookOpen, LuCheckCircle } from 'react-icons/lu';
 import { useMyActivity, useEngagementMetrics, type ActivityLog } from "@/hooks/use-member-activity";
 import { Skeleton } from "@/components/ui/skeleton";
 

@@ -28,40 +28,34 @@
   --color-brand-light: hsl(var(--brand-light));
   --color-brand-tint: hsl(var(--brand-tint));
 
-  --font-display: "IBM Plex Serif", ui-serif, Georgia, serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
+  /* Original Fonts as specified */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
-  /* ─── Typography Scale (fluid clamp system) ─────────────────────────
-     All heading sizes scale smoothly between mobile and desktop.
-     Base: 16px = 1rem (set on <html>).
-  ─────────────────────────────────────────────────────────────────── */
-
-  /* Hero / Display */
-  --text-display-01: clamp(2.25rem, 5vw + 1rem, 4rem);    /* 36px → 64px */
-  --text-display-02: clamp(2rem,   4vw + 1rem, 3.5rem);    /* 32px → 56px */
+  /* Typography Scale */
+  /* Display styles for hero sections */
+  --text-display-01: 3.375rem; /* 54px - Hero text (Light 300) */
+  --text-display-02: 3.375rem; /* 54px - Hero text (Semi-Bold 600) */
+  --text-display-03: 3.75rem;  /* 60px - Extra large display */
+  --text-display-04: 5.75rem;  /* 92px - Massive display */
 
   /* Section headings */
-  --text-expressive-heading-05: clamp(1.75rem, 3vw + 0.75rem, 2.75rem); /* 28px → 44px */
-  --text-expressive-heading-06: clamp(1.5rem,  2.5vw + 0.5rem, 2.25rem); /* 24px → 36px */
+  --text-expressive-heading-05: 2.625rem; /* 42px - Large headings (Light 300) */
+  --text-expressive-heading-06: 2.625rem; /* 42px - Large headings (Semi-Bold 600) */
 
   /* Sub-headings */
-  --text-expressive-heading-03: clamp(1.25rem, 1.5vw + 0.5rem, 1.75rem); /* 20px → 28px */
-  --text-expressive-heading-04: clamp(1.125rem, 1vw + 0.5rem, 1.5rem);   /* 18px → 24px */
+  --text-expressive-heading-03: 1.25rem; /* 20px - Section sub-headings (Regular 400) */
+  --text-expressive-heading-04: 1.75rem; /* 28px - Medium headings (Regular 400) */
 
-  /* Small / micro UI headings */
-  --text-expressive-heading-02: 1.125rem;  /* 18px */
-  --text-expressive-heading-01: 1rem;      /* 16px */
+  /* Small UI headings */
+  --text-expressive-heading-01: 0.875rem; /* 14px - Small headings (Semi-Bold 600) */
+  --text-expressive-heading-02: 1rem; /* 16px - Component headings (Semi-Bold 600) */
 
-  /* Body & long-form reading */
-  --text-expressive-body: 1.0625rem;  /* 17px */
-  --text-body-long-02:    1.0625rem;  /* 17px */
-  --text-body-short-02:   1rem;       /* 16px – compact UI */
-
-  /* Productive / admin UI */
-  --text-productive-heading-01: 0.9375rem; /* 15px */
-  --text-productive-heading-02: 1.0625rem; /* 17px */
-  --text-productive-body:       0.9375rem; /* 15px */
+  /* Body text styles */
+  --text-expressive-body: 1.0625rem; /* 17px - Base size */
+  --text-body-long-02: 1.0625rem; /* 17px - Long form reading (1.7 line-height) */
+  --text-body-short-02: 1rem; /* 16px - Short paragraphs (1.375 line-height) */
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -80,9 +74,8 @@
   to { height: 0; }
 }
 
-/* IBM Design System - Clean Typography */
+/* Brand Colors */
 :root {
-  /* Brand Colors - Single accent: muted blue/purple */
   --brand: 252 100% 64%;
   --brand-dark: 252 100% 45%;
   --brand-light: 252 80% 85%;
@@ -162,7 +155,7 @@
 
 html {
   scroll-behavior: smooth;
-  /* Lock the root to 16px so rem values are predictable everywhere */
+  /* Lock the root to 16px so rem values are predictable */
   font-size: 16px;
 }
 
@@ -177,111 +170,70 @@ body {
   width: 100%;
   min-width: 100%;
   box-sizing: border-box;
-  /* 17px body — comfortable reading on all screens */
+  /* Base body size: 17px (Inter) */
   font-size: var(--text-expressive-body); /* 17px */
   line-height: 1.7;
-  font-weight: 400;
+  font-weight: 400; /* Regular */
 }
 
-/* ─── Heading hierarchy (fluid — scales between mobile & desktop) ─── */
+/* Heading hierarchy - Fraunces for headings */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
   line-height: 1.15;
 }
 
-/* Hero / page title — 36px (mobile) → 64px (desktop) */
+/* Hero / page title - Fraunces Light 300 */
 h1 {
-  font-size: var(--text-display-01);
+  font-size: var(--text-display-01); /* 54px */
   font-weight: 300;
+  letter-spacing: -0.02em;
 }
 
-/* Section heading — 28px (mobile) → 44px (desktop) */
+/* Section headings - Fraunces Light 300 */
 h2 {
-  font-size: var(--text-expressive-heading-05);
+  font-size: var(--text-expressive-heading-05); /* 42px */
   font-weight: 300;
+  letter-spacing: -0.01em;
 }
 
-/* Sub-section heading — 24px (mobile) → 36px (desktop) */
+/* Alternative headings - Fraunces Semi-Bold 600 */
 h3 {
-  font-size: var(--text-expressive-heading-06);
+  font-size: var(--text-display-02); /* 54px */
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-/* Card / panel heading — 20px (mobile) → 28px (desktop) */
+/* Sub-headings - Fraunces Semi-Bold 600 */
 h4 {
-  font-size: var(--text-expressive-heading-03);
+  font-size: var(--text-expressive-heading-06); /* 42px */
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-/* Small heading — 18px fixed */
+/* Smaller headings - Fraunces Semi-Bold 600 */
 h5 {
-  font-size: var(--text-expressive-heading-02); /* 18px */
+  font-size: var(--text-expressive-heading-03); /* 20px */
   font-weight: 600;
 }
 
-/* Micro heading — 16px fixed */
+/* Smallest headings - Fraunces Semi-Bold 600 */
 h6 {
-  font-size: var(--text-expressive-heading-01); /* 16px */
+  font-size: var(--text-expressive-heading-01); /* 14px */
   font-weight: 600;
 }
 
-/* ─── Body / inline text ─── */
-p {
-  font-size: var(--text-body-long-02); /* 17px */
-  line-height: 1.75;
+/* Body text - Inter Regular 400 */
+p, span, a, li {
+  font-size: var(--text-expressive-body); /* 17px */
+  line-height: 1.7;
   font-weight: 400;
 }
 
-li {
-  font-size: var(--text-body-long-02); /* 17px */
-  line-height: 1.7;
-}
-
-a, span {
-  font-size: inherit; /* inherit from context */
-}
-
-/* ─── Form elements ─── */
+/* Form elements - Inter Regular 400 */
 button, input, textarea, select {
   font-size: var(--text-body-short-02); /* 16px */
   font-family: var(--font-sans);
-}
-
-/* ─── Mobile overrides (< 640px) ─── */
-@media (max-width: 639px) {
-  body {
-    font-size: 1rem; /* 16px on small phones */
-    line-height: 1.65;
-  }
-  p, li {
-    font-size: 1rem; /* 16px — still very readable */
-    line-height: 1.65;
-  }
-  /* Tighten hero h1 on very small phones */
-  h1 {
-    font-size: clamp(1.875rem, 8vw, 2.5rem); /* 30px → 40px */
-  }
-  h2 {
-    font-size: clamp(1.5rem, 6vw, 2rem); /* 24px → 32px */
-  }
-}
-
-/* ─── Tablet (640px – 1023px) ─── */
-@media (min-width: 640px) and (max-width: 1023px) {
-  body {
-    line-height: 1.7;
-  }
-}
-
-/* ─── Desktop (≥ 1024px) ─── */
-@media (min-width: 1024px) {
-  body {
-    line-height: 1.75;
-  }
-  p {
-    line-height: 1.8;
-  }
 }
 
 #root {
@@ -291,12 +243,12 @@ button, input, textarea, select {
   flex-direction: column;
 }
 
-/* Button styles - Clean, minimal */
+/* Button styles */
 .btn-primary {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   padding: 12px 24px;
-  font-size: var(--text-expressive-body);
+  font-size: var(--text-body-short-02); /* 16px */
   font-weight: 400;
   border: none;
   border-radius: 8px;
@@ -312,7 +264,7 @@ button, input, textarea, select {
   background-color: transparent;
   color: hsl(var(--primary));
   padding: 12px 24px;
-  font-size: var(--text-expressive-body);
+  font-size: var(--text-body-short-02); /* 16px */
   font-weight: 400;
   border: 1px solid hsl(var(--border));
   border-radius: 8px;
@@ -328,7 +280,7 @@ button, input, textarea, select {
   background-color: transparent;
   color: hsl(var(--text-secondary));
   padding: 12px 24px;
-  font-size: var(--text-expressive-body);
+  font-size: var(--text-body-short-02); /* 16px */
   font-weight: 400;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -340,7 +292,7 @@ button, input, textarea, select {
   background-color: hsl(var(--muted));
 }
 
-/* Card styles - Minimal, spacing-based separation */
+/* Card styles */
 .card-clean {
   border: 1px solid hsl(var(--border));
   padding: 32px 40px;
@@ -353,7 +305,7 @@ button, input, textarea, select {
   border-color: hsl(var(--brand-light));
 }
 
-/* Section padding - Generous spacing */
+/* Section padding */
 .section-py {
   padding-top: 80px;
   padding-bottom: 80px;
@@ -373,7 +325,7 @@ button, input, textarea, select {
   }
 }
 
-/* Container - Clean grid */
+/* Container */
 .container-clean {
   width: 100%;
   max-width: 1200px;
@@ -401,15 +353,15 @@ button, input, textarea, select {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Navigation - Thinner and cleaner */
+/* Navigation */
 .navbar-clean {
   padding: 16px 24px;
-  font-size: var(--text-expressive-body);
+  font-size: var(--text-body-short-02); /* 16px */
   border-bottom: 1px solid hsl(var(--border));
 }
 
 .navbar-clean a {
-  font-size: var(--text-expressive-body);
+  font-size: var(--text-body-short-02); /* 16px */
   color: hsl(var(--text-secondary));
   transition: color 0.2s;
 }

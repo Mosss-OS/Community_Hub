@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Play, CheckCircle, Circle, Award, Target, GraduationCap, Lightbulb, ChevronRight, MessageSquare } from "lucide-react";
+import { LuBookOpen, LuPlay, LuCheckCircle, LuCircle, LuAward, LuTarget, LuGraduationCap, LuLightbulb, LuChevronRight, LuMessageSquare } from 'react-icons/lu';
 
 interface DiscipleshipTrack {
   id: number;

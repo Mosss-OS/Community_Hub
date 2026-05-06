@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, CreditCard, Banknote, Smartphone, Gift, ChevronRight, ArrowUpRight, Menu, Shield, Lock } from "lucide-react";
+import { LuHeart, LuCreditCard, LuBanknote, LuSmartphone, LuGift, LuChevronRight, LuArrowUpRight, LuMenu, LuShield, LuLock } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";

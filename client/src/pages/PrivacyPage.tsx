@@ -5,17 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Shield, 
-  Download, 
-  Trash2, 
-  Loader2, 
-  CheckCircle2, 
-  AlertTriangle,
-  Eye,
-  EyeOff,
-  Info
-} from "lucide-react";
+import { LuShield, LuDownload, LuTrash2, LuLoader2, LuCheckCircle2, LuAlertTriangle, LuEye, LuEyeOff, LuInfo } from 'react-icons/lu';
 import { buildApiUrl } from "@/lib/api-config";
 
 export default function PrivacyPage() {

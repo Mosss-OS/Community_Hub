@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Users, MapPin, Clock, Search, Plus, ArrowRight, Menu, Star, MessageCircle, Calendar } from "lucide-react";
+import { LuUsers, LuMapPin, LuClock, LuSearch, LuPlus, LuArrowRight, LuMenu, LuStar, LuMessageCircle, LuCalendar } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";

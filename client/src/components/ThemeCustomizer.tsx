@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Palette } from "lucide-react";
+import { LuPalette } from 'react-icons/lu';
 
 const THEMES = [
   { id: "default", name: "Default", primary: "#4f46e5", secondary: "#f59e0b" },

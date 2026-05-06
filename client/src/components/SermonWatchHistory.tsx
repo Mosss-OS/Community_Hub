@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { format, formatDistanceToNow } from "date-fns";
-import { Play, Clock, CheckCircle, Trash2, History } from "lucide-react";
+import { LuPlay, LuClock, LuCheckCircle, LuTrash2, LuHistory } from 'react-icons/lu';
 import { useSermonWatchHistory, useClearWatchHistory, type SermonWatchHistory as SermonWatchHistoryType } from "@/hooks/use-sermon-history";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";

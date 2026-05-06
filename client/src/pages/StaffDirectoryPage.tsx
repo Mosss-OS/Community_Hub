@@ -3,15 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Search, 
-  Loader2, 
-  Mail, 
-  Phone, 
-  MapPin,
-  User,
-  Cross
-} from "lucide-react";
+import { LuSearch, LuLoader2, LuMail, LuPhone, LuMapPin, LuUser, LuCross } from 'react-icons/lu';
 import { buildApiUrl } from "@/lib/api-config";
 
 interface StaffMember {

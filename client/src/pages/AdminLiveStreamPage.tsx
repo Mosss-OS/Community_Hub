@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Youtube, Video, Link as LinkIcon } from "lucide-react";
+import { LuArrowLeft, LuYoutube, LuVideo, LuLink as LinkIcon } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

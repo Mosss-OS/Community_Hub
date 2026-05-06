@@ -87,7 +87,7 @@ import { LanguageProvider } from "@/hooks/use-language";
 
 import { useLocation, Redirect } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { Loader2 } from "lucide-react";
+import { LuLoader2 } from 'react-icons/lu';
 
 function Router() {
   const [location] = useLocation();

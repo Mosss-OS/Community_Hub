@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Receipt, Download, Mail, Printer, Calendar, CreditCard, Heart, Building2 } from "lucide-react";
+import { LuReceipt, LuDownload, LuMail, LuPrinter, LuCalendar, LuCreditCard, LuHeart, LuBuilding2 } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

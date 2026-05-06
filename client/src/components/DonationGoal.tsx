@@ -1,6 +1,6 @@
 "use client";
 
-import { Target, Users, Clock } from "lucide-react";
+import { LuTarget, LuUsers, LuClock } from 'react-icons/lu';
 import { Progress } from "@/components/ui/progress";
 
 interface DonationGoalProps {

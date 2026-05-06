@@ -3,21 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Video, 
-  MapPin, 
-  Loader2, 
-  Calendar,
-  DollarSign,
-  Heart,
-  Church,
-  Download,
-  FileSpreadsheet,
-  FileText
-} from "lucide-react";
+import { LuBarChart3, LuTrendingUp, LuUsers, LuVideo, LuMapPin, LuLoader2, LuCalendar, LuDollarSign, LuHeart, LuChurch, LuDownload, LuFileSpreadsheet, LuFileText } from 'react-icons/lu';
 import { buildApiUrl } from "@/lib/api-config";
 
 interface DashboardStats {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Chrome, Facebook, Apple, Mail } from "lucide-react";
+import { LuChrome, LuFacebook, LuApple, LuMail } from 'react-icons/lu';
 
 interface SocialLoginButtonsProps {
   onGoogleLogin?: () => void;

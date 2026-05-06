@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity } from "lucide-react";
+import { LuActivity } from 'react-icons/lu';
 
 const HEATMAP_DATA = [
   { day: "Mon", hours: [2, 3, 1, 4, 2, 5, 1] },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Filter, ArrowUpDown } from "lucide-react";
+import { LuFilter, LuArrowUpDown } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 

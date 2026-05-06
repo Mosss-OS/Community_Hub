@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Clock, MapPin, Users, Plus, CheckCircle, Star, Award } from "lucide-react";
+import { LuCalendar, LuClock, LuMapPin, LuUsers, LuPlus, LuCheckCircle, LuStar, LuAward } from 'react-icons/lu';
 import { VolunteerCalendar } from "@/components/VolunteerCalendar";
 import { format, parseISO, isAfter } from "date-fns";
 

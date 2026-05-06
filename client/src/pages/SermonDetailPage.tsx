@@ -3,7 +3,7 @@ import { useSermon, useShareSermon, useDownloadSermon } from "@/hooks/use-sermon
 import { useAuth } from "@/hooks/use-auth";
 import { useRecordOnlineAttendance } from "@/hooks/use-attendance";
 import { format } from "date-fns";
-import { Play, Calendar, User, ArrowLeft, Share2, Download, Headphones, X, Check, Link as LinkIcon, Eye, Loader2, FileText, Search } from "lucide-react";
+import { LuPlay, LuCalendar, LuUser, LuArrowLeft, LuShare2, LuDownload, LuHeadphones, LuX, LuCheck, LuLink as LinkIcon, LuEye, LuLoader2, LuFileText, LuSearch } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

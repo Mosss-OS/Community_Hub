@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Heart, User, CheckCircle } from "lucide-react";
+import { LuHeart, LuUser, LuCheckCircle } from 'react-icons/lu';
 import type { PrayerRequest } from "@/types/api";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

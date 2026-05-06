@@ -5,7 +5,7 @@ import { buildApiUrl } from "@/lib/api-config";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Activity, TrendingUp, Users, Clock } from "lucide-react";
+import { LuCalendar, LuActivity, LuTrendingUp, LuUsers, LuClock } from 'react-icons/lu';
 import { format } from "date-fns";
 
 interface MemberActivity {

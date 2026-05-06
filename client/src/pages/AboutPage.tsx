@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Users, BookOpen, Heart, Star, Award } from "lucide-react";
+import { LuUsers, LuBookOpen, LuHeart, LuStar, LuAward } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";

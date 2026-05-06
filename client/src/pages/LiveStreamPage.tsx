@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Play, Eye, Users, ArrowLeft, StopCircle, Youtube, CheckCircle, Wifi } from "lucide-react";
+import { LuPlay, LuEye, LuUsers, LuArrowLeft, LuStopCircle, LuYoutube, LuCheckCircle, LuWifi } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

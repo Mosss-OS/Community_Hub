@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Highlighter, MessageSquare, StickyNote, Plus, Trash2 } from "lucide-react";
+import { LuBookOpen, LuHighlighter, LuMessageSquare, LuStickyNote, LuPlus, LuTrash2 } from 'react-icons/lu';
 
 const BOOKS = [
   "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, Play, BookOpen, Calendar } from "lucide-react";
+import { LuChevronLeft, LuChevronRight, LuPlay, LuBookOpen, LuCalendar } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 

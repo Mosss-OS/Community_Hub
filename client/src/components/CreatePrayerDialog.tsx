@@ -27,7 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PenTool } from "lucide-react";
+import { LuPenTool } from 'react-icons/lu';
 
 // Client-side prayer request schema
 const insertPrayerRequestSchema = z.object({

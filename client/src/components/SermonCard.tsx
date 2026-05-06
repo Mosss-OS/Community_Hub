@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { Play, Calendar, User } from "lucide-react";
+import { LuPlay, LuCalendar, LuUser } from 'react-icons/lu';
 import { HiBookmark } from "react-icons/hi";
 import type { Sermon } from "@/types/api";
 import { Card, CardContent } from "@/components/ui/card";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Monitor, Headphones, Download, Maximize2 } from "lucide-react";
+import { LuPlay, LuPause, LuSkipBack, LuSkipForward, LuVolume2, LuVolumeX, LuMonitor, LuHeadphones, LuDownload, LuMaximize2 } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";

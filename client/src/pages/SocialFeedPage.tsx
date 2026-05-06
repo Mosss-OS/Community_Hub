@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Pin, Trash2, Edit, Send, TrendingUp, UserPlus, UserMinus, Copy, Check } from "lucide-react";
+import { LuHeart, LuMessageCircle, LuShare2, LuMoreHorizontal, LuPin, LuTrash2, LuEdit, LuSend, LuTrendingUp, LuUserPlus, LuUserMinus, LuCopy, LuCheck } from 'react-icons/lu';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";

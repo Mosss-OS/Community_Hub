@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, Loader2 } from "lucide-react";
+import { LuCamera, LuLoader2 } from 'react-icons/lu';
 
 interface UserCoverProps {
   currentCover?: string;

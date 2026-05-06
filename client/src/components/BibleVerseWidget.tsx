@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, RefreshCw } from "lucide-react";
+import { LuBookOpen, LuRefreshCw } from 'react-icons/lu';
 import { Helmet } from "react-helmet-async";
 
 interface BibleVerse {

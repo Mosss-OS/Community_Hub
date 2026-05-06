@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Mail, Phone } from "lucide-react";
+import { LuMail, LuPhone } from 'react-icons/lu';
 
 interface StaffMember {
   id: string;

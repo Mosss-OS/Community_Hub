@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Download } from "lucide-react";
+import { LuX, LuDownload } from 'react-icons/lu';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
