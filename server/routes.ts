@@ -3958,26 +3958,54 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
     }
   });
 
-  // Get prayer wall stats
+  // Get my prayer requests
+  app.get("/api/prayer-requests/my", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const requests = await db.select().from(prayerRequests).where(eq(prayerRequests.userId, req.user!.id)).orderBy(desc(prayerRequests.createdAt));
+      res.json(requests);
+    } catch (err) {
+      console.error("Error fetching prayer requests:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Answer prayer request
+  app.post("/api/prayer-requests/:id/answer", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = Number(req.params.id);
+      const [updated] = await db.update(prayerRequests).set({ 
+        isAnswered: true, 
+        answeredAt: new Date(),
+        updatedAt: new Date() 
+      }).where(eq(prayerRequests.id, id)).returning();
+      
+      if (!updated) return res.status(404).json({ message: "Prayer request not found" });
+      res.json(updated);
+    } catch (err) {
+      console.error("Error answering prayer request:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Check if user is owner or admin
+  // Check if user is owner or admin
+  // Get prayer request stats
   app.get("/api/prayer-requests/stats", async (req, res) => {
     try {
-      const requests = await storage.getPrayerRequests();
-      const totalPrayers = requests.reduce((sum, r) => sum + (r.prayCount || 0), 0);
-      const answered = requests.filter(r => r.isAnswered).length;
-      const active = requests.filter(r => !r.isAnswered).length;
+      const total = await db.select({ count: sql<number>`count(*)` }).from(prayerRequests);
+      const answered = await db.select({ count: sql<number>`count(*)` }).from(prayerRequests).where(eq(prayerRequests.isAnswered, true));
+      const pending = await db.select({ count: sql<number>`count(*)` }).from(prayerRequests).where(eq(prayerRequests.isAnswered, false));
       
       res.json({
-        totalRequests: requests.length,
-        totalPrayers,
-        answered,
-        active,
-        recentlyAnswered: requests.filter(r => {
-          if (!r.isAnswered || !r.answeredAt) return false;
-          const answeredDate = new Date(r.answeredAt);
-          const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-          return answeredDate > weekAgo;
-        }).length
+        total: Number(total[0].count),
+        answered: Number(answered[0].count),
+        pending: Number(pending[0].count),
       });
+    } catch (err) {
+      console.error("Error getting prayer stats:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
     } catch (err) {
       console.error("Error fetching prayer stats:", err);
       res.status(500).json({ message: "Internal server error" });
