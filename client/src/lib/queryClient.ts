@@ -47,7 +47,7 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: Infinity, // Cache data indefinitely until invalidated
       retry: false,
     },
     mutations: {
@@ -55,3 +55,10 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Cache Management Notes:
+// - staleTime: Infinity means data is cached until explicitly invalidated
+// - Use queryClient.invalidateQueries() to refetch data when needed
+// - For frequently accessed data (user profile, configs), this provides excellent caching
+// - For dynamic data (events, tasks), invalidate after mutations using:
+//   queryClient.invalidateQueries({ queryKey: ["events"] })
