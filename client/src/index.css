@@ -32,18 +32,30 @@
   --font-sans: "IBM Plex Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
 
-  /* IBM Expressive Type Scale */
-  --text-expressive-heading-01: 0.875rem; /* 14px */
-  --text-expressive-heading-02: 1rem; /* 16px */
-  --text-expressive-heading-03: 1.25rem; /* 20px */
-  --text-expressive-heading-04: 1.75rem; /* 28px */
-  --text-expressive-heading-05: 2.625rem; /* 42px */
-  --text-expressive-heading-06: 2.625rem; /* 42px */
-  --text-display-01: 3.375rem; /* 54px */
-  --text-display-02: 3.375rem; /* 54px */
-  --text-display-03: 3.75rem; /* 60px */
-  --text-display-04: 5.75rem; /* 92px */
-  --text-expressive-body: 1rem; /* 16px - base expressive size */
+  /* IBM Typography Scale - Carbon Design System */
+  /* Expressive Type Set (for Web Pages - base 16px) */
+  --text-expressive-heading-01: 0.875rem; /* 14px - Small UI headings (Semi-Bold 600) */
+  --text-expressive-heading-02: 1rem; /* 16px - Component headings (Semi-Bold 600) */
+  --text-expressive-heading-03: 1.25rem; /* 20px - Section sub-headings (Regular 400) */
+  --text-expressive-heading-04: 1.75rem; /* 28px - Medium headings (Regular 400) */
+  --text-expressive-heading-05: 2.625rem; /* 42px - Large headings (Light 300) */
+  --text-expressive-heading-06: 2.625rem; /* 42px - Large headings (Semi-Bold 600) */
+  
+  /* Display Styles (for Hero/Banner sections) */
+  --text-display-01: 3.375rem; /* 54px - Hero text (Light 300) */
+  --text-display-02: 3.375rem; /* 54px - Hero text (Semi-Bold 600) */
+  --text-display-03: 3.75rem; /* 60px - Extra large display (Light 300) */
+  --text-display-04: 5.75rem; /* 92px - Massive display (Light 300) */
+  
+  /* Body Text Styles */
+  --text-expressive-body: 1rem; /* 16px - Base expressive size */
+  --text-body-long-02: 1rem; /* 16px - Long form reading (1.5 line-height) */
+  --text-body-short-02: 1rem; /* 16px - Short paragraphs (1.375 line-height) */
+  
+  /* Productive Type Set (for Product UI - base 14px) */
+  --text-productive-heading-01: 0.875rem; /* 14px - Product headings (Semi-Bold) */
+  --text-productive-heading-02: 1rem; /* 16px - Product headings (Semi-Bold) */
+  --text-productive-body: 0.875rem; /* 14px - Product body text */
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -202,95 +214,102 @@ h1, h2, h3, h4, h5, h6 {
    Font weights: font-light (300) for body, font-medium (500) for headings
    Line height: 1.1 for headings, 1.6 on mobile / 1.7 on desktop */
 h1 {
-   /* IBM Expressive Heading 01: 14px / 0.875rem */
-   font-size: 0.875rem;
-   font-weight: 600; /* Semi-Bold */
-   line-height: 1.25; /* 20px */
-   letter-spacing: -0.01em;
+   /* IBM Expressive Heading 05: 42px / 2.625rem (Light 300) - for Hero sections */
+   font-size: var(--text-expressive-heading-05);
+   font-weight: 300; /* Light */
+   line-height: 1.1905; /* 50px */
+   letter-spacing: 0em;
  }
  
  h2 {
-   /* IBM Expressive Heading 02: 16px / 1rem */
-   font-size: 1rem;
+   /* IBM Expressive Heading 06: 42px / 2.625rem (Semi-Bold 600) */
+   font-size: var(--text-expressive-heading-06);
    font-weight: 600; /* Semi-Bold */
-   line-height: 1.5; /* 24px */
+   line-height: 1.1905; /* 50px */
+   letter-spacing: 0em;
  }
  
  h3 {
-   /* IBM Expressive Heading 03: 20px / 1.25rem */
-   font-size: 1.25rem;
-   font-weight: 400; /* Regular */
-   line-height: 1.4; /* 28px */
+   /* IBM Display 01: 54px / 3.375rem (Light 300) */
+   font-size: var(--text-display-01);
+   font-weight: 300; /* Light */
+   line-height: 1.1852; /* 64px */
+   letter-spacing: 0em;
  }
  
  h4 {
-   /* IBM Expressive Heading 04: 28px / 1.75rem */
-   font-size: 1.75rem;
-   font-weight: 400; /* Regular */
-   line-height: 1.2857; /* 36px */
+   /* IBM Display 02: 54px / 3.375rem (Semi-Bold 600) */
+   font-size: var(--text-display-02);
+   font-weight: 600; /* Semi-Bold */
+   line-height: 1.1852; /* 64px */
+   letter-spacing: 0em;
  }
 
 /* Responsive headings - Tablet */
 @media (min-width: 640px) {
    h1 {
-     /* IBM Expressive Heading 03: 20px / 1.25rem at tablet */
-     font-size: 1.25rem;
-     line-height: 1.4; /* 28px */
+     /* IBM Display-01: 54px / 3.375rem at tablet */
+     font-size: var(--text-display-01);
+     line-height: 1.1852; /* 64px */
+     font-weight: 300; /* Light */
    }
    
    h2 {
-     /* IBM Expressive Heading 04: 28px / 1.75rem at tablet */
-     font-size: 1.75rem;
-     line-height: 1.2857; /* 36px */
+     /* IBM Expressive Heading-05: 42px / 2.625rem at tablet */
+     font-size: var(--text-expressive-heading-05);
+     line-height: 1.1905; /* 50px */
+     font-weight: 300; /* Light */
    }
    
    h3 {
-     /* IBM Expressive Heading 05: 42px / 2.625rem at tablet */
-     font-size: 2.625rem;
-     line-height: 1.1905; /* 50px */
+     /* IBM Display-02: 54px / 3.375rem at tablet */
+     font-size: var(--text-display-02);
+     line-height: 1.1852; /* 64px */
+     font-weight: 600; /* Semi-Bold */
    }
    
    h4 {
-     /* IBM Expressive Heading 06: 42px / 2.625rem at tablet (same as h3 but different weight) */
-     font-size: 2.625rem;
+     /* IBM Expressive Heading-06: 42px / 2.625rem at tablet */
+     font-size: var(--text-expressive-heading-06);
      line-height: 1.1905; /* 50px */
+     font-weight: 600; /* Semi-Bold */
    }
  }
 
 /* Responsive headings - Desktop */
 @media (min-width: 1024px) {
-   h1 {
-     /* IBM Expressive Heading 05: 42px / 2.625rem */
-     font-size: 2.625rem;
-     line-height: 1.1905; /* 50px */
-     font-weight: 300; /* Light */
-     letter-spacing: 0em;
-   }
-   
-   h2 {
-     /* IBM Expressive Heading 06: 42px / 2.625rem */
-     font-size: 2.625rem;
-     line-height: 1.1905; /* 50px */
-     font-weight: 600; /* Semi-Bold */
-     letter-spacing: 0em;
-   }
-   
-   h3 {
-     /* IBM Expressive Display-01: 54px / 3.375rem */
-     font-size: 3.375rem;
-     line-height: 1.1852; /* 64px */
-     font-weight: 300; /* Light */
-     letter-spacing: 0em;
-   }
-   
-   h4 {
-     /* IBM Expressive Display-02: 54px / 3.375rem */
-     font-size: 3.375rem;
-     line-height: 1.1852; /* 64px */
-     font-weight: 600; /* Semi-Bold */
-     letter-spacing: 0em;
-   }
- }
+  h1 {
+    /* IBM Display-01: 54px / 3.375rem - Hero headings */
+    font-size: var(--text-display-01);
+    line-height: 1.1852; /* 64px */
+    font-weight: 300; /* Light */
+    letter-spacing: 0em;
+  }
+  
+  h2 {
+    /* IBM Expressive Heading-05: 42px / 2.625rem - Large section headings */
+    font-size: var(--text-expressive-heading-05);
+    line-height: 1.1905; /* 50px */
+    font-weight: 300; /* Light */
+    letter-spacing: 0em;
+  }
+  
+  h3 {
+    /* IBM Display-02: 54px / 3.375rem - Alternative large headings */
+    font-size: var(--text-display-02);
+    line-height: 1.1852; /* 64px */
+    font-weight: 600; /* Semi-Bold */
+    letter-spacing: 0em;
+  }
+  
+  h4 {
+    /* IBM Expressive Heading-06: 42px / 2.625rem - Section headings */
+    font-size: var(--text-expressive-heading-06);
+    line-height: 1.1905; /* 50px */
+    font-weight: 600; /* Semi-Bold */
+    letter-spacing: 0em;
+  }
+}
 
 p, span, a, li {
    /* IBM Expressive body-long-02: 16px / 1rem */

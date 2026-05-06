@@ -138,7 +138,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-center md:text-left text-white">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-serif font-semibold leading-[1.1] mb-6">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-serif font-light leading-[1.1] mb-6">
                 <span className="text-white">Welcome Home to Your</span> <br />
                 <span className="italic font-light bg-gradient-to-r from-[#E8B4B4] via-[#FBBF24] to-[#E8B4B4] bg-clip-text text-transparent">Church Family</span>
               </h1>
@@ -210,7 +210,7 @@ export default function HomePage() {
             <div className="absolute -bottom-4 -left-4 w-8 h-8 border-b-2 border-l-2 border-[#8B0000]" />
             <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-[#8B0000]" />
             
-            <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-semibold text-gray-900 mb-6 leading-tight">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-light text-gray-900 mb-6 leading-tight">
               A Place Where Faith <br />
               <span className="italic font-light bg-gradient-to-r from-[#8B0000] via-[#E8B4B4] to-[#8B0000] bg-clip-text text-transparent animate-pulse text-4xl md:text-5xl lg:text-6xl xl:text-7xl">Comes Alive</span>
             </h2>
@@ -273,9 +273,9 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left - Text */}
             <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-semibold text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-white mb-6">
                 Experience God's <br />
-                <span className="text-[#8B0000] text-4xl md:text-5xl">Presence</span>
+                <span className="text-[#8B0000] text-3xl md:text-4xl font-semibold">Presence</span>
               </h2>
               <p className="text-white/70 mb-8 leading-relaxed">
                 Our worship services are designed to create an atmosphere where 
@@ -375,8 +375,8 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-semibold text-gray-900 mb-6">
-                Ready to Join Our <span className="text-[#8B0000] text-4xl md:text-5xl">Family</span>?
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-gray-900 mb-6">
+                Ready to Join Our <span className="text-[#8B0000] text-3xl md:text-4xl font-semibold">Family</span>?
               </h2>
               <p className="text-gray-600 mb-8 leading-relaxed">
                 We would love to have you join us this Sunday. Whether you're new to faith 
