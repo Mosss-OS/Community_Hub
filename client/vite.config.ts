@@ -16,6 +16,13 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
+  server: {
+    port: 5173,
+    hmr: {
+      port: 5173,
+    },
+  },
+
   build: {
     outDir: "dist",
     sourcemap: false,
