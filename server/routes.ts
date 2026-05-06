@@ -5584,8 +5584,19 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
       if (req.query.projectId) filters.projectId = Number(req.query.projectId);
       if (req.query.assignedTo) filters.assignedTo = req.query.assignedTo as string;
       if (req.query.status) filters.status = req.query.status as string;
-      const tasks = await storage.getTasks(filters);
-      res.json(tasks);
+      
+      // Pagination parameters
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+      
+      const { tasks, total } = await storage.getTasks({ ...filters, limit, offset });
+      const totalPages = Math.ceil(total / limit);
+      
+      res.json({
+        tasks,
+        pagination: { page, limit, total, totalPages }
+      });
     } catch (err) {
       console.error("Error fetching tasks:", err);
       res.status(500).json({ message: "Internal server error" });

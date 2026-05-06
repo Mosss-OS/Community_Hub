@@ -5091,15 +5091,31 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(tasks).where(eq(tasks.projectId, projectId)).orderBy(desc(tasks.createdAt));
   }
 
-  async getTasks(filters?: { projectId?: number; assignedTo?: string; status?: string }): Promise<Task[]> {
+  async getTasks(filters?: { projectId?: number; assignedTo?: string; status?: string; limit?: number; offset?: number }): Promise<{ tasks: Task[]; total: number }> {
     const conditions = [];
     if (filters?.projectId) conditions.push(eq(tasks.projectId, filters.projectId));
     if (filters?.assignedTo) conditions.push(eq(tasks.assignedTo, filters.assignedTo));
     if (filters?.status) conditions.push(eq(tasks.status, filters.status));
-    if (conditions.length > 0) {
-      return db.select().from(tasks).where(and(...conditions)).orderBy(desc(tasks.createdAt));
+    
+    // Build where condition
+    const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+    
+    // Get total count
+    const [{ count }] = await db.select({ count: sql<number>`count(*)` }).from(tasks).where(whereCondition);
+    const total = Number(count);
+    
+    // Get tasks with pagination
+    let query = db.select().from(tasks).where(whereCondition).orderBy(desc(tasks.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
     }
-    return db.select().from(tasks).orderBy(desc(tasks.createdAt));
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    const tasksList = await query;
+    return { tasks: tasksList, total };
   }
 
   async getTask(id: number): Promise<Task | undefined> {
