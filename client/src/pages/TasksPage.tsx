@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
   LuPlus as Plus,
@@ -286,7 +287,11 @@ export default function TasksPage() {
         <div className="space-y-2">
           <h3 className="font-semibold mb-2">Projects</h3>
           {projectsLoading ? (
-            <div>Loading...</div>
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
           ) : (
             <div className="space-y-2">
               <div
@@ -311,7 +316,25 @@ export default function TasksPage() {
         {/* Tasks List */}
         <div className="md:col-span-3 space-y-3">
           {tasksLoading ? (
-            <div className="text-center py-12">Loading tasks...</div>
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-2 mb-2">
+                      <Skeleton className="h-4 w-4" />
+                      <Skeleton className="h-5 w-48" />
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-5 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <div className="flex gap-4">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : filteredTasks?.length ? (
             filteredTasks.map(task => {
               const StatusIcon = statusIcons[task.status];
