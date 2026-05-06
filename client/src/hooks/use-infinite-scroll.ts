@@ -1,80 +1,45 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface UseInfiniteScrollOptions {
+  hasMore: boolean;
+  isLoading: boolean;
+  onLoadMore: () => void;
   threshold?: number;
-  rootMargin?: string;
 }
 
-export function useInfiniteScroll(
-  onLoadMore: () => void,
-  hasMore: boolean,
-  isLoading: boolean,
-  options: UseInfiniteScrollOptions = {}
-) {
-  const { threshold = 0, rootMargin = "100px" } = options;
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+export function useInfiniteScroll({
+  hasMore,
+  isLoading,
+  onLoadMore,
+  threshold = 300,
+}: UseInfiniteScrollOptions) {
+  const [isFetching, setIsFetching] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [target] = entries;
-      if (target.isIntersecting && hasMore && !isLoading) {
-        onLoadMore();
-      }
-    },
-    [hasMore, isLoading, onLoadMore]
-  );
+  const handleScroll = useCallback(() => {
+    if (isLoading || isFetching || !hasMore) return;
 
-  useEffect(() => {
-    const element = loadMoreRef.current;
-    if (!element) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    if (observerRef.current) {
-      observerRef.current.disconnect();
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    if (scrollHeight - scrollTop - clientHeight < threshold) {
+      setIsFetching(true);
+      onLoadMore();
     }
-
-    observerRef.current = new IntersectionObserver(handleObserver, {
-      threshold,
-      rootMargin,
-    });
-
-    observerRef.current.observe(element);
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [handleObserver, threshold, rootMargin]);
-
-  return loadMoreRef;
-}
-
-export function useScrollPosition() {
-  const [scrollPosition, setScrollPosition] = useState({
-    x: 0,
-    y: 0,
-    direction: "none" as "up" | "down" | "none",
-  });
-  const lastScrollY = useRef(0);
+  }, [isLoading, isFetching, hasMore, onLoadMore, threshold]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const direction = currentScrollY > lastScrollY.current ? "down" : "up";
-      
-      setScrollPosition({
-        x: window.scrollX,
-        y: currentScrollY,
-        direction,
-      });
-      
-      lastScrollY.current = currentScrollY;
-    };
+    setIsFetching(false);
+  }, [isLoading]);
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  return scrollPosition;
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  return { containerRef, isFetching };
 }
