@@ -304,6 +304,28 @@ EXPOSE 5000
 CMD ["npm", "start"]
 ```
 
+### Docker Compose (Production-like)
+Run the app and Postgres with:
+
+```bash
+docker compose up --build -d
+```
+
+This uses:
+- `Dockerfile` (multi-stage production build)
+- `docker-compose.yml` (app + postgres services)
+
+### Docker Compose (Local Development)
+For hot-reload development with mounted source and Postgres:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+This starts:
+- app dev server on `http://localhost:5000` (API) and Vite on `http://localhost:5173`
+- postgres on `localhost:5432`
+
 ## 🤝 Contributing
 
 We welcome contributions to the WCCRM Lagos platform!

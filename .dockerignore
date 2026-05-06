@@ -4,10 +4,9 @@ dist/
 .env
 .env.*
 !.env.example
-!env.development
+!.env.development
+!.env.staging
 !.env.production
 coverage/
 .git/
-.github/
-*.md
 .DS_Store

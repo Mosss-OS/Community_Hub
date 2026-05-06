@@ -1,23 +1,28 @@
-FROM node:20-alpine AS base
-
-# Install dependencies
+FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+COPY client/package*.json ./client/
+RUN npm ci && cd client && npm ci
 
-# Copy source
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/client/node_modules ./client/node_modules
 COPY . .
-
-# Build
 RUN npm run build
 
-# Production image
-FROM node:20-alpine
+FROM node:20-alpine AS runner
 WORKDIR /app
-COPY --from=base /app/package*.json ./
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/dist ./dist
-COPY --from=base /app/shared ./shared
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/client/package*.json ./client/
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/client/node_modules ./client/node_modules
+COPY --from=builder /app/server ./server
+COPY --from=builder /app/api ./api
+COPY --from=builder /app/shared ./shared
+COPY --from=builder /app/public ./public
 
 EXPOSE 5000
-CMD ["node", "dist/server/index.js"]
+CMD ["node", "--import", "tsx", "server/index.ts"]
