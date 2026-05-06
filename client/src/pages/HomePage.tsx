@@ -1,13 +1,17 @@
 import { Link, useLocation } from "wouter";
-import { LuArrowRight, LuPlay, LuCalendar, LuUsers, LuBookOpen, LuHeart, LuClock, LuMapPin, LuPhone, LuMail, LuQuote, LuChevronRight, LuMenu, LuX } from 'react-icons/lu';
+import { LuArrowRight, LuPlay, LuCalendar, LuUsers, LuBookOpen, LuHeart, LuClock, LuMapPin, LuPhone, LuMail, LuQuote, LuChevronRight, LuMenu, LuX, LuCog } from 'react-icons/lu';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PageSEO } from "@/components/PageSEO";
+import { useAuth } from "@/hooks/use-auth";
+import { useWidgetPreferences } from "@/hooks/use-widget-preferences";
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const { preferences, toggleWidget } = useWidgetPreferences();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -432,6 +436,41 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Dashboard Widgets for Logged-in Users */}
+      {user && (
+        <section className="py-12 bg-gray-50">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold">Your Dashboard</h2>
+              <Button variant="outline" size="sm">
+                <Cog className="w-4 h-4 mr-2" />
+                Customize
+              </Button>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {preferences.upcomingEvents && (
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-xl font-semibold mb-4">Upcoming Events</h3>
+                  <p className="text-gray-600">No upcoming events</p>
+                </div>
+              )}
+              {preferences.recentSermons && (
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-xl font-semibold mb-4">Recent Sermons</h3>
+                  <p className="text-gray-600">No recent sermons</p>
+                </div>
+              )}
+              {preferences.prayerRequests && (
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-xl font-semibold mb-4">Prayer Requests</h3>
+                  <p className="text-gray-600">No prayer requests</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }
