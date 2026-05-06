@@ -99,6 +99,8 @@ import ZoomIntegrationPage from "@/pages/ZoomIntegrationPage";
 import PaymentGatewayPage from "@/pages/PaymentGatewayPage";
 import ContentModerationPage from "@/pages/ContentModerationPage";
 import EventRemindersPage from "@/pages/EventRemindersPage";
+import MultiPlatformStreamingPage from "@/pages/MultiPlatformStreamingPage";
+import SermonClipCreatorPage from "@/pages/SermonClipCreatorPage";
 import { LanguageProvider } from "@/hooks/use-language";
 
 import { useLocation, Redirect } from "wouter";
@@ -209,6 +211,8 @@ function Router() {
               <Route path="/admin/payment-gateway" component={PaymentGatewayPage} />
               <Route path="/admin/content-moderation" component={ContentModerationPage} />
               <Route path="/event-reminders" component={EventRemindersPage} />
+              <Route path="/admin/multi-stream" component={MultiPlatformStreamingPage} />
+              <Route path="/sermon-clips" component={SermonClipCreatorPage} />
               <Route component={NotFound} />
             </>
         </Switch>
