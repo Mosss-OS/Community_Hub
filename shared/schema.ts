@@ -3259,3 +3259,231 @@ export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export const insertNotificationTemplateSchema = createInsertSchema(notificationTemplates).omit({ id: true, createdAt: true, updatedAt: true });
 export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
 export type InsertNotificationTemplate = z.infer<typeof insertNotificationTemplateSchema>;
+
+// === ADDITIONAL CHURCH FEATURES ===
+
+// Testimonies
+export const testimonies = pgTable("testimonies", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").default("OTHER"),
+  authorId: uuid("author_id").references(() => users.id),
+  isApproved: boolean("is_approved").default(false),
+  likes: integer("likes").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Ministry Teams
+export const ministries = pgTable("ministries", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type").default("OTHER"),
+  leaderId: uuid("leader_id").references(() => users.id),
+  memberCount: integer("member_count").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Calendar Events (extending existing events)
+export const calendarEvents = pgTable("calendar_events", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  date: timestamp("date").notNull(),
+  time: text("time"),
+  type: text("type").default("OTHER"),
+  location: text("location"),
+  maxAttendees: integer("max_attendees"),
+  currentAttendees: integer("current_attendees").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Baptisms
+export const baptisms = pgTable("baptisms", {
+  id: serial("id").primaryKey(),
+  candidateName: text("candidate_name").notNull(),
+  candidateEmail: text("candidate_email"),
+  candidatePhone: text("candidate_phone"),
+  preferredDate: timestamp("preferred_date"),
+  serviceTime: text("service_time"),
+  pastorId: uuid("pastor_id").references(() => users.id),
+  status: text("status").default("PENDING"), // PENDING, APPROVED, COMPLETED, CANCELLED
+  completedAt: timestamp("completed_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Announcements
+export const announcements = pgTable("announcements", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  priority: text("priority").default("MEDIUM"), // LOW, MEDIUM, HIGH
+  isPinned: boolean("is_pinned").default(false),
+  authorId: uuid("author_id").references(() => users.id),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Weddings
+export const weddings = pgTable("weddings", {
+  id: serial("id").primaryKey(),
+  groomName: text("groom_name").notNull(),
+  brideName: text("bride_name").notNull(),
+  groomPhone: text("groom_phone"),
+  bridePhone: text("bride_phone"),
+  weddingDate: timestamp("wedding_date").notNull(),
+  serviceTime: text("service_time"),
+  status: text("status").default("PENDING"), // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  specialRequests: text("special_requests"),
+  pastorId: uuid("pastor_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Funerals
+export const funerals = pgTable("funerals", {
+  id: serial("id").primaryKey(),
+  deceasedName: text("deceased_name").notNull(),
+  dateOfPassing: timestamp("date_of_passing"),
+  serviceDate: timestamp("service_date"),
+  contactPerson: text("contact_person"),
+  contactPhone: text("contact_phone"),
+  specialRequests: text("special_requests"),
+  status: text("status").default("PENDING"), // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  pastorId: uuid("pastor_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Notification Preferences
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").references(() => users.id).unique(),
+  emailNotifications: boolean("email_notifications").default(true),
+  pushNotifications: boolean("push_notifications").default(true),
+  smsNotifications: boolean("sms_notifications").default(false),
+  prayerAlerts: boolean("prayer_alerts").default(true),
+  eventReminders: boolean("event_reminders").default(true),
+  donationReceipts: boolean("donation_receipts").default(true),
+  sermonNotifications: boolean("sermon_notifications").default(false),
+  communityUpdates: boolean("community_updates").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Sermon Clips
+export const sermonClips = pgTable("sermon_clips", {
+  id: serial("id").primaryKey(),
+  sermonId: integer("sermon_id").references(() => sermons.id),
+  title: text("title").notNull(),
+  startTime: integer("start_time").notNull(), // in seconds
+  endTime: integer("end_time").notNull(), // in seconds
+  clipUrl: text("clip_url"),
+  createdById: uuid("created_by_id").references(() => users.id),
+  shareCount: integer("share_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Streaming Configurations
+export const streamingConfigs = pgTable("streaming_configs", {
+  id: serial("id").primaryKey(),
+  platform: text("platform").notNull(), // 'youtube', 'facebook', 'tiktok'
+  streamKey: text("stream_key"),
+  rtmpUrl: text("rtmp_url"),
+  isEnabled: boolean("is_enabled").default(false),
+  createdById: uuid("created_by_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// === RELATIONS FOR NEW TABLES ===
+
+export const testimoniesRelations = relations(testimonies, ({ one }) => ({
+  author: one(users, { fields: [testimonies.authorId], references: [users.id] }),
+}));
+
+export const ministriesRelations = relations(ministries, ({ one }) => ({
+  leader: one(users, { fields: [ministries.leaderId], references: [users.id] }),
+}));
+
+export const baptismsRelations = relations(baptisms, ({ one }) => ({
+  pastor: one(users, { fields: [baptisms.pastorId], references: [users.id] }),
+}));
+
+export const announcementsRelations = relations(announcements, ({ one }) => ({
+  author: one(users, { fields: [announcements.authorId], references: [users.id] }),
+}));
+
+export const weddingsRelations = relations(weddings, ({ one }) => ({
+  pastor: one(users, { fields: [weddings.pastorId], references: [users.id] }),
+}));
+
+export const funeralsRelations = relations(funerals, ({ one }) => ({
+  pastor: one(users, { fields: [funerals.pastorId], references: [users.id] }),
+}));
+
+export const notificationPreferencesRelations = relations(notificationPreferences, ({ one }) => ({
+  user: one(users, { fields: [notificationPreferences.userId], references: [users.id] }),
+}));
+
+export const sermonClipsRelations = relations(sermonClips, ({ one }) => ({
+  sermon: one(sermons, { fields: [sermonClips.sermonId], references: [sermons.id] }),
+  createdBy: one(users, { fields: [sermonClips.createdById], references: [users.id] }),
+}));
+
+export const streamingConfigsRelations = relations(streamingConfigs, ({ one }) => ({
+  createdBy: one(users, { fields: [streamingConfigs.createdById], references: [users.id] }),
+}));
+
+// === INSERT SCHEMAS FOR NEW TABLES ===
+
+export const insertTestimonySchema = createInsertSchema(testimonies).omit({ id: true, createdAt: true, updatedAt: true });
+export type Testimony = typeof testimonies.$inferSelect;
+export type InsertTestimony = z.infer<typeof insertTestimonySchema>;
+
+export const insertMinistrySchema = createInsertSchema(ministries).omit({ id: true, createdAt: true, updatedAt: true });
+export type Ministry = typeof ministries.$inferSelect;
+export type InsertMinistry = z.infer<typeof insertMinistrySchema>;
+
+export const insertCalendarEventSchema = createInsertSchema(calendarEvents).omit({ id: true, createdAt: true, updatedAt: true });
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = z.infer<typeof insertCalendarEventSchema>;
+
+export const insertBaptismSchema = createInsertSchema(baptisms).omit({ id: true, createdAt: true, updatedAt: true, completedAt: true });
+export type Baptism = typeof baptisms.$inferSelect;
+export type InsertBaptism = z.infer<typeof insertBaptismSchema>;
+
+export const insertAnnouncementSchema = createInsertSchema(announcements).omit({ id: true, createdAt: true, updatedAt: true });
+export type Announcement = typeof announcements.$inferSelect;
+export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
+
+export const insertWeddingSchema = createInsertSchema(weddings).omit({ id: true, createdAt: true, updatedAt: true });
+export type Wedding = typeof weddings.$inferSelect;
+export type InsertWedding = z.infer<typeof insertWeddingSchema>;
+
+export const insertFuneralSchema = createInsertSchema(funerals).omit({ id: true, createdAt: true, updatedAt: true });
+export type Funeral = typeof funerals.$inferSelect;
+export type InsertFuneral = z.infer<typeof insertFuneralSchema>;
+
+export const insertNotificationPreferencesSchema = createInsertSchema(notificationPreferences).omit({ id: true, createdAt: true, updatedAt: true });
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreferences = z.infer<typeof insertNotificationPreferencesSchema>;
+
+export const insertSermonClipSchema = createInsertSchema(sermonClips).omit({ id: true, createdAt: true, updatedAt: true });
+export type SermonClip = typeof sermonClips.$inferSelect;
+export type InsertSermonClip = z.infer<typeof insertSermonClipSchema>;
+
+export const insertStreamingConfigSchema = createInsertSchema(streamingConfigs).omit({ id: true, createdAt: true, updatedAt: true });
+export type StreamingConfig = typeof streamingConfigs.$inferSelect;
+export type InsertStreamingConfig = z.infer<typeof insertStreamingConfigSchema>;
