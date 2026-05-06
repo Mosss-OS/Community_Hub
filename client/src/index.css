@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -31,7 +32,7 @@
   /* Original Fonts as specified */
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-mono: "JetBrains Mono", "Fira Code", "Droid Sans Mono", "Source Code Pro", monospace;
 
   /* Typography Scale */
   /* Display styles for hero sections */
@@ -228,6 +229,19 @@ p, span, a, li {
   font-size: var(--text-expressive-body); /* 17px */
   line-height: 1.7;
   font-weight: 400;
+}
+
+/* Elegant long-form callouts */
+blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+}
+
+/* Numeric/stat emphasis to match display typography */
+.text-4xl,
+.text-5xl,
+.text-6xl {
+  font-family: var(--font-display);
 }
 
 /* Form elements - Inter Regular 400 */

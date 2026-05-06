@@ -12,7 +12,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LuPlus, LuCheckCircle, LuClock, LuAlertTriangle, LuXCircle, LuUser, LuCalendar } from 'react-icons/lu';
+import {
+  LuPlus as Plus,
+  LuCircleCheck as CheckCircle,
+  LuClock,
+  LuTriangleAlert,
+  LuCircleX as XCircle,
+  LuUser as User,
+  LuCalendar as Calendar,
+} from "react-icons/lu";
 import { format } from "date-fns";
 
 type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' | 'CANCELED';
@@ -95,9 +103,9 @@ async function updateTask(id: number, updates: Partial<Task>): Promise<Task> {
 }
 
 const statusIcons: Record<TaskStatus, any> = {
-  TODO: Clock,
-  IN_PROGRESS: AlertTriangle,
-  IN_REVIEW: Clock,
+  TODO: LuClock,
+  IN_PROGRESS: LuTriangleAlert,
+  IN_REVIEW: LuClock,
   DONE: CheckCircle,
   CANCELED: XCircle,
 };

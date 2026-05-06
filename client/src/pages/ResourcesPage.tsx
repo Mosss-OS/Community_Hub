@@ -11,7 +11,17 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LuFileText, LuVideo, LuMusic, LuImage, LuLink, LuDownload, LuStar, LuPlus, LuSearch } from 'react-icons/lu';
+import {
+  LuFileText as FileText,
+  LuVideo as Video,
+  LuMusic as Music,
+  LuImage as Image,
+  LuLink as Link,
+  LuDownload as Download,
+  LuStar as Star,
+  LuPlus as Plus,
+  LuSearch as Search,
+} from "react-icons/lu";
 import { format } from "date-fns";
 
 type ResourceCategory = 'DOCUMENT' | 'VIDEO' | 'AUDIO' | 'IMAGE' | 'LINK' | 'OTHER';
