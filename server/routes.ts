@@ -8475,6 +8475,26 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
     }
   });
 
+  // ========= USER PROFILE ROUTES =========
+  
+  // Update user profile
+  app.put("/api/user/profile", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { firstName, lastName, bio } = req.body;
+      const updates: any = {};
+      if (firstName !== undefined) updates.firstName = firstName;
+      if (lastName !== undefined) updates.lastName = lastName;
+      if (bio !== undefined) updates.bio = bio;
+      updates.updatedAt = new Date();
+      
+      const [updated] = await db.update(users).set(updates).where(eq(users.id, req.user!.id)).returning();
+      res.json(updated);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Get user language preferences
   app.get("/api/user/preferences/language", isAuthenticated, async (req: AuthenticatedRequest, res) => {
     try {
