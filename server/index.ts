@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import { loadEnv } from "../shared/load-env";
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
@@ -11,6 +11,8 @@ import { swaggerSpec } from "./swagger";
 import validateEnv from "./validateEnv";
 import logger from "./logger";
 import { errorHandler } from "./errorHandler";
+
+loadEnv();
 
 // Initialize Sentry (if DSN provided)
 if (process.env.SENTRY_DSN) {

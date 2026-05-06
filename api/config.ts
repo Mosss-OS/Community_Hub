@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+import { loadEnv } from "../shared/load-env";
 
-dotenv.config();
+loadEnv();
 
 // Validate required environment variables
 const requiredEnvVars = ['JWT_SECRET', 'DATABASE_URL'];

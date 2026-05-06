@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
-import dotenv from 'dotenv';
+import { loadEnv } from "../shared/load-env";
 
-dotenv.config();
+loadEnv();
 
 const runMigrations = async () => {
   if (!process.env.DATABASE_URL) {
