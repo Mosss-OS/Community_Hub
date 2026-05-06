@@ -765,6 +765,9 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
          organizationId: user.organizationId 
        }, JWT_SECRET, { expiresIn: '7d' });
        
+       // Update last login time
+       await db.update(users).set({ lastLoginAt: new Date(), lastActive: new Date() }).where(eq(users.id, user.id));
+       
        const isProduction = process.env.NODE_ENV === 'production';
        const csrfToken = crypto.randomBytes(32).toString('hex');
        res.cookie('token', token, {
@@ -7009,6 +7012,38 @@ Prayer: Thank You, Lord, for Your amazing grace and mercy. Help me to extend the
       res.json({ message: "Live stream deleted" });
     } catch (err) {
       console.error("Error deleting live stream:", err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  // Mark attendance for live stream
+  app.post("/api/live-streams/:id/attendance", isAuthenticated, async (req: AuthenticatedRequest, res) => {
+    try {
+      const streamId = Number(req.params.id);
+      const { attendanceType = 'APP_LOGIN' } = req.body;
+      
+      // Check if already marked attendance
+      const existing = await db.select().from(attendance)
+        .where(and(
+          eq(attendance.userId, req.user!.id),
+          eq(attendance.eventId, streamId)
+        ))
+        .limit(1);
+      
+      if (existing.length > 0) {
+        return res.json({ message: "Attendance already marked" });
+      }
+      
+      const [created] = await db.insert(attendance).values({
+        userId: req.user!.id,
+        eventId: streamId,
+        attendanceType: attendanceType,
+        attended: true,
+        checkedInAt: new Date(),
+        organizationId: req.user!.organizationId,
+      }).returning();
+      
+      res.json(created);
+    } catch (err) {
+      console.error("Error marking attendance:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
