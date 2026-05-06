@@ -59,7 +59,7 @@ export const organizations = pgTable('organizations', {
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  email: text('email').notNull().unique(),
+  email: text('email').notNull().unique().index(),
   passwordHash: text('password_hash').notNull(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
@@ -68,7 +68,7 @@ export const users = pgTable('users', {
   profileImage: text('profile_image'),
   houseFellowship: text('house_fellowship'),
   houseCellLocation: text('house_cell_location'),
-  houseCellId: integer('house_cell_id'),
+  houseCellId: integer('house_cell_id').index(),
   parish: text('parish'),
   career: text('career'),
   stateOfOrigin: text('state_of_origin'),
@@ -79,7 +79,7 @@ export const users = pgTable('users', {
   linkedinHandle: text('linkedin_handle'),
   isAdmin: boolean('is_admin').default(false).notNull(),
   isSuperAdmin: boolean('is_super_admin').default(false).notNull(),
-  organizationId: uuid('organization_id').references(() => organizations.id),
+  organizationId: uuid('organization_id').references(() => organizations.id).index(),
   isVerified: boolean('is_verified').default(false).notNull(),
   verificationToken: text('verification_token'),
   verificationTokenExpires: timestamp('verification_token_expires'),
