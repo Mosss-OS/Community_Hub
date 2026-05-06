@@ -40,6 +40,9 @@ import AuthPage from "@/pages/login"; // This is our combined auth page
 import LogoutPage from "@/pages/logout";
 import RegisterChurchPage from "@/pages/RegisterChurchPage";
 import AuthCallbackPage from "@/pages/auth/callback";
+import PrayerRequestsPage from "@/pages/PrayerRequestsPage";
+import DonationHistoryPage from "@/pages/DonationHistoryPage";
+import BibleStudyPage from "@/pages/BibleStudyPage";
 import DashboardPage from "@/pages/DashboardPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
 import AttendanceHistoryPage from "@/pages/AttendanceHistoryPage";
@@ -143,6 +146,9 @@ function Router() {
               <Route path="/attendance/checkin" component={CheckinPage} />
               <Route path="/attendance/scan" component={QRScannerPage} />
               <Route path="/attendance/absent" component={AbsentMembersPage} />
+              <Route path="/prayer-requests" component={PrayerRequestsPage} />
+              <Route path="/donations" component={DonationHistoryPage} />
+              <Route path="/bible-studies" component={BibleStudyPage} />
               <Route path="/members" component={MembersPage} />
               <Route path="/staff" component={StaffDirectoryPage} />
               <Route path="/devotionals" component={DevotionalsPage} />
