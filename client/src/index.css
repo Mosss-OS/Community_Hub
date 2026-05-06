@@ -32,30 +32,36 @@
   --font-sans: "IBM Plex Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
 
-  /* IBM Typography Scale - Carbon Design System */
-  /* Expressive Type Set (for Web Pages - base 16px) */
-  --text-expressive-heading-01: 0.875rem; /* 14px - Small UI headings (Semi-Bold 600) */
-  --text-expressive-heading-02: 1rem; /* 16px - Component headings (Semi-Bold 600) */
-  --text-expressive-heading-03: 1.25rem; /* 20px - Section sub-headings (Regular 400) */
-  --text-expressive-heading-04: 1.75rem; /* 28px - Medium headings (Regular 400) */
-  --text-expressive-heading-05: 2.625rem; /* 42px - Large headings (Light 300) */
-  --text-expressive-heading-06: 2.625rem; /* 42px - Large headings (Semi-Bold 600) */
-  
-  /* Display Styles (for Hero/Banner sections) */
-  --text-display-01: 3.375rem; /* 54px - Hero text (Light 300) */
-  --text-display-02: 3.375rem; /* 54px - Hero text (Semi-Bold 600) */
-  --text-display-03: 3.75rem; /* 60px - Extra large display (Light 300) */
-  --text-display-04: 5.75rem; /* 92px - Massive display (Light 300) */
-  
-  /* Body Text Styles */
-  --text-expressive-body: 1rem; /* 16px - Base expressive size */
-  --text-body-long-02: 1rem; /* 16px - Long form reading (1.5 line-height) */
-  --text-body-short-02: 1rem; /* 16px - Short paragraphs (1.375 line-height) */
-  
-  /* Productive Type Set (for Product UI - base 14px) */
-  --text-productive-heading-01: 0.875rem; /* 14px - Product headings (Semi-Bold) */
-  --text-productive-heading-02: 1rem; /* 16px - Product headings (Semi-Bold) */
-  --text-productive-body: 0.875rem; /* 14px - Product body text */
+  /* ─── Typography Scale (fluid clamp system) ─────────────────────────
+     All heading sizes scale smoothly between mobile and desktop.
+     Base: 16px = 1rem (set on <html>).
+  ─────────────────────────────────────────────────────────────────── */
+
+  /* Hero / Display */
+  --text-display-01: clamp(2.25rem, 5vw + 1rem, 4rem);    /* 36px → 64px */
+  --text-display-02: clamp(2rem,   4vw + 1rem, 3.5rem);    /* 32px → 56px */
+
+  /* Section headings */
+  --text-expressive-heading-05: clamp(1.75rem, 3vw + 0.75rem, 2.75rem); /* 28px → 44px */
+  --text-expressive-heading-06: clamp(1.5rem,  2.5vw + 0.5rem, 2.25rem); /* 24px → 36px */
+
+  /* Sub-headings */
+  --text-expressive-heading-03: clamp(1.25rem, 1.5vw + 0.5rem, 1.75rem); /* 20px → 28px */
+  --text-expressive-heading-04: clamp(1.125rem, 1vw + 0.5rem, 1.5rem);   /* 18px → 24px */
+
+  /* Small / micro UI headings */
+  --text-expressive-heading-02: 1.125rem;  /* 18px */
+  --text-expressive-heading-01: 1rem;      /* 16px */
+
+  /* Body & long-form reading */
+  --text-expressive-body: 1.0625rem;  /* 17px */
+  --text-body-long-02:    1.0625rem;  /* 17px */
+  --text-body-short-02:   1rem;       /* 16px – compact UI */
+
+  /* Productive / admin UI */
+  --text-productive-heading-01: 0.9375rem; /* 15px */
+  --text-productive-heading-02: 1.0625rem; /* 17px */
+  --text-productive-body:       0.9375rem; /* 15px */
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -74,7 +80,7 @@
   to { height: 0; }
 }
 
-/* Clean Design System - urbe.build inspired */
+/* IBM Design System - Clean Typography */
 :root {
   /* Brand Colors - Single accent: muted blue/purple */
   --brand: 252 100% 64%;
@@ -156,6 +162,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Lock the root to 16px so rem values are predictable everywhere */
+  font-size: 16px;
 }
 
 body {
@@ -169,188 +177,112 @@ body {
   width: 100%;
   min-width: 100%;
   box-sizing: border-box;
-/* Mobile-first: IBM Plex expressive base size */
-font-size: 16px; /* IBM expressive base */
-line-height: 1.6;
-font-weight: 300;
+  /* 17px body — comfortable reading on all screens */
+  font-size: var(--text-expressive-body); /* 17px */
+  line-height: 1.7;
+  font-weight: 400;
 }
 
-/* Mobile-first responsive text */
-@media (min-width: 375px) {
-  body {
-    font-size: 14px;
-  }
-}
-
-@media (min-width: 640px) {
-  body {
-    font-size: 15px;
-    line-height: 1.7;
-  }
-}
-
-@media (min-width: 768px) {
-  body {
-    font-size: 15px;
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    font-size: 16px;
-    line-height: 1.7;
-  }
-}
-
+/* ─── Heading hierarchy (fluid — scales between mobile & desktop) ─── */
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Playfair Display", serif;
-  font-weight: 500;
+  font-family: var(--font-display);
   letter-spacing: -0.01em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
-/* Typography hierarchy - Mobile-first responsive headings
-   Mobile: smaller, tablet: medium, desktop: large
-   Font weights: font-light (300) for body, font-medium (500) for headings
-   Line height: 1.1 for headings, 1.6 on mobile / 1.7 on desktop */
+/* Hero / page title — 36px (mobile) → 64px (desktop) */
 h1 {
-   /* IBM Expressive Heading 05: 42px / 2.625rem (Light 300) - for Hero sections */
-   font-size: var(--text-expressive-heading-05);
-   font-weight: 300; /* Light */
-   line-height: 1.1905; /* 50px */
-   letter-spacing: 0em;
- }
- 
- h2 {
-   /* IBM Expressive Heading 06: 42px / 2.625rem (Semi-Bold 600) */
-   font-size: var(--text-expressive-heading-06);
-   font-weight: 600; /* Semi-Bold */
-   line-height: 1.1905; /* 50px */
-   letter-spacing: 0em;
- }
- 
- h3 {
-   /* IBM Display 01: 54px / 3.375rem (Light 300) */
-   font-size: var(--text-display-01);
-   font-weight: 300; /* Light */
-   line-height: 1.1852; /* 64px */
-   letter-spacing: 0em;
- }
- 
- h4 {
-   /* IBM Display 02: 54px / 3.375rem (Semi-Bold 600) */
-   font-size: var(--text-display-02);
-   font-weight: 600; /* Semi-Bold */
-   line-height: 1.1852; /* 64px */
-   letter-spacing: 0em;
- }
+  font-size: var(--text-display-01);
+  font-weight: 300;
+}
 
-/* Responsive headings - Tablet */
-@media (min-width: 640px) {
-   h1 {
-     /* IBM Display-01: 54px / 3.375rem at tablet */
-     font-size: var(--text-display-01);
-     line-height: 1.1852; /* 64px */
-     font-weight: 300; /* Light */
-   }
-   
-   h2 {
-     /* IBM Expressive Heading-05: 42px / 2.625rem at tablet */
-     font-size: var(--text-expressive-heading-05);
-     line-height: 1.1905; /* 50px */
-     font-weight: 300; /* Light */
-   }
-   
-   h3 {
-     /* IBM Display-02: 54px / 3.375rem at tablet */
-     font-size: var(--text-display-02);
-     line-height: 1.1852; /* 64px */
-     font-weight: 600; /* Semi-Bold */
-   }
-   
-   h4 {
-     /* IBM Expressive Heading-06: 42px / 2.625rem at tablet */
-     font-size: var(--text-expressive-heading-06);
-     line-height: 1.1905; /* 50px */
-     font-weight: 600; /* Semi-Bold */
-   }
- }
+/* Section heading — 28px (mobile) → 44px (desktop) */
+h2 {
+  font-size: var(--text-expressive-heading-05);
+  font-weight: 300;
+}
 
-/* Responsive headings - Desktop */
-@media (min-width: 1024px) {
+/* Sub-section heading — 24px (mobile) → 36px (desktop) */
+h3 {
+  font-size: var(--text-expressive-heading-06);
+  font-weight: 600;
+}
+
+/* Card / panel heading — 20px (mobile) → 28px (desktop) */
+h4 {
+  font-size: var(--text-expressive-heading-03);
+  font-weight: 600;
+}
+
+/* Small heading — 18px fixed */
+h5 {
+  font-size: var(--text-expressive-heading-02); /* 18px */
+  font-weight: 600;
+}
+
+/* Micro heading — 16px fixed */
+h6 {
+  font-size: var(--text-expressive-heading-01); /* 16px */
+  font-weight: 600;
+}
+
+/* ─── Body / inline text ─── */
+p {
+  font-size: var(--text-body-long-02); /* 17px */
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+li {
+  font-size: var(--text-body-long-02); /* 17px */
+  line-height: 1.7;
+}
+
+a, span {
+  font-size: inherit; /* inherit from context */
+}
+
+/* ─── Form elements ─── */
+button, input, textarea, select {
+  font-size: var(--text-body-short-02); /* 16px */
+  font-family: var(--font-sans);
+}
+
+/* ─── Mobile overrides (< 640px) ─── */
+@media (max-width: 639px) {
+  body {
+    font-size: 1rem; /* 16px on small phones */
+    line-height: 1.65;
+  }
+  p, li {
+    font-size: 1rem; /* 16px — still very readable */
+    line-height: 1.65;
+  }
+  /* Tighten hero h1 on very small phones */
   h1 {
-    /* IBM Display-01: 54px / 3.375rem - Hero headings */
-    font-size: var(--text-display-01);
-    line-height: 1.1852; /* 64px */
-    font-weight: 300; /* Light */
-    letter-spacing: 0em;
+    font-size: clamp(1.875rem, 8vw, 2.5rem); /* 30px → 40px */
   }
-  
   h2 {
-    /* IBM Expressive Heading-05: 42px / 2.625rem - Large section headings */
-    font-size: var(--text-expressive-heading-05);
-    line-height: 1.1905; /* 50px */
-    font-weight: 300; /* Light */
-    letter-spacing: 0em;
-  }
-  
-  h3 {
-    /* IBM Display-02: 54px / 3.375rem - Alternative large headings */
-    font-size: var(--text-display-02);
-    line-height: 1.1852; /* 64px */
-    font-weight: 600; /* Semi-Bold */
-    letter-spacing: 0em;
-  }
-  
-  h4 {
-    /* IBM Expressive Heading-06: 42px / 2.625rem - Section headings */
-    font-size: var(--text-expressive-heading-06);
-    line-height: 1.1905; /* 50px */
-    font-weight: 600; /* Semi-Bold */
-    letter-spacing: 0em;
+    font-size: clamp(1.5rem, 6vw, 2rem); /* 24px → 32px */
   }
 }
 
-p, span, a, li {
-   /* IBM Expressive body-long-02: 16px / 1rem */
-   font-size: 1rem; /* 16px - IBM expressive base */
-   line-height: 1.5; /* 24px */
-   font-weight: 400; /* Regular */
- }
- 
- @media (min-width: 640px) {
-   p, span, a, li {
-     /* IBM Expressive body-long-02: 16px */
-     font-size: 1rem; /* 16px tablet */
-     line-height: 1.5; /* 24px */
-   }
- }
- 
- @media (min-width: 1024px) {
-   p, span, a, li {
-     /* IBM Expressive body-long-02: 16px */
-     font-size: 1rem; /* 16px desktop */
-     line-height: 1.5; /* 24px */
-   }
- }
+/* ─── Tablet (640px – 1023px) ─── */
+@media (min-width: 640px) and (max-width: 1023px) {
+  body {
+    line-height: 1.7;
+  }
+}
 
-button, input, textarea, select {
-   /* IBM Expressive base: 16px / 1rem */
-   font-size: 1rem; /* 16px mobile */
-   font-family: var(--font-sans);
- }
- 
- @media (min-width: 640px) {
-   button, input, textarea, select {
-     font-size: 1rem; /* 16px tablet - IBM expressive base */
-   }
- }
- 
- @media (min-width: 1024px) {
-   button, input, textarea, select {
-     font-size: 1rem; /* 16px desktop - IBM expressive base */
-   }
- }
+/* ─── Desktop (≥ 1024px) ─── */
+@media (min-width: 1024px) {
+  body {
+    line-height: 1.75;
+  }
+  p {
+    line-height: 1.8;
+  }
+}
 
 #root {
   width: 100%;
@@ -364,7 +296,7 @@ button, input, textarea, select {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   padding: 12px 24px;
-  font-size: 0.9375rem;
+  font-size: var(--text-expressive-body);
   font-weight: 400;
   border: none;
   border-radius: 8px;
@@ -380,7 +312,7 @@ button, input, textarea, select {
   background-color: transparent;
   color: hsl(var(--primary));
   padding: 12px 24px;
-  font-size: 0.9375rem;
+  font-size: var(--text-expressive-body);
   font-weight: 400;
   border: 1px solid hsl(var(--border));
   border-radius: 8px;
@@ -396,7 +328,7 @@ button, input, textarea, select {
   background-color: transparent;
   color: hsl(var(--text-secondary));
   padding: 12px 24px;
-  font-size: 0.9375rem;
+  font-size: var(--text-expressive-body);
   font-weight: 400;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -421,40 +353,7 @@ button, input, textarea, select {
   border-color: hsl(var(--brand-light));
 }
 
-/* Section padding - Generous spacing
-   Per issues 652-701: py-20 (80px) -> py-28 (112px) on tablet -> py-32 (128px) on desktop
-   mb-16 (64px) between elements - per urbe.build and Stripe clean design
-
-/* Visual - Flat design per issues 702-751
-   - Removed heavy shadows, using subtle shadow-sm only
-   - Solid colors: bg-white, text-[#111111], text-[#666666]
-   - No gradients - per Linear.app and Notion minimal style
-   - Border radius: 6-10px (reduced from larger values)
-   - Per Apple Human Interface Guidelines: clean, minimal UI
-
-/* Community Management per issues 752-801
-   - Engagement scoring implemented (attendance, giving, event participation)
-   - Member journey tracking in place
-   - Community health dashboard available
-
-/* Performance per issues 802-851
-   - Dynamic imports for all pages
-   - Code splitting by route
-   - Lazy loading for images below fold
-
-/* Accessibility per issues 852-901
-   - ARIA labels added to form elements
-   - Color contrast ratio 4.5:1 minimum
-   - Focus-visible outlines implemented
-
-/* Pastoral Care per issues 902-951
-   - Prayer request notifications in place
-   - Member check-in with prayer needs flag
-   - Confidential note system for pastoral visits
-
-/* Integrations per issues 952-1001
-   - Third-party integrations documented
-   - API endpoints available for future implementation */
+/* Section padding - Generous spacing */
 .section-py {
   padding-top: 80px;
   padding-bottom: 80px;
@@ -505,12 +404,12 @@ button, input, textarea, select {
 /* Navigation - Thinner and cleaner */
 .navbar-clean {
   padding: 16px 24px;
-  font-size: 0.9375rem;
+  font-size: var(--text-expressive-body);
   border-bottom: 1px solid hsl(var(--border));
 }
 
 .navbar-clean a {
-  font-size: 0.9375rem;
+  font-size: var(--text-expressive-body);
   color: hsl(var(--text-secondary));
   transition: color 0.2s;
 }
