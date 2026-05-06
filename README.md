@@ -97,7 +97,21 @@ npm install
 ```
 
 ### 3. Environment Configuration
-Create a `.env` file in the root directory:
+Use environment-specific files in the project root. The server automatically loads the file matching `NODE_ENV`:
+
+- Development: `.env.development`
+- Staging: `.env.staging`
+- Production: `.env.production`
+
+You can copy from `.env.example` and update values per environment.
+
+```bash
+cp .env.example .env.development
+cp .env.example .env.staging
+cp .env.example .env.production
+```
+
+Root environment template:
 
 ```bash
 # Database Configuration
@@ -105,11 +119,25 @@ DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
 
 # Authentication
 SESSION_SECRET=your_secure_session_secret
+JWT_SECRET=your_jwt_secret
+APP_URL=http://localhost:5000
+CLIENT_API_URL=http://localhost:5000/api
+
+# Feature Flags
+ENABLE_NOTIFICATIONS=true
+ENABLE_WEBSOCKETS=true
+ENABLE_ANALYTICS=false
 
 # Optional: Object Storage
 PUBLIC_OBJECT_SEARCH_PATHS=path1,path2
 PRIVATE_OBJECT_DIR=your_private_directory
 ```
+
+Client environment files live in `client/.env.development`, `client/.env.staging`, and `client/.env.production` and define:
+
+- `VITE_API_URL` / `VITE_API_BASE_URL` for environment-specific API URLs
+- `VITE_WS_URL` for realtime socket URL
+- `VITE_FEATURE_NOTIFICATIONS`, `VITE_FEATURE_WEBSOCKETS`, `VITE_FEATURE_ANALYTICS` for frontend feature flags
 
 ### 4. Database Setup
 ```bash

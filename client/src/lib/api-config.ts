@@ -2,18 +2,31 @@
 
 // Get environment variables
 const env = (import.meta as any).env || {};
+const mode = env.MODE || "development";
 
 // Use VITE_API_URL if set (full URL), otherwise fall back to relative path
 const API_URL = env.VITE_API_URL || env.VITE_API_BASE_URL || '';
 
 // Determine if we're in development mode
-const isDev = env.DEV || env.VITE_DEV_MODE === 'true' || window.location.hostname === 'localhost' || window.location.hostname.endsWith('.local');
+const isDev =
+  env.DEV ||
+  mode === "development" ||
+  env.VITE_DEV_MODE === 'true' ||
+  window.location.hostname === 'localhost' ||
+  window.location.hostname.endsWith('.local');
 
 // For development, use relative paths so that it targets the same origin
 const DEV_API_URL = '';
 
 // Base domain for multi-tenant subdomains
 const BASE_DOMAIN = isDev ? 'chub.local' : 'chub.app';
+
+// Environment-specific feature flags (defaults allow current behavior)
+export const featureFlags = {
+  notifications: env.VITE_FEATURE_NOTIFICATIONS !== "false",
+  websockets: env.VITE_FEATURE_WEBSOCKETS !== "false",
+  analytics: env.VITE_FEATURE_ANALYTICS !== "false",
+} as const;
 
 // Store current organization info
 const ORG_INFO_KEY = 'chub_org_info';

@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import dotenv from 'dotenv';
+import { loadEnv } from "../shared/load-env";
 
-dotenv.config();
+loadEnv();
 
 const runIndexes = async () => {
   if (!process.env.DATABASE_URL) {
