@@ -360,6 +360,55 @@ This is Watchman Catholic Charismatic Renewal Movement Lagos' resource managemen
 - `GET /api/stats` - Usage statistics
 - Performance metrics via console logging
 
+## 💾 Database Backup & Restore
+
+### Create Backup (pg_dump)
+Use the scripted backup command:
+
+```bash
+DATABASE_URL=postgres://user:pass@host:5432/db npm run db:backup
+```
+
+Default behavior:
+- writes compressed backups to `./backups`
+- keeps last 30 days (`BACKUP_RETENTION_DAYS`)
+- writes latest successful run marker to `./backups/latest-success.txt`
+- optional failure alert webhook via `BACKUP_ALERT_WEBHOOK`
+
+### Automated Daily Backup (cron)
+Install the daily cron entry (2:00 AM):
+
+```bash
+bash ./scripts/install-backup-cron.sh
+```
+
+Cron source file: `scripts/backup.cron`
+
+### Secure Backup Storage (S3/local)
+Backups are stored locally by default. To upload to S3:
+
+```bash
+export S3_BACKUP_BUCKET=your-backup-bucket
+export S3_BACKUP_PREFIX=community-hub
+DATABASE_URL=postgres://user:pass@host:5432/db npm run db:backup
+```
+
+Requires AWS CLI credentials with write access to the bucket.
+
+### Restore Procedure
+Restore from a `.sql` or `.sql.gz` backup:
+
+```bash
+DATABASE_URL=postgres://user:pass@host:5432/db npm run db:restore -- ./backups/community_hub_backup_YYYYMMDD_HHMMSS.sql.gz
+```
+
+### Test Restore Readiness
+Verify backup dump integrity before restore:
+
+```bash
+npm run db:test-restore -- ./backups/community_hub_backup_YYYYMMDD_HHMMSS.sql.gz
+```
+
 ## 🆘 Troubleshooting
 
 ### Common Issues

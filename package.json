@@ -11,6 +11,9 @@
     "start": "NODE_ENV=production node --import tsx server/index.ts",
     "db:push": "drizzle-kit push",
     "db:migrate": "npx tsx server/migrate.ts",
+    "db:backup": "bash ./scripts/backup.sh",
+    "db:restore": "bash ./scripts/restore.sh",
+    "db:test-restore": "bash ./scripts/test-restore.sh",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

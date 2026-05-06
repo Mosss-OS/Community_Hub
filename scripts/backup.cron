@@ -1,0 +1,2 @@
+# Run daily at 2:00 AM
+0 2 * * * cd /home/moses/Desktop/Community_Hub && /usr/bin/env bash scripts/backup.sh >> /var/log/community_hub_backup.log 2>&1

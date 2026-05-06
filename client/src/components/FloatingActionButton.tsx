@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { HiPlus, HiVideoCamera, HiCalendar, HiHeart, HiPencilAlt } from "react-icons/hi";
+import { LuPlus, LuVideo, LuCalendar, LuHeart, LuPencil } from "react-icons/lu";
 import { useAuth } from "@/hooks/use-auth";
 
 export function FloatingActionButton() {
@@ -10,10 +10,10 @@ export function FloatingActionButton() {
   const { user } = useAuth();
 
   const quickActions = [
-    { href: "/feed", icon: HiPencilAlt, label: "New Post", iconClass: "bg-blue-500" },
-    { href: "/events/new", icon: HiCalendar, label: "New Event", iconClass: "bg-green-500" },
-    { href: "/prayer", icon: HiHeart, label: "Prayer", iconClass: "bg-pink-500" },
-    { href: "/admin/live-stream/new", icon: HiVideoCamera, label: "Go Live", iconClass: "bg-red-500", adminOnly: true },
+    { href: "/feed", icon: LuPencil, label: "New Post", iconClass: "bg-blue-500" },
+    { href: "/events/new", icon: LuCalendar, label: "New Event", iconClass: "bg-green-500" },
+    { href: "/prayer", icon: LuHeart, label: "Prayer", iconClass: "bg-pink-500" },
+    { href: "/admin/live-stream/new", icon: LuVideo, label: "Go Live", iconClass: "bg-red-500", adminOnly: true },
   ];
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function FloatingActionButton() {
   if (!user) return null;
 
   return (
-    <div className={`fixed bottom-24 right-6 z-50 transition-transform duration-300 md:hidden ${isVisible ? "translate-y-0" : "translate-y-full"}`}>
+    <div className={`fixed bottom-24 right-6 z-50 transition-transform duration-300 ${isVisible ? "translate-y-0" : "translate-y-full"}`}>
       {/* Quick Actions Menu */}
       <div className={`flex flex-col gap-3 mb-4 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         {quickActions.map((action) => {
@@ -54,15 +54,15 @@ export function FloatingActionButton() {
         })}
       </div>
 
-      {/* Main FAB */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full bg-[#8B0000] hover:bg-[#6B0000] flex items-center justify-center shadow-lg transition-transform ${
-          isOpen ? "rotate-45" : ""
-        }`}
-      >
-        <HiPlus className="w-7 h-7 text-white" />
-      </button>
+       {/* Main FAB */}
+       <button
+         onClick={() => setIsOpen(!isOpen)}
+         className={`w-14 h-14 rounded-full bg-[#8B0000] hover:bg-[#6B0000] flex items-center justify-center shadow-lg transition-transform ${
+           isOpen ? "rotate-45" : ""
+         }`}
+       >
+         <LuPlus className="w-7 h-7 text-white" />
+       </button>
     </div>
   );
 }
